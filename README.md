@@ -37,7 +37,7 @@ Only devices that scanned the QR (it carries a random pairing key, new on every 
 | Chat agent + tool calling | Local | Qwen3-VL-8B-Instruct, Q4_K_M GGUF, via llama.cpp `llama-server` |
 | Receipt / photo reading | Local | same model (vision projector `mmproj-Qwen3VL-8B-Instruct-Q8_0`) |
 | Voice dictation + Talk mode | Local | whisper.cpp `whisper-server`, `ggml-large-v3-turbo` |
-| Spoken replies | Local | Web Speech API restricted to `localService` voices (macOS system voices) |
+| Spoken replies (Tagalog voice) | Local | Meta MMS-TTS `facebook/mms-tts-tgl` (VITS) on the laptop CPU, sentence by sentence; falls back to the phone's own on-device voice |
 | PDF supplier statements | Local | pypdf text extraction → agent |
 | Storage | Local | SQLite |
 | Charts, fonts | Local | Chart.js 4.4.1, Lexend + Source Sans 3 (vendored, no CDN) |
@@ -66,8 +66,8 @@ Tests: `uv run python test_tools.py`.
 
 ## Disclosures
 
-- **Models:** Qwen3-VL-8B-Instruct (Alibaba Qwen, Apache-2.0); Whisper large-v3-turbo (OpenAI, MIT) in ggml format.
-- **Frameworks / libraries:** llama.cpp, whisper.cpp, FastAPI, uvicorn, httpx, pypdf, SQLite, Chart.js, Lexend and Source Sans 3 fonts (OFL), Lucide icon shapes (ISC), macOS system voices via the Web Speech API.
+- **Models:** Qwen3-VL-8B-Instruct (Alibaba Qwen, Apache-2.0); Whisper large-v3-turbo (OpenAI, MIT) in ggml format; MMS-TTS Tagalog `facebook/mms-tts-tgl` (Meta, CC-BY-NC 4.0, downloaded from Hugging Face on first run).
+- **Frameworks / libraries:** llama.cpp, whisper.cpp, FastAPI, uvicorn, httpx, pypdf, SQLite, PyTorch, Hugging Face Transformers, num2words, Chart.js, Lexend and Source Sans 3 fonts (OFL), Lucide icon shapes (ISC), macOS system voices via the Web Speech API.
 - **APIs / cloud services:** none at runtime.
 - **Existing code / assets:** none; this repository was started at the hackathon. No code was reused from earlier projects.
 - **AI development tools:** Claude Code (Claude Opus).

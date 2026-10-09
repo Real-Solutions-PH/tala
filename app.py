@@ -17,6 +17,7 @@ from pypdf import PdfReader
 
 import store
 import tools
+import tts
 
 LLM_URL = os.getenv("LLM_URL", "http://127.0.0.1:8080/v1/chat/completions")
 WHISPER_URL = os.getenv("WHISPER_URL", "http://127.0.0.1:8081/inference")
@@ -29,6 +30,13 @@ PAIR_KEY = os.getenv("TALA_KEY", "")
 PHONE_URL = os.getenv("TALA_PHONE_URL", "")
 
 app = FastAPI(title="Tala")
+
+
+@app.on_event("startup")
+def warm_voice() -> None:
+    import threading
+
+    threading.Thread(target=tts.load, daemon=True).start()
 
 
 @app.middleware("http")
@@ -50,7 +58,9 @@ def system_prompt() -> str:
     week = ", ".join(f"{(d - tools.dt.timedelta(days=i)).strftime('%A')} {(d - tools.dt.timedelta(days=i)).isoformat()}" for i in range(1, 7))
     return f"""You are Tala, a friendly store assistant for a small Filipino store (sari-sari store, carinderia, market stall). You run fully offline on the owner's own laptop.
 Today is {d.isoformat()} ({d.strftime('%A')}). Past days: {week}. Currency is Philippine pesos (₱).
-The owner speaks English, Tagalog or Taglish. Reply in the same mix, short, warm and practical, like a helpful pamangkin (niece/nephew) who is good with numbers.
+The owner speaks English, Tagalog or Taglish. Reply in simple, everyday Taglish: mostly plain English sentences with common store words in Tagalog.
+Good words: benta (sales), kita (profit), paubos na (running low), ubos na (sold out), i-restock, presyo (price), mabenta (selling well), hindi gumagalaw (not selling), po, salamat.
+Do NOT use deep or formal Tagalog, do not translate word by word, and never use words you are unsure of. Never call the owner by a name.
 
 Products in the store: {store.product_names()}
 Match what the owner says to these names ("canton" = Lucky Me Pancit Canton, "coke" = Coke Mismo, "kopiko" = Kopiko 3-in-1, "itlog" = Egg). Product categories: {store.CATEGORIES}.
@@ -62,8 +72,10 @@ Rules:
 - Price changes ("taasan ang Coke to 22"), counted stock corrections, reorder levels -> update_product.
 - Questions about sales, kita (profit), best sellers, trends, comparisons -> sales_report (the app draws the chart). Pick group_by and metric to fit the question. Ranges: "this week"/"last 7 days" = {(d - tools.dt.timedelta(days=6)).isoformat()} to today; "this month" = {d.replace(day=1).isoformat()} to today; "today" = today. Best seller means revenue unless the owner asks about pieces.
 - "Kumusta ang tindahan?", advice, what to restock, what is not selling -> business_snapshot, then give ONE practical tip from its numbers.
+  Tips must make business sense: restock only items that are low AND selling; for items not selling, suggest a promo, a bundle with a best seller, a lower price, or stop reordering them, never restock them.
 - Stock questions ("ilan pa ang...", "ano ang paubos na?") -> stock_status.
 - Wrong entry -> list_sales then delete_sale.
+- If the message is unclear, just noise, or not about the store (e.g. "okay", "sari-sari", a random phrase), do NOT call any tool and do NOT repeat earlier advice; reply only: "Pasensya po, hindi ko narinig nang malinaw. Ano po ulit?"
 - Never compute or guess numbers yourself; quote only numbers returned by tools.
 - After tools run, answer in ONE or TWO short sentences (max 35 words). The app already shows the chart or table, so do not list every number."""
 
@@ -195,6 +207,12 @@ async def transcribe(audio: UploadFile = File(...)) -> dict[str, str]:
     return {"text": str(r.json().get("text", "")).strip()}
 
 
+@app.post("/api/speak")
+def speak(text: str = Form(...)) -> Response:
+    # Spoken replies in Tagalog, synthesised on this laptop (Meta MMS-TTS).
+    return Response(tts.speak(text[:400]), media_type="audio/wav")
+
+
 @app.get("/api/store")
 def store_overview() -> dict[str, Any]:
     kpis, _ = store.business_snapshot({}, "")
@@ -215,8 +233,8 @@ def manifest() -> JSONResponse:
             "description": "Just say what happened. Tala logs it. Offline.",
             "start_url": start,
             "display": "standalone",
-            "background_color": "#0b1120",
-            "theme_color": "#0b1120",
+            "background_color": "#f3f5f2",
+            "theme_color": "#0a6b3d",
             "icons": [
                 {"src": "icon-180.png", "sizes": "180x180", "type": "image/png"},
                 {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
