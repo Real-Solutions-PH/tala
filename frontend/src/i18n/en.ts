@@ -32,6 +32,8 @@ export const en = {
     notOnRecord: 'Not on record',
     source: 'From: {title}',
     page: 'page {n}',
+    soonTitle: 'Coming soon',
+    soonBody: 'This page is still being prepared.',
   },
   nav: {
     label: 'Main menu',
@@ -198,7 +200,7 @@ export const en = {
     disclaimer: 'Reminder: This is not medical advice. Check with your doctor before changing your diet, exercise or medicines.',
     refusal: {
       diagnosis: 'I can’t give a diagnosis. Please ask your doctor. Here is what is on your record that may help that conversation.',
-      medication: 'I can’t give advice about medicines, doses or stopping and starting them. Please ask your doctor. Here is what is on your record that may help that conversation.',
+      medication: 'I can’t give advice about medicines: doses, drug interactions, or stopping and starting them. Please ask your doctor. Here is what is on your record that may help that conversation.',
     },
   },
   errors: {
@@ -215,6 +217,8 @@ export const en = {
     fileType: 'Please choose a photo or a PDF.',
     micDenied: 'Kapiling can’t use the microphone. Please allow it, or type instead.',
     cameraDenied: 'Kapiling can’t use the camera. Please allow it, or choose a photo instead.',
+    locked: 'Kapiling is locked. Please unlock it first.',
+    notYourProfile: 'This record belongs to someone else. Please switch person.',
   },
   toasts: {
     saved: 'Saved.',
