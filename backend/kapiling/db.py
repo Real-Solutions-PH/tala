@@ -85,3 +85,14 @@ def connect() -> sqlite3.Connection:
         con.execute(f"PRAGMA user_version={v + 1}")
     con.commit()
     return con
+
+
+_shared: sqlite3.Connection | None = None
+
+
+def get_con() -> sqlite3.Connection:
+    """FastAPI dependency: the process-wide connection (check_same_thread=False). Tests override it."""
+    global _shared
+    if _shared is None:
+        _shared = connect()
+    return _shared

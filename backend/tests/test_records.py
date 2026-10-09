@@ -1,0 +1,102 @@
+import io
+
+from PIL import Image
+
+from kapiling.records.repo import list_meds, mark_taken, meds_today
+from kapiling.records.summary import emergency_card, essential_summary
+
+
+def test_meds_today_lists_each_slot(con, lola):
+    today = meds_today(con, lola, "2026-10-10")
+    assert {(t["name"], t["slot"]) for t in today} == {("Losartan", "08:00"), ("Metformin", "08:00"), ("Metformin", "20:00"), ("Amlodipine", "20:00")}
+
+
+def test_mark_taken_is_idempotent(con, lola):
+    mid = list_meds(con, lola)[0]["id"]
+    mark_taken(con, mid, "2026-10-10", "08:00"); mark_taken(con, mid, "2026-10-10", "08:00")
+    assert sum(1 for t in meds_today(con, lola, "2026-10-10") if t["taken_at"]) == 1
+
+
+def test_essential_summary_has_the_hospital_questions(con, lola):
+    s = essential_summary(con, lola, "en")
+    for must in ["O+", "Penicillin", "Losartan 50 mg", "Hypertension", "Ana", "FBS"]:
+        assert must in s
+    assert len(s) < 6000
+
+
+def test_essential_summary_tagalog_headings(con, lola):
+    s = essential_summary(con, lola, "tl")
+    assert "Allergies" not in s and "Penicillin" in s
+
+
+def test_emergency_card_respects_field_choice(con, lola):
+    con.execute("update emergency_fields set fields='[\"blood_type\"]' where profile_id=?", (lola,))
+    card = emergency_card(con, lola)
+    assert card["blood_type"] == "O+" and card["allergies"] == [] and card["philhealth_last4"] is None
+    assert card["photo_url"] is None and card["doctor"] is None
+
+
+def test_emergency_card_full(con, lola):
+    card = emergency_card(con, lola)
+    assert card["philhealth_last4"] == "00-0"
+    assert card["doctor"]["name"] == "Dr. Jose Reyes"
+    assert [c["name"] for c in card["contacts"]] == ["Ana Dela Cruz"]
+    assert len(card["qr_text"]) < 600 and "Penicillin" in card["qr_text"]
+
+
+def test_card_numbers_are_masked_in_list(client, lola_unlocked):
+    cards = client.get(f"/api/profiles/{lola_unlocked}/cards").json()
+    assert cards and all(c["number_masked"].startswith("••••") for c in cards if c["number_masked"])
+    assert not any("00-000000000-0" == c["number_masked"] for c in cards)
+
+
+def test_card_file_served_with_content_type(client, lola_unlocked, con):
+    cid = con.execute("select id from cards where profile_id=? order by sort", (lola_unlocked,)).fetchone()[0]
+    r = client.get(f"/api/files/{cid}/front")
+    assert r.status_code == 200 and r.headers["content-type"] == "image/png"
+    assert client.get(f"/api/files/{cid}/side").status_code == 404
+    assert client.get("/api/files/99999/front").status_code == 404
+    con.execute("update cards set back_path=NULL where id=?", (cid,)); con.commit()
+    assert client.get(f"/api/files/{cid}/back").status_code == 404
+
+
+def test_profile_photo_public(client, lola):
+    r = client.get(f"/api/profiles/{lola}/photo")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("image/")
+    assert client.get("/api/profiles/9999/photo").status_code == 404
+
+
+def _jpeg():
+    b = io.BytesIO(); Image.new("RGB", (8, 8), "white").save(b, "JPEG"); return b.getvalue()
+
+
+def test_post_card_creates_and_serves(client, lola_unlocked):
+    r = client.post(f"/api/profiles/{lola_unlocked}/cards",
+                    data={"kind": "pwd", "label": "PWD ID", "number": "PWD-1234567"},
+                    files={"front": ("f.jpg", _jpeg(), "image/jpeg"), "back": ("b.jpg", _jpeg(), "image/jpeg")})
+    assert r.status_code == 200
+    card = r.json()
+    assert card["number_masked"] == "••••4567" and card["back_url"]
+    assert client.get(card["front_url"]).headers["content-type"] == "image/jpeg"
+    assert client.post(f"/api/profiles/{lola_unlocked}/cards", data={"kind": "bogus", "label": "x"},
+                       files={"front": ("f.jpg", _jpeg(), "image/jpeg")}).status_code == 422
+
+
+def test_meds_summary_timeline_observations_routes(client, lola_unlocked):
+    p = f"/api/profiles/{lola_unlocked}"
+    m = client.get(f"{p}/meds?date=2026-10-10").json()
+    assert len(m["meds"]) == 3 and len(m["today"]) == 4
+    mid = m["meds"][0]["id"]
+    assert client.post(f"{p}/meds/{mid}/taken", json={"date": "2026-10-10", "slot": "08:00"}).status_code == 204
+    t = client.get(f"{p}/meds?date=2026-10-10").json()["today"]
+    assert sum(1 for x in t if x["taken_at"]) == 1
+    assert client.request("DELETE", f"{p}/meds/{mid}/taken", json={"date": "2026-10-10", "slot": "08:00"}).status_code == 204
+    obs = client.get(f"{p}/observations?code=fbs").json()
+    assert [o["date"] for o in obs] == sorted(o["date"] for o in obs) and len(obs) == 8
+    tl = client.get(f"{p}/timeline").json()
+    assert [x["date"] for x in tl] == sorted((x["date"] for x in tl), reverse=True)
+    assert all(x["kind"] == "visit" for x in client.get(f"{p}/timeline?kind=visit").json())
+    s = client.get(f"{p}/summary").json()
+    assert s["latest"]["fbs"]["value"] == 132 and s["profile"]["id"] == lola_unlocked
+    assert client.put(p, json={"phone": "0917-111-1111"}).json()["phone"] == "0917-111-1111"
+    assert client.get("/api/profiles/9999/summary").status_code == 404

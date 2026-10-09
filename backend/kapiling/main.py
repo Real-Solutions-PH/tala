@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from kapiling import config
+from kapiling.records.routes import router as records_router
 
 STATIC_DIR = config.ROOT / "static"
 COOKIE = "kapiling_k"
@@ -15,6 +16,7 @@ OPEN_EXACT = {"/api/health", "/api/profiles"}
 OPEN_PREFIXES = ("/api/emergency/", "/api/profiles/")
 
 app = FastAPI(title="Kapiling")
+app.include_router(records_router)
 
 
 def is_open(path: str) -> bool:
