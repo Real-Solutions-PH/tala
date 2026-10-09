@@ -46,8 +46,16 @@ def test_emergency_card_full(con, lola):
 
 def test_card_numbers_are_masked_in_list(client, lola_unlocked):
     cards = client.get(f"/api/profiles/{lola_unlocked}/cards").json()
-    assert cards and all(c["number_masked"].startswith("••••") for c in cards if c["number_masked"])
-    assert not any("00-000000000-0" == c["number_masked"] for c in cards)
+    by_kind = {c["kind"]: c["number_masked"] for c in cards}
+    assert by_kind["philhealth"] == "••••0000"
+    assert by_kind["hmo"] == "••••0000"
+    assert by_kind["vaccination"] is None
+
+
+def test_mask_rules():
+    from kapiling.records.routes import _mask
+    assert _mask("1234") == "••••" and _mask("12") == "••••"
+    assert _mask("AB-12345-C") == "••••2345" and _mask(None) is None and _mask("ABCDEFG") == "••••"
 
 
 def test_card_file_served_with_content_type(client, lola_unlocked, con):
@@ -100,3 +108,40 @@ def test_meds_summary_timeline_observations_routes(client, lola_unlocked):
     assert s["latest"]["fbs"]["value"] == 132 and s["profile"]["id"] == lola_unlocked
     assert client.put(p, json={"phone": "0917-111-1111"}).json()["phone"] == "0917-111-1111"
     assert client.get("/api/profiles/9999/summary").status_code == 404
+
+
+def _post(client, pid, front, back=None, ct="image/jpeg"):
+    files = {"front": ("f.jpg", front, ct)}
+    if back is not None:
+        files["back"] = ("b.jpg", back, ct)
+    return client.post(f"/api/profiles/{pid}/cards", data={"kind": "pwd", "label": "x"}, files=files)
+
+
+def _card_files(pid):
+    from kapiling import config
+    d = config.settings.data_dir / "files/cards"
+    return {p.name for p in d.glob(f"{pid}-*")}
+
+
+def test_upload_rejects_fake_image_with_lying_content_type(client, lola):
+    before = _card_files(lola)
+    r = _post(client, lola, b"not an image at all")
+    assert r.status_code == 415 and r.json()["detail"] == "errors.unsupportedImage"
+    assert _card_files(lola) == before
+
+
+def test_upload_rejects_oversize(client, lola):
+    r = _post(client, lola, _jpeg() + b"\0" * (10 * 1024 * 1024))
+    assert r.status_code == 413 and r.json()["detail"] == "errors.fileTooLarge"
+
+
+def test_bad_back_leaves_no_files(client, lola):
+    before = _card_files(lola)
+    r = _post(client, lola, _jpeg(), back=b"junk")
+    assert r.status_code == 415 and _card_files(lola) == before
+
+
+def test_extension_comes_from_real_format(client, lola):
+    b = io.BytesIO(); Image.new("RGB", (8, 8)).save(b, "PNG")
+    r = _post(client, lola, b.getvalue(), ct="image/jpeg")
+    assert r.status_code == 200 and client.get(r.json()["front_url"]).headers["content-type"] == "image/png"

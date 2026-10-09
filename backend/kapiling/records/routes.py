@@ -1,3 +1,4 @@
+import io
 import mimetypes
 import sqlite3
 import uuid
@@ -6,6 +7,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from PIL import Image
 from pydantic import BaseModel
 
 from kapiling import config
@@ -30,7 +32,10 @@ def _profile_or_404(con, pid: int):
 
 
 def _mask(number: str | None) -> str | None:
-    return "••••" + number[-4:] if number else None
+    if not number:
+        return None
+    digits = "".join(ch for ch in number if ch.isdigit())
+    return "••••" + digits[-4:] if len(number) > 4 and digits else "••••"
 
 
 def _card_json(c) -> dict:
@@ -95,30 +100,67 @@ def cards(pid: int, con: Con, _a: Unlocked):
     return [_card_json(c) for c in repo.list_cards(con, pid)]
 
 
-async def _save_image(up: UploadFile, pid: int, stem: str) -> str:
-    ext = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}.get(up.content_type or "")
-    if ext is None:
-        raise HTTPException(422, "Card images must be JPEG, PNG or WebP")
+MAX_UPLOAD = 10 * 1024 * 1024
+_FORMATS = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp"}
+try:  # HEIC only when pillow-heif happens to be installed
+    import pillow_heif
+
+    pillow_heif.register_heif_opener()
+    _FORMATS["HEIF"] = ".heic"
+except ImportError:
+    pass
+
+
+def _read_image(up: UploadFile) -> tuple[bytes, str]:
+    """Read and validate one upload; returns (bytes, extension). Nothing is written."""
+    data = up.file.read(MAX_UPLOAD + 1)
+    if len(data) > MAX_UPLOAD:
+        raise HTTPException(413, "errors.fileTooLarge")
+    try:
+        with Image.open(io.BytesIO(data)) as img:
+            fmt = img.format
+            img.verify()
+    except Exception:
+        raise HTTPException(415, "errors.unsupportedImage") from None
+    if fmt not in _FORMATS:
+        raise HTTPException(415, "errors.unsupportedImage")
+    return data, _FORMATS[fmt]
+
+
+def _write(data: bytes, ext: str, pid: int, stem: str) -> str:
     rel = f"files/cards/{pid}-{stem}-{uuid.uuid4().hex[:8]}{ext}"
     dest = config.settings.data_dir / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_bytes(await up.read())
+    dest.write_bytes(data)
     return rel
 
 
 @router.post("/profiles/{pid}/cards")
-async def add_card(pid: int, con: Con, _a: Unlocked, kind: Annotated[str, Form()], label: Annotated[str, Form()],
+def add_card(pid: int, con: Con, _a: Unlocked, kind: Annotated[str, Form()], label: Annotated[str, Form()],
                    front: Annotated[UploadFile, File()], number: Annotated[str | None, Form()] = None,
                    back: Annotated[UploadFile | None, File()] = None):
     _profile_or_404(con, pid)
     if kind not in CARD_KINDS:
         raise HTTPException(422, f"kind must be one of {', '.join(CARD_KINDS)}")
-    front_path = await _save_image(front, pid, "front")
-    back_path = await _save_image(back, pid, "back") if back is not None and back.filename else None
-    sort = con.execute("select coalesce(max(sort), -1) + 1 from cards where profile_id=?", (pid,)).fetchone()[0]
-    cur = con.execute("insert into cards (profile_id, kind, label, number, front_path, back_path, sort) values (?,?,?,?,?,?,?)",
-                      (pid, kind, label, number or None, front_path, back_path, sort))
-    con.commit()
+    front_img = _read_image(front)
+    back_img = _read_image(back) if back is not None and back.filename else None
+    written: list[str] = []
+    try:
+        front_path = _write(*front_img, pid, "front")
+        written.append(front_path)
+        back_path = None
+        if back_img:
+            back_path = _write(*back_img, pid, "back")
+            written.append(back_path)
+        sort = con.execute("select coalesce(max(sort), -1) + 1 from cards where profile_id=?", (pid,)).fetchone()[0]
+        cur = con.execute("insert into cards (profile_id, kind, label, number, front_path, back_path, sort) values (?,?,?,?,?,?,?)",
+                          (pid, kind, label, number or None, front_path, back_path, sort))
+        con.commit()
+    except Exception:
+        con.rollback()
+        for rel in written:
+            (config.settings.data_dir / rel).unlink(missing_ok=True)
+        raise
     return _card_json(con.execute("select * from cards where id=?", (cur.lastrowid,)).fetchone())
 
 
