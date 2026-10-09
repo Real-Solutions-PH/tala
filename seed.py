@@ -50,5 +50,14 @@ con.executemany(
     "INSERT INTO budgets (category, cents) VALUES (?, ?)",
     [("Food", to_cents(7000)), ("Transport", to_cents(3500)), ("Groceries", to_cents(9000)), ("Shopping", to_cents(2500))],
 )
+tasks = [("Pay Meralco bill", 2), ("Renew Grab Pay", None), ("Buy gift for Mama's birthday", 5), ("Submit BIR form", -1)]
+for title, due in tasks:
+    con.execute("INSERT INTO tasks (title, due) VALUES (?, ?)", (title, (end + dt.timedelta(days=due)).isoformat() if due is not None else None))
+con.execute("INSERT INTO tasks (title, due, done_on) VALUES ('Book dentist', ?, ?)", ((end - dt.timedelta(days=2)).isoformat(),) * 2)
+for name, rate in [("Workout", 0.55), ("Read", 0.7), ("Water", 0.8), ("Meditate", 0.35)]:
+    hid = con.execute("INSERT INTO habits (name) VALUES (?)", (name,)).lastrowid
+    for i in range(45, 0, -1):
+        if random.random() < rate or (name == "Read" and i <= 6):
+            con.execute("INSERT INTO habit_logs VALUES (?, ?)", (hid, (end - dt.timedelta(days=i)).isoformat()))
 con.commit()
 print(f"seeded {len(rows)} expenses into {DB_PATH.name}")

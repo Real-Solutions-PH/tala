@@ -27,6 +27,22 @@ CREATE TABLE IF NOT EXISTS expenses (
   note TEXT,
   source TEXT NOT NULL DEFAULT 'chat'
 );
+CREATE TABLE IF NOT EXISTS tasks (
+  id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL,
+  due TEXT,
+  done_on TEXT,
+  created TEXT NOT NULL DEFAULT (date('now', 'localtime'))
+);
+CREATE TABLE IF NOT EXISTS habits (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE
+);
+CREATE TABLE IF NOT EXISTS habit_logs (
+  habit_id INTEGER NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+  date TEXT NOT NULL,
+  PRIMARY KEY (habit_id, date)
+);
 CREATE TABLE IF NOT EXISTS budgets (
   category TEXT PRIMARY KEY,
   cents INTEGER NOT NULL CHECK (cents > 0)

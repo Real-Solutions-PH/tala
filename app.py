@@ -12,20 +12,24 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
 from pypdf import PdfReader
 
+import life
 import tools
 from db import CATEGORIES, connect, to_pesos
 
 LLM_URL = os.getenv("LLM_URL", "http://127.0.0.1:8080/v1/chat/completions")
 WHISPER_URL = os.getenv("WHISPER_URL", "http://127.0.0.1:8081/inference")
 MAX_STEPS = 6
+RUN = {**tools.RUN, **life.RUN}
+SCHEMAS = tools.SCHEMAS + life.SCHEMAS
 
 app = FastAPI(title="Tala")
 
 
 def system_prompt() -> str:
     d = tools.today()
-    return f"""You are Tala, a friendly money companion that runs fully offline on the user's laptop.
-Today is {d.isoformat()} ({d.strftime('%A')}). Currency is Philippine pesos (₱).
+    habits = [r[0] for r in connect().execute("SELECT name FROM habits ORDER BY name")]
+    return f"""You are Tala, a friendly personal assistant for money, tasks and habits that runs fully offline on the user's laptop.
+Today is {d.isoformat()} ({d.strftime('%A')}). Next 7 days: {", ".join(f"{(d + tools.dt.timedelta(days=i)).strftime('%A')} {(d + tools.dt.timedelta(days=i)).isoformat()}" for i in range(1, 8))}. Currency is Philippine pesos (₱).
 The user speaks English, Tagalog or Taglish. Reply in the same mix they use, short and warm.
 
 Rules:
@@ -39,35 +43,41 @@ Rules:
   If the user names a category (food, transport, bills...), ALWAYS pass it as "category".
   Default ranges: "this month" = {d.replace(day=1).isoformat()} to today; "per week"/weekly = last 8 weeks; "per day"/daily = last 30 days; "per month"/monthly = last 3 months.
 - To edit or delete, call list_expenses first to find the id, then edit_expense / delete_expense.
+- Things to do ("remind me to...", "kailangan ko...", "todo") -> add_tasks. "Done na yung..." / "tapos ko na" -> list_tasks then complete_tasks.
+- Habits done ("nag-workout ako", "read 20 pages", "8 glasses of water") -> log_habits with a short habit name. Existing habits: {habits or "none yet"}. Reuse one when it means the same thing (gym/exercise/nag-gym = Workout, nagbasa = Read). Questions about streaks/consistency -> habit_summary.
+- One message can mix all three (e.g. "lunch 150, nag-gym ako, remind me to pay Meralco") -> call every tool needed.
 - After tools run, answer in ONE short sentence (max 30 words) with the single most useful insight. The app already shows the chart or table, so do not list every number."""
 
 
 # Turns that only change data get a template reply instead of a second model call (saves ~5s).
-MUTATIONS = {"add_expenses", "edit_expense", "delete_expense", "set_budget", "open_ledger"}
+MUTATIONS = {"add_expenses", "edit_expense", "delete_expense", "set_budget", "open_view", "add_tasks", "complete_tasks", "log_habits"}
 
 
 def tidy(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     # A lookup table shown before an edit/delete is noise once the change itself is shown.
     if any(b.get("changed") for b in blocks):
-        return [b for b in blocks if b.get("changed") or b["type"] != "table"]
+        return [b for b in blocks if b.get("changed") or b["type"] not in ("table", "tasks")]
     return blocks
 
 
 def quick_reply(blocks: list[dict[str, Any]]) -> str:
-    logged = [r for b in blocks if b.get("title", "").startswith("Logged") for r in b["rows"]]
-    if logged:
-        total = sum(r["amount"] for r in logged)
-        return f"Got it, logged {len(logged)} · ₱{total:,.2f} total."
-    titles = {b.get("type"): b.get("title") for b in blocks}
-    if "view" in titles:
-        return "Opened the ledger."
-    if "budget" in titles:
-        return "Budget saved."
-    return f"{blocks[-1].get('title', 'Done')}."
+    parts = []
+    for b in blocks:
+        if b["type"] == "table" and b["title"].startswith("Logged"):
+            total = sum(r["amount"] for r in b["rows"])
+            parts.append(f"logged {len(b['rows'])} expense{'s' * (len(b['rows']) != 1)} (₱{total:,.2f})")
+        elif b["type"] == "view":
+            parts.append(f"opened {b['panel']}")
+        elif b["type"] == "budget":
+            parts.append("budget saved")
+        else:
+            parts.append(b["title"][0].lower() + b["title"][1:])
+    text = ", ".join(parts)
+    return f"Got it: {text}." if text else "Done."
 
 
 async def llm(messages: list[dict[str, Any]]) -> dict[str, Any]:
-    body = {"messages": messages, "tools": tools.SCHEMAS, "temperature": 0.2}
+    body = {"messages": messages, "tools": SCHEMAS, "temperature": 0.2}
     try:
         async with httpx.AsyncClient(timeout=180) as c:
             r = await c.post(LLM_URL, json=body)
@@ -131,7 +141,7 @@ async def chat(
             except json.JSONDecodeError:
                 args = {}
             called.add(name)
-            fn = tools.RUN.get(name)
+            fn = RUN.get(name)
             if fn is None:
                 result: Any = {"error": f"unknown tool {name}"}
             else:
@@ -173,7 +183,27 @@ def expenses(category: str = "", start: str = "", end: str = "", search: str = "
         "SELECT COALESCE(SUM(cents), 0) FROM expenses WHERE substr(date, 1, 7) = ?", [month]
     ).fetchone()[0]
     budgets, _ = tools.budget_status({}, "")
-    return {"rows": rows, "month": month, "month_total": to_pesos(month_total), "budgets": budgets.get("budgets", [])}
+    tasks, _ = life.list_tasks({"status": "all"}, "")
+    habits, _ = life.habit_summary({"days": 30}, "")
+    return {
+        "rows": rows,
+        "month": month,
+        "month_total": to_pesos(month_total),
+        "budgets": budgets.get("budgets", []),
+        "tasks": tasks["tasks"],
+        "habits": habits.get("habits", []),
+    }
+
+
+@app.post("/api/tasks/{task_id}/toggle")
+def toggle_task(task_id: int) -> dict[str, Any]:
+    con = connect()
+    con.execute(
+        "UPDATE tasks SET done_on = CASE WHEN done_on IS NULL THEN ? ELSE NULL END WHERE id = ?",
+        (tools.today().isoformat(), task_id),
+    )
+    con.commit()
+    return {"ok": True}
 
 
 app.mount("/", StaticFiles(directory=Path(__file__).with_name("static"), html=True), name="static")

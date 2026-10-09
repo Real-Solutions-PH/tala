@@ -231,11 +231,12 @@ def budget_status(args: dict[str, Any], source: str) -> tuple[Any, Block | None]
     }
 
 
-def open_ledger(args: dict[str, Any], source: str) -> tuple[Any, Block | None]:
-    view = {k: args[k] for k in ("category", "start", "end", "search") if args.get(k)}
+def open_view(args: dict[str, Any], source: str) -> tuple[Any, Block | None]:
+    panel = args.get("panel") if args.get("panel") in ("money", "tasks", "habits") else "money"
+    view = {k: args[k] for k in ("category", "start", "end", "search") if args.get(k)} if panel == "money" else {}
     if "category" in view:
         view["category"] = _category(view["category"])
-    return {"opened": view or "all"}, {"type": "view", "filter": view}
+    return {"opened": panel, "filter": view}, {"type": "view", "panel": panel, "filter": view}
 
 
 RUN = {
@@ -248,7 +249,7 @@ RUN = {
         delete_expense,
         set_budget,
         budget_status,
-        open_ledger,
+        open_view,
     )
 }
 
@@ -338,8 +339,15 @@ SCHEMAS = [
         {"month": {"type": "string", "description": "YYYY-MM"}},
     ),
     _fn(
-        "open_ledger",
-        "Open the ledger panel in the app, filtered. Use when the user asks to open, go to or show the ledger/list.",
-        {"category": _cat_prop, "start": _date_prop, "end": _date_prop, "search": {"type": "string"}},
+        "open_view",
+        "Open a panel of the app: money (expense ledger, optionally filtered), tasks, or habits. Use when the user asks to open, go to or show one.",
+        {
+            "panel": {"type": "string", "enum": ["money", "tasks", "habits"]},
+            "category": _cat_prop,
+            "start": _date_prop,
+            "end": _date_prop,
+            "search": {"type": "string"},
+        },
+        ["panel"],
     ),
 ]
