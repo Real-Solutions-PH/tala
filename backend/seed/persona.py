@@ -192,3 +192,22 @@ def seed(con: sqlite3.Connection) -> dict[str, int]:
     mika = _seed_mika(con)
     con.commit()
     return {"lola": lola, "mika": mika}
+
+
+def main() -> None:
+    """Seed the configured database once; do nothing if it already has profiles."""
+    from kapiling import db
+
+    con = db.connect()
+    try:
+        if con.execute("select count(*) from profiles").fetchone()[0]:
+            print("Database already has profiles; nothing seeded.")
+        else:
+            seed(con)
+            print("Seeded the demo persona (Lola Remy and Mika).")
+    finally:
+        con.close()
+
+
+if __name__ == "__main__":
+    main()
