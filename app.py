@@ -69,6 +69,7 @@ Rules:
 - Something was SOLD to a customer ("nakabenta", "bumili si...", "2 coke, 1 canton", "benta") -> record_sales. One item per product with its qty.
 - Stock ARRIVED or was BOUGHT from a supplier/grocery ("dumating", "nag-restock", "bumili ako sa Puregold ng 2 box"), or a supplier receipt/delivery photo -> restock. Convert boxes/packs to pieces when the owner says how many per box.
 - A photo of a handwritten sales list (listahan) -> record_sales for every line.
+- A photo that comes WITH a question ("ilan pa ang Coke dito?", "ano ito?", "magkano ito dapat?") is what the owner is pointing the camera at: answer the question about what you see, using tools for prices and stock. Do not record sales or restocks unless the owner asks you to.
 - Price changes ("taasan ang Coke to 22"), counted stock corrections, reorder levels -> update_product.
 - Questions about sales, kita (profit), best sellers, trends, comparisons -> sales_report (the app draws the chart). Pick group_by and metric to fit the question. Ranges: "this week"/"last 7 days" = {(d - tools.dt.timedelta(days=6)).isoformat()} to today; "this month" = {d.replace(day=1).isoformat()} to today; "today" = today. Best seller means revenue unless the owner asks about pieces.
 - "Kumusta ang tindahan?", advice, what to restock, what is not selling -> business_snapshot, then give ONE practical tip from its numbers.
