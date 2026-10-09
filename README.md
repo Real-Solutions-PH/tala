@@ -1,36 +1,24 @@
 # Tala
 
-**Just say what happened. Tala logs it. Offline.**
+**Free, offline store assistant for sari-sari stores and small shops. Just say what you sold.**
 
-Tracking apps die because logging is a chore. Tala removes the chore: say "Hey Tala, lunch sa Jollibee 165, nag-gym ako, remind me to pay Meralco on Friday" and a local AI agent logs the expense, checks off the habit and adds the task — in one breath. Snap a receipt or drop in a bank statement PDF and it logs those too. Ask "saan napunta pera ko this month?" and it answers with a chart drawn from your own data, and can read the answer back to you.
+Most of the Philippines' small stores still keep sales, stock and *utang* in a notebook, one that tears, gets wet in a typhoon, and never tells the owner what to restock. Bookkeeping apps exist, but typing every sale into a form is slower than the notebook, so owners go back to pen and paper.
 
-Speech recognition, the wake word, the agent, reading photos and documents, and the spoken replies all run on your laptop. Turn Wi-Fi off and it still works.
+Tala replaces the typing with talking. The owner says *"2 Coke, 1 canton, tapos 3 Kopiko"*, snaps a photo of the handwritten *listahan*, or a supplier receipt, and a local AI records the sales and updates the stock. Ask *"Ano ang best seller ko this week?"* or *"Kumusta ang tindahan?"* and it answers with real charts from the store's own records and one practical tip, out loud if you want.
 
 ## Features
 
-- **Money** — log by voice/chat/receipt photo/statement PDF; budgets; spending charts in the chat.
-- **Tasks** — "remind me to…", due dates in plain words ("on Friday"), "done na yung…".
-- **Habits** — "nag-workout ako", streaks and 7-day history.
-- **Hands-free** — toggle *Hey Tala*: say "Hey Tala" (or "Tala, lunch 150" in one go).
-- **Voice replies** — answers read aloud with the OS's on-device voices.
-
-Built for the AppBuildersPH Hackathon 2026 (theme: Local AI), 2026-10-09 → 2026-10-10.
-
-## On your phone (iPhone or Android, nothing to install)
-
-The laptop runs the AI; the phone is the app. `./run.sh` prints a QR code (also under **Phone** in the laptop UI).
-
-1. Put the phone and laptop on the same Wi-Fi, or connect the laptop to the phone's hotspot (mobile data can stay off; no internet is needed).
-2. Scan the QR with the camera, accept the one-time certificate warning (the laptop signs its own HTTPS certificate; phones only allow the microphone over HTTPS).
-3. Optional: Share → **Add to Home Screen** for a full-screen app.
-
-Only devices that scanned the QR (it carries a random pairing key, new on every start) can open Tala; anyone else on the network gets a 403.
+- **Record sales by voice, chat or photo**: Taglish, any order ("2 Coke, 1 canton"), handwritten sales lists.
+- **Inventory that updates itself**: restocks by voice or supplier receipt ("dumating ang 2 box ng Coke, 24 each"), low-stock alerts the moment you sell.
+- **Insights in charts, not paragraphs**: sales, profit (*kita*) and pieces by day, week, product or category; best sellers; items not selling.
+- **Talk mode**: hands-free turns (listen, think, speak, listen) with a camera button to show Tala a shelf or receipt.
+- **A phone app with nothing to install**: the laptop runs the AI; any iPhone or Android opens the app by scanning a QR.
 
 ## Why local
 
-- **Your money data never leaves your device.** Receipts, bank statements and spending habits are exactly what people don't want on someone else's server.
-- **Zero cost per capture.** A cloud vision/LLM call per receipt or voice note adds up; here it's free after download.
-- **Works on bad signal.** Log on the jeep, in the mall basement, or with no load.
+- **Free to run, so it can be free to use.** No cloud AI bill per sale recorded, the only way a tool for ₱20-margin stores can stay free.
+- **Works with no signal or load.** Stores run in places and weeks (typhoons) without data.
+- **The store's numbers stay in the store.** Sales and margins never leave the owner's own devices.
 
 ## What runs where
 
@@ -38,15 +26,15 @@ Only devices that scanned the QR (it carries a random pairing key, new on every 
 |---|---|---|
 | Chat agent + tool calling | Local | Qwen3-VL-8B-Instruct, Q4_K_M GGUF, via llama.cpp `llama-server` |
 | Receipt / photo reading | Local | same model (vision projector `mmproj-Qwen3VL-8B-Instruct-Q8_0`) |
-| Voice dictation + "Hey Tala" wake word | Local | whisper.cpp `whisper-server`, `ggml-large-v3-turbo` (wake word = short utterances transcribed locally and matched) |
+| Voice dictation + Talk mode | Local | whisper.cpp `whisper-server`, `ggml-large-v3-turbo` |
 | Spoken replies | Local | Web Speech API restricted to `localService` voices (macOS system voices) |
-| PDF statements | Local | pypdf text extraction → agent |
+| PDF supplier statements | Local | pypdf text extraction → agent |
 | Storage | Local | SQLite |
 | Charts, fonts | Local | Chart.js 4.4.1, Lexend + Source Sans 3 (vendored, no CDN) |
 
 **Requires internet:** only the one-time model download. No cloud AI API is used at runtime.
 
-The agent never writes numbers itself: every total and chart comes from a SQL query run by a tool (`tools.py`), so it cannot invent figures.
+The agent never writes numbers itself: every total and chart comes from a SQL query run by a tool (`store.py`), so it cannot invent figures.
 
 ## Run it (macOS, Apple Silicon)
 
@@ -62,7 +50,7 @@ uv sync
 ./run.sh
 ```
 
-Open http://127.0.0.1:8787 in Chrome (allow the microphone for voice). First run seeds ~75 days of sample spending (`uv run python seed.py` resets it). Needs ~8 GB free RAM.
+Open http://127.0.0.1:8787 in Chrome (allow the microphone for voice). First run seeds a sample sari-sari store with 8 weeks of sales (`uv run python seed.py` resets it). Needs ~8 GB free RAM.
 
 Tests: `uv run python test_tools.py`.
 
@@ -71,5 +59,5 @@ Tests: `uv run python test_tools.py`.
 - **Models:** Qwen3-VL-8B-Instruct (Alibaba Qwen, Apache-2.0); Whisper large-v3-turbo (OpenAI, MIT) in ggml format.
 - **Frameworks / libraries:** llama.cpp, whisper.cpp, FastAPI, uvicorn, httpx, pypdf, SQLite, Chart.js, Lexend and Source Sans 3 fonts (OFL), Lucide icon shapes (ISC), macOS system voices via the Web Speech API.
 - **APIs / cloud services:** none at runtime.
-- **Existing code / assets:** none; this repository was started at the hackathon. The idea (Taglish quick capture) comes from the author's earlier personal project, but no code was reused.
+- **Existing code / assets:** none; this repository was started at the hackathon. No code was reused from earlier projects.
 - **AI development tools:** Claude Code (Claude Opus).
