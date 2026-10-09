@@ -14,6 +14,16 @@ Tala replaces the typing with talking. The owner says *"2 Coke, 1 canton, tapos 
 - **Talk mode**: hands-free turns (listen, think, speak, listen) with a camera button to show Tala a shelf or receipt.
 - **A phone app with nothing to install**: the laptop runs the AI; any iPhone or Android opens the app by scanning a QR.
 
+## On your phone (iPhone or Android, nothing to install)
+
+The laptop runs the AI; the phone is the app. `./run.sh` prints a QR code (also under **Open on your phone** on the laptop page).
+
+1. Put the phone and laptop on the same Wi-Fi, or connect the laptop to the phone's hotspot (mobile data can stay off; no internet is needed).
+2. Scan the QR with the camera and accept the one-time certificate warning (the laptop signs its own HTTPS certificate; phones only allow the microphone over HTTPS).
+3. Optional: Share → **Add to Home Screen** for a full-screen app.
+
+Only devices that scanned the QR (it carries a random pairing key, new on every start) can open Tala; anyone else on the network gets a 403.
+
 ## Why local
 
 - **Free to run, so it can be free to use.** No cloud AI bill per sale recorded, the only way a tool for ₱20-margin stores can stay free.
