@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tala</title>
 <meta name="description" content="Free, offline store assistant for sari-sari stores and small shops. Just say what you sold.">
-<meta name="theme-color" content="#0b1120">
+<meta name="theme-color" content="#0a6b3d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Tala">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -19,36 +19,28 @@
 @font-face { font-family: "Source Sans 3"; font-weight: 400; font-display: swap; src: url(fonts/source-sans-3-latin-400-normal.woff2) format("woff2"); }
 @font-face { font-family: "Source Sans 3"; font-weight: 600; font-display: swap; src: url(fonts/source-sans-3-latin-600-normal.woff2) format("woff2"); }
 
+/* Design tokens. Source of truth: DESIGN.md. One light theme on purpose: readable in a bright store, same look on every phone. */
 :root {
-  --bg: #f5f6fa; --surface: #ffffff; --surface-2: #eef1f6; --border: #e1e5ee;
-  --ink: #0f172a; --muted: #556074; --faint: #8a93a6;
-  --primary: #047857; --primary-soft: #d1fae5; --on-primary: #ffffff;
-  --danger: #b91c1c; --danger-soft: #fee2e2; --warn: #b45309; --warn-soft: #fef3c7; --ring: #059669;
-  --user: #0f172a; --on-user: #f8fafc; --desk: #dfe3ec;
-  --shadow: 0 1px 2px rgba(15, 23, 42, .06), 0 4px 16px rgba(15, 23, 42, .06);
+  --bg: #f3f5f2; --surface: #ffffff; --surface-2: #e8eee9; --border: #c9d3cc;
+  --ink: #14201a; --muted: #3f4c44; --faint: #56625a;
+  --primary: #0a6b3d; --primary-press: #08552f; --primary-soft: #dcefe3; --on-primary: #ffffff;
+  --star: #f4b400; --star-soft: #fff4cc;
+  --danger: #b42318; --danger-soft: #fde8e5; --warn: #7a4f00; --warn-soft: #fff2cc; --ring: #0a6b3d;
+  --user: #1f3a2c; --on-user: #ffffff; --desk: #dbe3dd;
+  --shadow: 0 1px 2px rgba(20, 32, 26, .08), 0 4px 14px rgba(20, 32, 26, .06);
   --radius: 16px; --ease: cubic-bezier(.2, .8, .2, 1);
-  --c1: #059669; --c2: #2563eb; --c3: #d97706; --c4: #db2777; --c5: #7c3aed; --c6: #0891b2; --c7: #65a30d; --c8: #dc2626; --c9: #64748b;
+  --tap: 56px;
+  --c1: #0a6b3d; --c2: #1d4ed8; --c3: #c27c00; --c4: #be185d; --c5: #6d28d9; --c6: #0e7490; --c7: #4d7c0f; --c8: #b42318; --c9: #57534e;
+  --mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z' fill='%23f4b400' stroke='%23f4b400' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E");
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0b1120; --surface: #111a2e; --surface-2: #18233b; --border: rgba(255, 255, 255, .08);
-    --ink: #e8edf7; --muted: #9aa6bf; --faint: #6b7792;
-    --primary: #34d399; --primary-soft: rgba(52, 211, 153, .14); --on-primary: #052e22;
-    --danger: #f87171; --danger-soft: rgba(248, 113, 113, .14); --warn: #fbbf24; --warn-soft: rgba(251, 191, 36, .14); --ring: #34d399;
-    --user: #1e293b; --on-user: #e8edf7; --desk: #060a14;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
-    --c1: #34d399; --c2: #60a5fa; --c3: #fbbf24; --c4: #f472b6; --c5: #a78bfa; --c6: #22d3ee; --c7: #a3e635; --c8: #f87171; --c9: #94a3b8;
-    color-scheme: dark;
-  }
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.5 "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 18px/1.55 "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, h4, .num { font-family: Lexend, "Source Sans 3", sans-serif; }
 button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
-svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+svg.i { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- Device: full screen on a phone, a phone frame on the laptop ---------- */
@@ -60,26 +52,26 @@ svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-widt
   .desk { display: flex; flex-direction: column; gap: 16px; max-width: 320px; color: var(--muted); }
   .desk h1 { color: var(--ink); font-size: 34px; margin: 0; letter-spacing: -.03em; line-height: 1.1; }
   .desk p { margin: 0; }
-  .desk .pill { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; }
+  .desk .pill { display: inline-flex; gap: 8px; align-items: center; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; }
   .desk .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
-  .desk button { align-self: flex-start; display: inline-flex; gap: 8px; align-items: center; height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--primary); color: var(--on-primary); font-weight: 600; }
+  .desk button { align-self: flex-start; display: inline-flex; gap: 8px; align-items: center; height: var(--tap); padding: 0 16px; border-radius: 12px; border: 0; background: var(--primary); color: var(--on-primary); font-weight: 600; }
   .desk button[hidden] { display: none; }
 }
 
 /* Header */
 header { display: flex; align-items: center; gap: 10px; padding: max(12px, env(safe-area-inset-top)) 16px 10px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .brand { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.brand b { font-family: Lexend, sans-serif; font-weight: 600; font-size: 17px; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.brand small { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
-.brand small .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+.brand b { font-family: Lexend, sans-serif; font-weight: 600; font-size: 19px; letter-spacing: -.01em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.brand small { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.brand small .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--primary); }
 .brand small.offline .dot { background: var(--warn); }
 .spacer { flex: 1; }
-.hbtn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: var(--surface-2); display: grid; place-items: center; color: var(--muted); }
-.hbtn[aria-pressed="true"] { background: var(--primary-soft); color: var(--primary); }
+.hbtn { height: 48px; padding: 0 12px; flex-shrink: 0; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); display: inline-flex; gap: 6px; align-items: center; color: var(--ink); font-size: 16px; font-weight: 600; }
+.hbtn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
 
 /* Orb */
-.orb { width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #a7f3d0, var(--c1) 45%, #065f46 100%); box-shadow: 0 0 0 4px var(--primary-soft); flex-shrink: 0; }
-.orb.lg { width: 64px; height: 64px; box-shadow: 0 0 0 8px var(--primary-soft); }
+.orb { width: 36px; height: 36px; border-radius: 50%; background: var(--mark) center/64% no-repeat, var(--primary); flex-shrink: 0; }
+.orb.lg { width: 72px; height: 72px; box-shadow: 0 0 0 8px var(--star-soft); }
 .orb.busy { animation: breathe 1.4s var(--ease) infinite; }
 @keyframes breathe { 50% { transform: scale(.86); opacity: .75; } }
 
@@ -88,118 +80,138 @@ header { display: flex; align-items: center; gap: 10px; padding: max(12px, env(s
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; min-height: 0; }
 .screen[hidden] { display: none; }
 .scroll { flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
-.screen h2 { font-size: 22px; margin: 4px 0 14px; letter-spacing: -.02em; }
+.screen h2 { font-size: 26px; margin: 4px 0 14px; letter-spacing: -.02em; }
 
 /* Chat */
 .thread { display: flex; flex-direction: column; gap: 16px; }
 .welcome { text-align: center; padding: 20px 4px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.welcome h3 { margin: 8px 0 0; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
-.welcome p { margin: 0; color: var(--muted); font-size: 15px; }
+.welcome h3 { margin: 8px 0 0; font-size: 24px; text-wrap: balance; font-weight: 600; letter-spacing: -.02em; }
+.welcome p { margin: 0; color: var(--muted); font-size: 17px; }
 .suggest { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 12px; }
-.suggest button { display: flex; gap: 12px; align-items: center; text-align: left; padding: 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); transition: transform .15s var(--ease); min-height: 56px; }
+.suggest button { display: flex; gap: 12px; align-items: center; text-align: left; padding: 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); transition: transform .15s var(--ease); min-height: 64px; }
 .suggest button:active { transform: scale(.98); }
-.suggest .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); flex-shrink: 0; }
-.suggest b { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
-.suggest span { font-size: 15px; }
+.suggest .ic { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); flex-shrink: 0; }
+.suggest b { display: block; font-size: 15px; color: var(--primary); font-weight: 600; }
+.suggest span { font-size: 17px; }
 .msg { display: flex; gap: 10px; animation: rise .25s var(--ease); }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
 .msg.user { justify-content: flex-end; }
-.bubble { background: var(--user); color: var(--on-user); padding: 9px 14px; border-radius: 18px 18px 6px 18px; max-width: 85%; }
-.bubble .via { display: flex; align-items: center; gap: 4px; font-size: 12px; opacity: .7; }
-.bubble .via svg { width: 13px; height: 13px; }
+.bubble { background: var(--user); color: var(--on-user); padding: 10px 16px; border-radius: 18px 18px 6px 18px; max-width: 85%; }
+.bubble .via { display: flex; align-items: center; gap: 4px; font-size: 14px; opacity: .85; }
+.bubble .via svg { width: 16px; height: 16px; }
 .bubble img { display: block; max-width: 180px; border-radius: 12px; margin-top: 6px; }
 .bubble .file { display: flex; gap: 6px; align-items: center; font-size: 14px; margin-top: 6px; }
 .bot { flex: 1; min-width: 0; }
-.bot .meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--faint); margin-top: 6px; }
-.bot .meta svg { width: 14px; height: 14px; }
-.bot .meta button { border: 0; background: none; color: var(--faint); padding: 8px; margin: -8px 0; border-radius: 8px; display: inline-flex; }
+.bot .meta { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--faint); margin-top: 6px; }
+.bot .meta svg { width: 18px; height: 18px; }
+.bot .meta button { border: 0; background: none; color: var(--primary); padding: 12px; margin: -12px 0; border-radius: 8px; display: inline-flex; }
 .thinking { color: var(--muted); }
 .error { color: var(--danger); }
 
 /* Cards */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-top: 10px; box-shadow: var(--shadow); }
-.card h4 { margin: 0 0 10px; font-size: 13px; font-weight: 500; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
-.card h4 .num { color: var(--ink); font-weight: 600; font-size: 14px; white-space: nowrap; }
+.card h4 { margin: 0 0 10px; font-size: 15px; font-weight: 500; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.card h4 .num { color: var(--ink); font-weight: 600; font-size: 17px; white-space: nowrap; }
 .chart-box { position: relative; height: 220px; }
 .rows { display: flex; flex-direction: column; }
-.row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); font-size: 15px; }
+.row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); font-size: 17px; }
 .row:first-child { border-top: 0; }
 .row .name { flex: 1; min-width: 0; }
-.row .name small { display: block; color: var(--muted); font-size: 13px; }
+.row .name small { display: block; color: var(--muted); font-size: 15px; }
 .row .amt { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
-.alert { display: flex; gap: 10px; align-items: flex-start; background: var(--danger-soft); color: var(--danger); border-radius: 12px; padding: 10px 12px; margin-top: 10px; font-size: 14px; }
-.alert svg { margin-top: 1px; width: 18px; height: 18px; }
+.alert { display: flex; gap: 10px; align-items: flex-start; background: var(--danger-soft); color: var(--danger); border-radius: 12px; padding: 12px 14px; margin-top: 10px; font-size: 16px; }
+.alert svg { margin-top: 2px; width: 22px; height: 22px; }
 .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kpi { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
-.kpi small { display: block; color: var(--muted); font-size: 12px; }
-.kpi .num { font-size: 20px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.kpi .delta { font-size: 12px; font-weight: 600; }
+.kpi small { display: block; color: var(--muted); font-size: 14px; }
+.kpi .num { font-size: 24px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpi .delta { font-size: 14px; font-weight: 600; }
 .delta.up { color: var(--primary); }
 .delta.down { color: var(--danger); }
-.stockbar { width: 56px; height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; flex-shrink: 0; }
+.stockbar { width: 56px; height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; flex-shrink: 0; }
 .stockbar i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
 .stockbar.low i { background: var(--danger); }
-.section { font-family: Lexend, sans-serif; font-weight: 500; font-size: 13px; color: var(--muted); margin: 18px 0 6px; }
-.empty { color: var(--muted); font-size: 14px; padding: 8px 0; margin: 0; }
+.section { font-family: Lexend, sans-serif; font-weight: 500; font-size: 16px; color: var(--muted); margin: 18px 0 6px; }
+.empty { color: var(--muted); font-size: 16px; padding: 8px 0; margin: 0; }
 
 /* Composer */
-.composer { padding: 8px 12px 6px; border-top: 1px solid var(--border); background: var(--surface); }
+.composer { padding: 10px 12px 8px; border-top: 1px solid var(--border); background: var(--surface); }
 #attachments { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
 #attachments:empty { display: none; }
-.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; background: var(--surface-2); padding: 4px 4px 4px 10px; border-radius: 999px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; background: var(--surface-2); padding: 4px 4px 4px 10px; border-radius: 999px; }
 .chip svg { width: 14px; height: 14px; }
-.chip button { border: 0; background: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; padding: 0; }
-.bar { display: flex; align-items: flex-end; gap: 2px; background: var(--surface-2); border-radius: 22px; padding: 4px; }
-textarea { flex: 1; resize: none; border: 0; outline: 0; background: none; color: var(--ink); font: inherit; padding: 9px 6px; min-height: 44px; max-height: 120px; }
+.chip button { border: 0; background: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; padding: 0; }
+.bar { display: flex; align-items: flex-end; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 28px; padding: 4px; }
+textarea { flex: 1; resize: none; border: 0; outline: 0; background: none; color: var(--ink); font: inherit; padding: 12px 6px; min-height: 48px; max-height: 140px; }
 textarea:focus-visible { outline: none; }
 textarea::placeholder { color: var(--faint); }
-.ibtn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: none; display: grid; place-items: center; color: var(--muted); transition: background .15s var(--ease), transform .1s; flex-shrink: 0; }
+.ibtn { width: 48px; height: 48px; border-radius: 50%; border: 0; background: none; display: grid; place-items: center; color: var(--muted); transition: background .15s var(--ease), transform .1s; flex-shrink: 0; }
 .ibtn:active { transform: scale(.92); }
 .ibtn.primary { background: var(--primary); color: var(--on-primary); }
-.ibtn.primary:disabled { opacity: .35; }
+.ibtn.primary:disabled { background: var(--border); color: var(--faint); }
 .ibtn.rec { background: var(--danger); color: #fff; }
-.hint { font-size: 12px; color: var(--faint); padding: 4px 8px 0; min-height: 18px; }
-.level { display: none; align-items: center; gap: 3px; height: 44px; padding: 0 8px; flex: 1; overflow: hidden; }
+.hint { font-size: 15px; color: var(--muted); padding: 6px 8px 0; min-height: 24px; }
+.level { display: none; align-items: center; gap: 3px; height: 48px; padding: 0 8px; flex: 1; overflow: hidden; }
 .level span { width: 3px; border-radius: 2px; background: var(--danger); height: 6px; transition: height .08s linear; flex-shrink: 0; }
 .bar.recording textarea { display: none; }
 .bar.recording .level { display: flex; }
 
 /* Tab bar */
-nav.tabs { display: flex; align-items: center; justify-content: space-around; padding: 6px 8px max(8px, env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
-nav.tabs button { flex: 1; border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--faint); min-height: 48px; justify-content: center; border-radius: 12px; }
-nav.tabs button[aria-selected="true"] { color: var(--primary); }
-nav.tabs .talk { flex: 0 0 auto; width: 64px; height: 64px; min-height: 64px; margin-top: -26px; border-radius: 50%; background: var(--primary); color: var(--on-primary); box-shadow: 0 8px 20px rgba(5, 150, 105, .35); border: 4px solid var(--surface); }
-nav.tabs .talk svg { width: 26px; height: 26px; }
+nav.tabs { display: flex; align-items: stretch; gap: 4px; padding: 6px 8px max(8px, env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
+nav.tabs button { flex: 1; border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 14px; font-weight: 600; color: var(--muted); min-height: 64px; justify-content: center; border-radius: 14px; }
+nav.tabs button[aria-selected="true"] { color: var(--primary); background: var(--primary-soft); }
+nav.tabs button.talk { background: var(--primary); color: var(--on-primary); }
+nav.tabs button.talk:active { background: var(--primary-press); }
 
 /* Talk mode */
-.talkmode { position: absolute; inset: 0; z-index: 30; background: radial-gradient(120% 80% at 50% 30%, #0f2b2a, #070b14 70%); color: #e8edf7; display: flex; flex-direction: column; align-items: center; padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); }
+/* Talk mode: Tala as a character. Hold it to talk; replies stack above it like a chat. */
+.talkmode { position: absolute; inset: 0; z-index: 30; background: #0a6b3d; color: #ffffff; display: flex; flex-direction: column; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
 .talkmode[hidden] { display: none; }
-.talkmode .top { width: 100%; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #9aa6bf; }
-.talkmode .stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; width: 100%; min-height: 0; }
-.bigorb { width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #a7f3d0, #10b981 45%, #064e3b 100%); box-shadow: 0 0 60px rgba(52, 211, 153, .35); transition: transform .12s linear; flex-shrink: 0; }
-.talkmode[data-state="thinking"] .bigorb { animation: breathe 1.2s var(--ease) infinite; }
-.talkmode[data-state="speaking"] .bigorb { animation: speak .5s ease-in-out infinite alternate; }
-@keyframes speak { to { transform: scale(1.08); box-shadow: 0 0 90px rgba(52, 211, 153, .55); } }
-.talkmode .state { font-family: Lexend, sans-serif; font-size: 18px; font-weight: 500; }
-.talkmode .said { font-size: 15px; color: #9aa6bf; text-align: center; max-width: 320px; }
-.talkmode .reply { font-size: 17px; text-align: center; max-width: 330px; }
-.talkmode .result { width: 100%; max-height: 36%; overflow-y: auto; }
-.talkmode .result .card { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .08); color: #e8edf7; box-shadow: none; }
-.talkmode .controls { display: flex; gap: 32px; align-items: flex-start; }
-.talkmode .controls button { width: 64px; height: 64px; border-radius: 50%; border: 0; display: grid; place-items: center; background: rgba(255, 255, 255, .12); color: #fff; }
-.talkmode .controls button.end { background: #dc2626; }
+.talkmode .top { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #d6eadd; }
+.tchat { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px 0; }
+.tchat > :first-child { margin-top: auto; }
+.tb { max-width: 88%; padding: 12px 16px; font-size: 18px; line-height: 1.45; animation: rise .25s var(--ease); }
+.tb.me { align-self: flex-end; background: rgba(255, 255, 255, .16); border-radius: 20px 20px 6px 20px; }
+.tb.me img { display: block; max-width: 160px; border-radius: 12px; }
+.tb.tala { align-self: flex-start; background: var(--surface); color: var(--ink); border-radius: 20px 20px 20px 6px; }
+.tb.tala .card { box-shadow: none; }
+.tb.note { align-self: center; padding: 4px 12px; color: #d6eadd; font-size: 16px; }
+.buddy-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 8px 0 18px; }
+.buddy { --lvl: 0; width: 176px; height: 176px; border-radius: 50%; border: 0; padding: 0; background: var(--star); display: grid; place-items: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform .18s var(--ease), box-shadow .1s linear; }
+.buddy .eyes { display: flex; gap: 38px; transition: transform .3s var(--ease); }
+.buddy .eyes i { display: block; width: 20px; height: 32px; border-radius: 50%; background: var(--ink); transition: height .15s var(--ease); animation: blink 5s infinite; }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.talkmode[data-state="listening"] .buddy { transform: scale(1.05, .95); box-shadow: 0 0 0 calc(10px + var(--lvl) * 22px) rgba(244, 180, 0, .28); }
+.talkmode[data-state="listening"] .eyes i { height: 38px; }
+.talkmode[data-state="thinking"] .eyes { animation: ponder 1.6s ease-in-out infinite; }
+@keyframes ponder { 0%, 100% { transform: translate(-10px, -12px); } 50% { transform: translate(10px, -12px); } }
+.talkmode[data-state="speaking"] .buddy { animation: chatter .4s ease-in-out infinite alternate; }
+@keyframes chatter { to { transform: translateY(-8px); } }
+.buddy-label { font-family: Lexend, sans-serif; font-size: 18px; font-weight: 500; text-align: center; min-height: 27px; }
+.camview { display: none; width: 100%; max-height: 34vh; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; background: #000; margin-top: 10px; }
+.talkmode.cam .camview { display: block; }
+.talkmode.cam .buddy { width: 96px; height: 96px; }
+.talkmode.cam .buddy .eyes { gap: 22px; }
+.talkmode.cam .buddy .eyes i { width: 12px; height: 18px; }
+.talkmode.cam .buddy-wrap { padding: 4px 0 10px; gap: 8px; }
+.camtag { display: none; align-self: center; margin-top: 6px; font-size: 14px; color: #d6eadd; }
+.talkmode.cam .camtag { display: block; }
+.talkmode .controls { display: flex; justify-content: center; gap: 28px; }
+.talkmode .controls button { width: 64px; height: 64px; border-radius: 50%; border: 0; display: grid; place-items: center; background: rgba(255, 255, 255, .16); color: #fff; }
+.talkmode .controls button[aria-pressed="true"] { background: #ffffff; color: var(--danger); }
+.talkmode .controls button.end { background: var(--danger); }
 .talkmode .controls svg { width: 26px; height: 26px; }
-.talkmode .controls label { display: block; font-size: 12px; color: #9aa6bf; text-align: center; margin-top: 6px; }
+.talkmode .controls label { display: block; font-size: 15px; font-weight: 600; text-align: center; margin-top: 6px; }
 
 dialog { border: 1px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--ink); padding: 24px; max-width: 360px; text-align: center; box-shadow: var(--shadow); }
 dialog::backdrop { background: rgba(0, 0, 0, .55); }
 dialog h3 { margin: 0 0 6px; font-size: 20px; }
-dialog p { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+dialog p { color: var(--muted); font-size: 16px; margin: 0 0 12px; }
 dialog .qr { background: #fff; border-radius: 14px; padding: 10px; margin: 8px auto 12px; width: 240px; }
 dialog .qr svg { width: 100%; height: auto; display: block; }
-dialog ol { text-align: left; color: var(--muted); font-size: 14px; padding-left: 20px; margin: 0 0 16px; }
+dialog ol { text-align: left; color: var(--muted); font-size: 16px; padding-left: 20px; margin: 0 0 16px; }
 dialog code { font-size: 12px; color: var(--ink); word-break: break-all; }
-dialog button.close { height: 44px; width: 100%; border: 0; border-radius: 12px; background: var(--primary); color: var(--on-primary); font-weight: 600; }
+dialog button.close { height: var(--tap); width: 100%; border: 0; border-radius: 12px; background: var(--primary); color: var(--on-primary); font-weight: 600; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -238,9 +250,9 @@ dialog button.close { height: 44px; width: 100%; border: 0; border-radius: 12px;
 <div class="device" id="device">
   <header>
     <span class="orb" id="headOrb" aria-hidden="true"></span>
-    <div class="brand"><b>Tindahan ni Aling Nena</b><small id="net"><span class="dot"></span><span id="netText">Tala · AI on your device</span></small></div>
+    <div class="brand"><b>Tindahan ni Aling Nena</b><small id="net"><span class="dot"></span><span id="netText">Gumagana offline</span></small></div>
     <span class="spacer"></span>
-    <button class="hbtn" id="speakBtn" aria-pressed="false" aria-label="Read answers aloud" title="Read answers aloud"><svg class="i"><use href="#i-volx"/></svg></button>
+    <button class="hbtn" id="speakBtn" aria-pressed="false" title="Basahin nang malakas ang sagot"><svg class="i"><use href="#i-volx"/></svg>Boses</button>
   </header>
 
   <div class="screens">
@@ -249,8 +261,8 @@ dialog button.close { height: 44px; width: 100%; border: 0; border-radius: 12px;
         <div class="thread" id="thread">
           <div class="welcome" id="welcome">
             <span class="orb lg" aria-hidden="true"></span>
-            <h3>Magandang araw! Ano ang nabenta?</h3>
-            <p>Sabihin, i-type, o i-picture ang listahan. Ako na ang bahala sa lista, stock at kita.</p>
+            <h3>Magandang araw po! Ano ang nabenta?</h3>
+            <p>Sabihin, i-type, o i-picture ang listahan. Ako na po ang bahala sa lista, stock at kita.</p>
             <div class="suggest" id="suggest"></div>
           </div>
         </div>
@@ -261,38 +273,40 @@ dialog button.close { height: 44px; width: 100%; border: 0; border-radius: 12px;
           <label class="sr" for="input">Message Tala</label>
           <button type="button" class="ibtn" id="attach" aria-label="Take or attach a photo or PDF"><svg class="i"><use href="#i-camera"/></svg></button>
           <input type="file" id="file" accept="image/*,application/pdf" multiple hidden>
-          <textarea id="input" rows="1" placeholder="“2 Coke, 1 canton, 3 Kopiko”"></textarea>
+          <textarea id="input" rows="1" placeholder="Hal. 2 Coke, 1 canton"></textarea>
           <div class="level" id="level" aria-hidden="true"></div>
           <button type="button" class="ibtn" id="mic" aria-label="Dictate"><svg class="i"><use href="#i-mic"/></svg></button>
           <button type="submit" class="ibtn primary" id="send" aria-label="Send" disabled><svg class="i"><use href="#i-up"/></svg></button>
         </form>
-        <div class="hint" id="hint">Tap the mic and talk; it stops when you do.</div>
+        <div class="hint" id="hint">Pindutin ang mic at magsalita.</div>
       </div>
     </section>
     <section class="screen" id="s-sales" aria-label="Sales" hidden><div class="scroll" id="salesView"><p class="empty">Loading…</p></div></section>
+    <section class="screen" id="s-tips" aria-label="Payo" hidden><div class="scroll" id="tipsView"></div></section>
     <section class="screen" id="s-stock" aria-label="Stock" hidden><div class="scroll" id="stockView"><p class="empty">Loading…</p></div></section>
   </div>
 
   <nav class="tabs" role="tablist" aria-label="Main">
     <button role="tab" id="t-chat" aria-selected="true" aria-controls="s-chat"><svg class="i"><use href="#i-chat"/></svg>Chat</button>
     <button role="tab" id="t-sales" aria-selected="false" aria-controls="s-sales"><svg class="i"><use href="#i-chart"/></svg>Benta</button>
-    <button class="talk" id="talkBtn" aria-label="Start talk mode"><svg class="i"><use href="#i-mic"/></svg></button>
+    <button class="talk" id="talkBtn" title="Kausapin si Tala"><svg class="i"><use href="#i-mic"/></svg>Usap</button>
     <button role="tab" id="t-stock" aria-selected="false" aria-controls="s-stock"><svg class="i"><use href="#i-box"/></svg>Stock</button>
-    <button role="tab" id="t-tips" aria-selected="false"><svg class="i"><use href="#i-bulb"/></svg>Payo</button>
+    <button role="tab" id="t-tips" aria-selected="false" aria-controls="s-tips"><svg class="i"><use href="#i-bulb"/></svg>Payo</button>
   </nav>
 
-  <div class="talkmode" id="talk" hidden data-state="listening" aria-live="polite">
-    <div class="top"><span>Talk mode · all on this device</span><span id="talkTimer">0:00</span></div>
-    <div class="stage">
-      <div class="bigorb" id="bigorb" aria-hidden="true"></div>
-      <div class="state" id="talkState">Nakikinig…</div>
-      <div class="said" id="talkSaid"></div>
-      <div class="reply" id="talkReply"></div>
-      <div class="result" id="talkResult"></div>
+  <div class="talkmode" id="talk" hidden data-state="idle">
+    <div class="top"><span>Usap kay Tala</span><span id="talkTimer">0:00</span></div>
+    <video class="camview" id="camview" autoplay playsinline muted aria-label="Ang nakikita ni Tala"></video>
+    <div class="camtag" id="camtag">Nakikita ni Tala ang camera. Itanong mo kung ano ito.</div>
+    <div class="tchat" id="tchat" aria-live="polite"></div>
+    <div class="buddy-wrap">
+      <button class="buddy" id="buddy" aria-label="Pindutin nang matagal habang nagsasalita"><span class="eyes" aria-hidden="true"><i></i><i></i></span></button>
+      <div class="buddy-label" id="talkState"></div>
     </div>
     <div class="controls">
-      <div><button id="talkCam" aria-label="Show Tala a photo"><svg class="i"><use href="#i-camera"/></svg></button><label>Show</label></div>
-      <div><button class="end" id="talkEnd" aria-label="End talk mode"><svg class="i"><use href="#i-phoneoff"/></svg></button><label>End</label></div>
+      <div><button id="talkCam" aria-pressed="false" aria-label="Buksan ang camera para makita ni Tala"><svg class="i"><use href="#i-camera"/></svg></button><label id="talkCamLbl">Camera</label></div>
+      <div><button id="talkMute" aria-pressed="false" aria-label="Patahimikin si Tala"><svg class="i"><use href="#i-vol"/></svg></button><label id="talkMuteLbl">May boses</label></div>
+      <div><button class="end" id="talkEnd" aria-label="Tapusin ang usap"><svg class="i"><use href="#i-phoneoff"/></svg></button><label>Tapusin</label></div>
     </div>
   </div>
   <input type="file" id="camFile" accept="image/*" capture="environment" hidden>
@@ -326,13 +340,15 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const chatLog = [];
 let pending = [];
 let busy = false;
+const player = new Audio();
+let speakToken = 0;
 
 /* ---------- Welcome ---------- */
 const SUGGESTIONS = [
-  ["cart", "Record sales", "2 Coke, 1 canton, tapos 3 Kopiko"],
-  ["truck", "Restock", "Dumating ang 2 box ng Coke, 24 each, ₱16 bawat isa"],
-  ["chart", "Ask about sales", "Ano ang best seller ko this week?"],
-  ["bulb", "Get advice", "Kumusta ang tindahan? Ano ang dapat i-restock?"],
+  ["cart", "Itala ang benta", "2 Coke, 1 canton, tapos 3 Kopiko"],
+  ["truck", "Dumating na paninda", "Dumating ang 2 box ng Coke, 24 each, ₱16 bawat isa"],
+  ["chart", "Tanong sa benta", "Ano ang best seller ko this week?"],
+  ["bulb", "Humingi ng payo", "Kumusta ang tindahan? Ano ang dapat i-restock?"],
 ];
 $("suggest").innerHTML = SUGGESTIONS.map(([ic, label, text]) =>
   `<button type="button" data-text="${esc(text)}"><span class="ic">${icon(ic)}</span><span><b>${label}</b><span>${esc(text)}</span></span></button>`).join("");
@@ -342,18 +358,18 @@ $("suggest").onclick = (e) => { const b = e.target.closest("button"); if (b) sen
 function netBadge() {
   const off = !navigator.onLine;
   $("net").classList.toggle("offline", off);
-  $("netText").textContent = off ? "Offline · Tala still works" : "Tala · AI on your device";
+  $("netText").textContent = off ? "Walang internet · okay lang" : "Gumagana offline";
 }
 addEventListener("online", netBadge); addEventListener("offline", netBadge); netBadge();
 
 /* ---------- Tabs ---------- */
 function selectTab(name) {
-  if (name === "tips") { selectTab("chat"); send("Kumusta ang tindahan ko? Bigyan mo ako ng payo."); return; }
-  for (const t of ["chat", "sales", "stock"]) {
+  for (const t of ["chat", "sales", "stock", "tips"]) {
     $("t-" + t).setAttribute("aria-selected", t === name);
     $("s-" + t).hidden = t !== name;
   }
-  if (name !== "chat") refresh();
+  if (name === "tips") openTips();
+  else if (name !== "chat") refresh();
 }
 document.querySelector("nav.tabs").onclick = (e) => { const b = e.target.closest("button[role=tab]"); if (b) selectTab(b.id.slice(2)); };
 
@@ -440,10 +456,45 @@ async function refresh() {
     <div class="section">Today’s sales</div>
     ${d.today.length ? `<div class="card"><div class="rows">${saleRows(d.today)}</div></div>` : `<p class="empty">Wala pang benta today. Say “2 Coke, 1 canton”.</p>`}`;
   drawChart($("salesView").querySelector(".chart-box"), { kind: "line", fmt: "peso", labels: d.trend.map((r) => r.label), values: d.trend.map((r) => r.value) });
+  productWords = [...new Set(d.stock.flatMap((p) => p.product.toLowerCase().split(/[^a-z0-9]+/)).filter((w) => w.length > 3))];
   const low = d.stock.filter((p) => p.reorder_at > 0 && p.stock <= p.reorder_at);
   $("stockView").innerHTML = `<h2>Stock</h2>
     ${low.length ? `<div class="alert">${icon("alert")}<span><b>${low.length} item${low.length === 1 ? "" : "s"} paubos na.</b> Restock soon: ${low.map((p) => esc(p.product)).join(", ")}.</span></div>` : `<p class="empty">Lahat may stock.</p>`}
     <div class="card"><div class="rows">${stockRows(d.stock)}</div></div>`;
+}
+
+/* ---------- Payo (advice): Tala looks at the store's numbers and gives tips ---------- */
+const TIP_QUESTIONS = [
+  ["bulb", "Payo para sa linggong ito", "Kumusta ang tindahan ko? Bigyan mo ako ng isang praktikal na payo."],
+  ["truck", "Ano ang dapat i-restock?", "Ano ang dapat kong i-restock ngayon at ilan?"],
+  ["box", "Ano ang hindi gumagalaw?", "Anong produkto ang hindi gumagalaw at ano ang gagawin ko dito?"],
+  ["chart", "Saan ako pinakamalaki kumita?", "Anong produkto ang may pinakamalaking kita this week?"],
+];
+let tipsLoaded = false;
+function openTips() {
+  if (tipsLoaded) return;
+  tipsLoaded = true;
+  $("tipsView").innerHTML = `<h2>Payo</h2><p class="empty" style="margin-bottom:8px">Tala looks at your sales and stock and tells you what to do. Tap a question.</p>
+    <div class="suggest" id="tipQs">${TIP_QUESTIONS.map(([ic, label, q]) => `<button type="button" data-q="${esc(q)}"><span class="ic">${icon(ic)}</span><span><span>${label}</span></span></button>`).join("")}</div>
+    <div id="tipOut"></div>`;
+  $("tipQs").onclick = (e) => { const b = e.target.closest("button"); if (b) askTip(b.dataset.q, b.textContent.trim()); };
+  askTip(TIP_QUESTIONS[0][2], TIP_QUESTIONS[0][1]);
+}
+async function askTip(q, label) {
+  const out = $("tipOut");
+  out.innerHTML = `<div class="card"><h4><span>${esc(label)}</span></h4><p class="thinking"><span class="orb busy" style="display:inline-block;width:14px;height:14px;vertical-align:middle;margin-right:8px"></span>Tinitingnan ang records mo…</p></div>`;
+  const fd = new FormData();
+  fd.append("message", q); fd.append("history", "[]");
+  try {
+    const r = await fetch("/api/chat", { method: "POST", body: fd });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail);
+    out.innerHTML = `<div class="card"><h4><span>${esc(label)}</span><button class="hbtn" style="width:36px;height:36px" aria-label="Read aloud" data-say="${esc(d.reply)}">${icon("vol")}</button></h4><p style="margin:0">${esc(d.reply)}</p></div>`;
+    d.blocks.forEach((b) => renderBlock(b, out));
+    speak(d.reply);
+  } catch (e) {
+    out.innerHTML = `<div class="card"><p class="error" style="margin:0">${esc(e.message || "Hindi makakonekta kay Tala.")}</p></div>`;
+  }
 }
 
 /* ---------- Voice replies: on-device voices only ---------- */
@@ -459,21 +510,52 @@ function setSpeak(on) {
   speakOn = on; store.set("tala.speak", on ? "1" : "0");
   $("speakBtn").setAttribute("aria-pressed", on);
   $("speakBtn").querySelector("use").setAttribute("href", on ? "#i-vol" : "#i-volx");
-  if (!on && "speechSynthesis" in window) speechSynthesis.cancel();
+  if (!on) stopSpeaking();
 }
-function unlockSpeech() { if ("speechSynthesis" in window) speechSynthesis.speak(new SpeechSynthesisUtterance("")); }   // iOS: speech must start from a tap
 $("speakBtn").onclick = () => { setSpeak(!speakOn); if (speakOn) unlockSpeech(); };
 setSpeak(speakOn);
-function speak(text, force) {
+// Tagalog voice from the laptop (MMS-TTS), one sentence at a time so the first one plays quickly.
+function stopSpeaking() { speakToken++; player.pause(); if ("speechSynthesis" in window) speechSynthesis.cancel(); }
+async function sentenceAudio(s) {
+  const fd = new FormData(); fd.append("text", s);
+  const r = await fetch("/api/speak", { method: "POST", body: fd });
+  if (!r.ok) throw new Error("tts");
+  return URL.createObjectURL(await r.blob());
+}
+function playUrl(url, token) {
   return new Promise((done) => {
-    if ((!speakOn && !force) || !voice || !text || !("speechSynthesis" in window)) return done();
-    speechSynthesis.cancel();
-    const say = text.replace(/₱\s?([\d,]+(?:\.\d+)?)/g, (_, n) => `${n.replace(/\.00$/, "")} pesos`).replace(/[\u{1F300}-\u{1FAFF}☀-➿]/gu, "");
-    const u = new SpeechSynthesisUtterance(say);
-    u.voice = voice; u.rate = 1.05;
-    u.onend = u.onerror = () => done();
+    if (token !== speakToken) return done();
+    player.src = url; player.onended = player.onerror = () => done();
+    player.play().catch(() => done());
+  });
+}
+function browserSpeak(text) {
+  return new Promise((done) => {
+    if (!voice || !("speechSynthesis" in window)) return done();
+    const u = new SpeechSynthesisUtterance(text.replace(/₱\s?([\d,]+(?:\.\d+)?)/g, (_, n) => `${n.replace(/\.00$/, "")} pesos`));
+    u.voice = voice; u.rate = 1.05; u.onend = u.onerror = () => done();
     speechSynthesis.speak(u);
   });
+}
+async function speak(text, force) {
+  if ((!speakOn && !force) || !text) return;
+  stopSpeaking();
+  const token = speakToken;
+  const parts = text.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "").match(/[^.!?]+[.!?]*/g)?.map((x) => x.trim()).filter(Boolean) || [text];
+  try {
+    let next = sentenceAudio(parts[0]);
+    for (let i = 0; i < parts.length && token === speakToken; i++) {
+      const url = await next;
+      if (i + 1 < parts.length) next = sentenceAudio(parts[i + 1]);   // prepare the next sentence while this one plays
+      await playUrl(url, token);
+    }
+  } catch {
+    if (token === speakToken) await browserSpeak(text);   // laptop voice unavailable: fall back to the phone's own voice
+  }
+}
+function unlockSpeech() {
+  player.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="; player.play().catch(() => {});   // iOS: audio must start from a tap
+  if ("speechSynthesis" in window) speechSynthesis.speak(new SpeechSynthesisUtterance(""));
 }
 document.addEventListener("click", (e) => { const b = e.target.closest("[data-say]"); if (b) speak(b.dataset.say, true); });
 
@@ -587,6 +669,17 @@ async function transcribe(blob) {
   if (!r.ok) throw new Error(d.detail);
   return d.text.replace(/\[[^\]]*\]|\([^)]*\)/g, "").trim();   // whisper writes "[BLANK_AUDIO]" etc. for noise
 }
+// Whisper turns room noise into short stock phrases ("Okay.", "Thank you."); drop those before they reach the AI.
+const KEEP = /\d|kumusta|benta|kita|stock|restock|payo|presyo|ubos|magkano|ilan|best|sales|profit/i;
+const NOISE = /^(ok(ay)?|thank you|thanks( for watching)?|you|bye|yes|no|oo|hindi|sige|salamat|hello|hi|uh+|um+|ah+|sari-?sari|music|applause)$/i;
+let productWords = [];
+function isNoise(text) {
+  const t = text.toLowerCase().replace(/[.,!?¿"“”]/g, "").trim();
+  if (!t || NOISE.test(t)) return true;
+  if (KEEP.test(t) || productWords.some((w) => t.includes(w))) return false;
+  return t.split(/\s+/).length <= 2;
+}
+
 let recording = false;
 function setRecording(on) {
   recording = on;
@@ -598,7 +691,7 @@ function setRecording(on) {
 $("mic").onclick = async () => {
   if (recording) { stopCurrent?.(); return; }
   try { await micStream(); } catch { hint("Microphone permission is needed for voice."); return; }
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  stopSpeaking();
   setRecording(true);
   const blob = await recordUtterance({ onLevel: (level, now) => levelBars.forEach((b, i) => { b.style.height = `${6 + Math.min(32, level * 900 * (0.5 + Math.abs(Math.sin(now / 120 + i))))}px`; }) });
   setRecording(false);
@@ -606,59 +699,122 @@ $("mic").onclick = async () => {
   hint("Transcribing on your device…", true);
   try {
     const text = await transcribe(blob);
-    hint(text ? `Heard: “${text}”` : "Hindi ko narinig. Try again?");
-    if (text) await send(text, "voice");
+    if (!text || isNoise(text)) { hint(text ? `Hindi malinaw (“${text}”). Ulitin po?` : "Hindi ko narinig. Ulitin po?"); return; }
+    hint(`Heard: “${text}”`);
+    await send(text, "voice");
   } catch (e) { hint(e.message || "Couldn’t transcribe."); }
 };
 
-/* ---------- Talk mode: hands-free turns (listen → think → speak → listen) ---------- */
-let talkOn = false, talkPhoto = null, talkStart = 0, talkTimer;
-const TALK_IDLE = "Say what you sold, ask about your store, or tap Show to send a photo.";
-function talkState(state, label) { $("talk").dataset.state = state; $("talkState").textContent = label; }
-async function talkLoop() {
-  while (talkOn) {
-    talkState("listening", talkPhoto ? "Nakikinig… (photo ready)" : "Nakikinig…");
-    const blob = await recordUtterance({ waitForSpeech: true, silenceMs: 1100, onLevel: (level) => { $("bigorb").style.transform = `scale(${1 + Math.min(.25, level * 6)})`; } });
-    $("bigorb").style.transform = "";
-    if (!talkOn) break;
-    if (!blob && !talkPhoto) continue;
-    talkState("thinking", "Nag-iisip…");
-    let text = "";
-    if (blob) { try { text = await transcribe(blob); } catch { text = ""; } }
-    if (!text && !talkPhoto) continue;
-    $("talkSaid").textContent = text ? `“${text}”` : "(photo)";
-    $("talkReply").textContent = ""; $("talkResult").innerHTML = "";
-    const photo = talkPhoto; talkPhoto = null;
-    const d = await send(text || "Ano ang nasa picture? I-record mo para sa tindahan.", "voice", photo ? [photo] : []);
-    if (!talkOn) break;
-    if (!d) { $("talkReply").textContent = "May problema. Subukan ulit."; continue; }
-    $("talkReply").textContent = d.reply;
-    d.blocks.forEach((b) => renderBlock(b, $("talkResult")));
-    talkState("speaking", "Nagsasalita…");
-    await speak(d.reply, true);
-  }
+/* ---------- Talk mode: hold Tala to talk, replies stack above it ---------- */
+let talkOn = false, talkBusy = false, talkMuted = false, holding = false, holdStart = 0, talkStart = 0, talkTimer;
+const TALK_IDLE = "Pindutin ako nang matagal at magsalita";
+function talkState(state, label = TALK_IDLE) { $("talk").dataset.state = state; $("talkState").textContent = label; }
+function tb(cls, html) {
+  const el = document.createElement("div");
+  el.className = "tb " + cls; el.innerHTML = html;
+  $("tchat").appendChild(el);
+  $("tchat").scrollTo({ top: $("tchat").scrollHeight, behavior: reduced ? "auto" : "smooth" });
+  return el;
 }
-$("talkBtn").onclick = async () => {
-  try { await micStream(); } catch { hint("Microphone permission is needed for Talk mode."); return; }
+async function talkTurn(text, photo) {
+  talkBusy = true;
+  talkState("thinking", "Nag-iisip…");
+  tb("me", (photo ? `<img src="${URL.createObjectURL(photo)}" alt="Picture na ipinakita">` : "") + (text ? `<div>${esc(text)}</div>` : ""));
+  const d = await send(text || "Ano ang nasa picture? I-record mo para sa tindahan.", "voice", photo ? [photo] : []);
+  talkBusy = false;
+  if (!talkOn) return;
+  if (!d) { tb("tala", "May problema po. Subukan ulit."); talkState("idle"); return; }
+  const el = tb("tala", esc(d.reply));
+  d.blocks.forEach((b) => renderBlock(b, el));
+  if (!talkMuted) { talkState("speaking", "Nagsasalita… pindutin para sumingit"); await speak(d.reply, true); }
+  if (talkOn && !holding) talkState("idle");
+}
+async function holdStartFn(e) {
+  if (!talkOn || talkBusy || holding) return;
+  e.preventDefault();
+  if (e.pointerId !== undefined) $("buddy").setPointerCapture(e.pointerId);
+  holding = true;
+  stopSpeaking();
+  try { await micStream(); } catch { holding = false; talkState("idle", "Kailangan po ng permiso sa mikropono."); return; }
+  if (!holding) return;   // let go while the permission prompt was up
+  holdStart = performance.now();
+  talkState("listening", "Nakikinig… bitawan kapag tapos na");
+  // ponytail: no silence cut-off while held; the 60s cap stops a stuck press
+  const blob = await recordUtterance({ silenceMs: Infinity, maxMs: 60000, onLevel: (l) => $("buddy").style.setProperty("--lvl", Math.min(1, l * 12)) });
+  holding = false; $("buddy").style.setProperty("--lvl", 0);
+  const frame = camStream ? await grabFrame() : null;   // what the camera sees the moment you let go
+  if (!talkOn) return;
+  if (!blob || performance.now() - holdStart < 400) { talkState("idle", "Pindutin nang matagal habang nagsasalita"); return; }
+  talkState("thinking", "Pinapakinggan…");
+  let text = "";
+  try { text = await transcribe(blob); } catch { text = ""; }
+  if (!text || isNoise(text)) { talkState("idle", "Hindi ko po narinig. Subukan ulit."); return; }
+  await talkTurn(text, frame);
+}
+function holdEnd() { if (holding) { holding = false; stopCurrent?.(); } }
+const buddy = $("buddy");
+buddy.addEventListener("pointerdown", holdStartFn);
+buddy.addEventListener("pointerup", holdEnd);
+buddy.addEventListener("pointercancel", holdEnd);
+buddy.addEventListener("contextmenu", (e) => e.preventDefault());
+buddy.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !e.repeat) holdStartFn(e); });
+buddy.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") holdEnd(); });
+$("talkMute").onclick = () => {
+  talkMuted = !talkMuted;
+  $("talkMute").setAttribute("aria-pressed", talkMuted);
+  $("talkMute").querySelector("use").setAttribute("href", talkMuted ? "#i-volx" : "#i-vol");
+  $("talkMuteLbl").textContent = talkMuted ? "Naka-mute" : "May boses";
+  if (talkMuted) { stopSpeaking(); if ($("talk").dataset.state === "speaking") talkState("idle"); }
+};
+$("talkBtn").onclick = () => {
   unlockSpeech();
   talkOn = true; talkStart = Date.now();
-  $("talk").hidden = false; $("talkSaid").textContent = TALK_IDLE; $("talkReply").textContent = ""; $("talkResult").innerHTML = "";
+  $("talk").hidden = false;
+  $("tchat").innerHTML = "";
+  tb("tala", "Magandang araw po! Pindutin ako nang matagal, sabihin ang nabenta o itanong ang tungkol sa tindahan, tapos bitawan.");
+  talkState("idle");
   talkTimer = setInterval(() => { const s = Math.floor((Date.now() - talkStart) / 1000); $("talkTimer").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 1000);
-  talkLoop();
+  buddy.focus();
 };
 $("talkEnd").onclick = () => {
-  talkOn = false; clearInterval(talkTimer); stopCurrent?.();
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  talkOn = false; holding = false; clearInterval(talkTimer); stopCurrent?.();
+  camOff();
+  stopSpeaking();
   $("talk").hidden = true;
 };
-$("talkCam").onclick = () => $("camFile").click();
+/* Live camera: Tala sees one frame per turn (a local vision model reads a still, not a video stream). */
+let camStream = null;
+async function camOn() {
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+  } catch { camStream = null; return false; }
+  $("camview").srcObject = camStream;
+  $("talk").classList.add("cam");
+  $("talkCam").setAttribute("aria-pressed", "true"); $("talkCamLbl").textContent = "Naka-on";
+  return true;
+}
+function camOff() {
+  camStream?.getTracks().forEach((t) => t.stop());
+  camStream = null; $("camview").srcObject = null;
+  $("talk").classList.remove("cam");
+  $("talkCam").setAttribute("aria-pressed", "false"); $("talkCamLbl").textContent = "Camera";
+}
+function grabFrame() {
+  const v = $("camview");
+  if (!v.videoWidth) return Promise.resolve(null);
+  const scale = Math.min(1, 1024 / Math.max(v.videoWidth, v.videoHeight));   // enough detail for labels, small enough to stay fast
+  const c = document.createElement("canvas");
+  c.width = Math.round(v.videoWidth * scale); c.height = Math.round(v.videoHeight * scale);
+  c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+  return new Promise((done) => c.toBlob((b) => done(b ? new File([b], "camera.jpg", { type: "image/jpeg" }) : null), "image/jpeg", 0.8));
+}
+$("talkCam").onclick = async () => {
+  if (camStream) { camOff(); return; }
+  if (!(await camOn())) $("camFile").click();   // no live camera here (permission or old browser): take a photo instead
+};
 $("camFile").onchange = (e) => {
   const f = e.target.files[0]; e.target.value = "";
-  if (!f) return;
-  talkPhoto = f;
-  $("talkSaid").textContent = "Photo ready. Sabihin kung ano ang gagawin, o maghintay lang para i-record.";
-  // Silence after a photo means "just record it": end the current wait so the loop sends it.
-  setTimeout(() => { if (talkOn && talkPhoto && $("talk").dataset.state === "listening") stopCurrent?.(); }, 3500);
+  if (f && talkOn && !talkBusy) talkTurn("", f);
 };
 
 /* ---------- Phone pairing (only offered on the laptop itself) ---------- */
