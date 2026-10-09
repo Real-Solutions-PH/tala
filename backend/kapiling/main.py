@@ -67,5 +67,9 @@ async def health() -> dict[str, bool]:
         }
 
 
+from kapiling.chat.routes import router as chat_router  # noqa: E402  (Task 8)
+
+app.include_router(chat_router)
+
 if STATIC_DIR.is_dir():
     app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
