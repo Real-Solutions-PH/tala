@@ -1,5 +1,6 @@
 """Kapiling API: local-first personal health record."""
 
+import re
 from typing import Any
 
 import httpx
@@ -8,19 +9,25 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from kapiling import config
+from kapiling.auth.routes import router as auth_router
 from kapiling.records.routes import router as records_router
 
 STATIC_DIR = config.ROOT / "static"
 COOKIE = "kapiling_k"
-OPEN_EXACT = {"/api/health", "/api/profiles"}
-OPEN_PREFIXES = ("/api/emergency/", "/api/profiles/")
+# The only API paths a non-paired LAN client may reach. Everything else needs the pairing cookie.
+OPEN_PATHS = re.compile(
+    r"/api/health|/api/profiles|/api/unlock"
+    r"|/api/profiles/[0-9]+/photo"
+    r"|/api/emergency/[0-9]+(?:/qr\.svg)?"
+)
 
 app = FastAPI(title="Kapiling")
+app.include_router(auth_router)
 app.include_router(records_router)
 
 
 def is_open(path: str) -> bool:
-    return path in OPEN_EXACT or path == "/api/emergency" or path.startswith(OPEN_PREFIXES)
+    return OPEN_PATHS.fullmatch(path) is not None
 
 
 @app.middleware("http")

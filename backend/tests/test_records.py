@@ -38,7 +38,7 @@ def test_emergency_card_respects_field_choice(con, lola):
 
 def test_emergency_card_full(con, lola):
     card = emergency_card(con, lola)
-    assert card["philhealth_last4"] == "00-0"
+    assert card["philhealth_last4"] == "0000"
     assert card["doctor"]["name"] == "Dr. Jose Reyes"
     assert [c["name"] for c in card["contacts"]] == ["Ana Dela Cruz"]
     assert len(card["qr_text"]) < 600 and "Penicillin" in card["qr_text"]
@@ -107,7 +107,7 @@ def test_meds_summary_timeline_observations_routes(client, lola_unlocked):
     s = client.get(f"{p}/summary").json()
     assert s["latest"]["fbs"]["value"] == 132 and s["profile"]["id"] == lola_unlocked
     assert client.put(p, json={"phone": "0917-111-1111"}).json()["phone"] == "0917-111-1111"
-    assert client.get("/api/profiles/9999/summary").status_code == 404
+    assert client.get("/api/profiles/9999/summary").status_code == 403  # not this session's profile
 
 
 def _post(client, pid, front, back=None, ct="image/jpeg"):
@@ -123,25 +123,53 @@ def _card_files(pid):
     return {p.name for p in d.glob(f"{pid}-*")}
 
 
-def test_upload_rejects_fake_image_with_lying_content_type(client, lola):
+def test_upload_rejects_fake_image_with_lying_content_type(client, lola_unlocked):
+    lola = lola_unlocked
     before = _card_files(lola)
     r = _post(client, lola, b"not an image at all")
     assert r.status_code == 415 and r.json()["detail"] == "errors.unsupportedImage"
     assert _card_files(lola) == before
 
 
-def test_upload_rejects_oversize(client, lola):
+def test_upload_rejects_oversize(client, lola_unlocked):
+    lola = lola_unlocked
     r = _post(client, lola, _jpeg() + b"\0" * (10 * 1024 * 1024))
     assert r.status_code == 413 and r.json()["detail"] == "errors.fileTooLarge"
 
 
-def test_bad_back_leaves_no_files(client, lola):
+def test_bad_back_leaves_no_files(client, lola_unlocked):
+    lola = lola_unlocked
     before = _card_files(lola)
     r = _post(client, lola, _jpeg(), back=b"junk")
     assert r.status_code == 415 and _card_files(lola) == before
 
 
-def test_extension_comes_from_real_format(client, lola):
+def test_extension_comes_from_real_format(client, lola_unlocked):
+    lola = lola_unlocked
     b = io.BytesIO(); Image.new("RGB", (8, 8)).save(b, "PNG")
     r = _post(client, lola, b.getvalue(), ct="image/jpeg")
     assert r.status_code == 200 and client.get(r.json()["front_url"]).headers["content-type"] == "image/png"
+
+
+def test_philhealth_last4_uses_digits_only(con, lola):
+    con.execute("update profiles set philhealth_no='12-345678901-2' where id=?", (lola,))
+    assert emergency_card(con, lola)["philhealth_last4"] == "9012"
+    con.execute("update profiles set philhealth_no='--' where id=?", (lola,))
+    assert emergency_card(con, lola)["philhealth_last4"] is None
+
+
+def test_qr_text_is_emergency_first_and_cut_by_whole_lines(con, lola):
+    card = emergency_card(con, lola)
+    lines = card["qr_text"].split("\n")
+    prefixes = [ln.split(":")[0] for ln in lines[1:]]
+    assert prefixes == ["Blood", "Allergy", "Call", "Conditions", "Meds", "Dr", "PhilHealth"]
+    assert lines[-1] == "PhilHealth: ****0000"
+    # Bloat the low-priority sections: contacts and allergies must survive, lines stay whole.
+    for i in range(40):
+        con.execute("insert into conditions (profile_id, name) values (?, ?)", (lola, f"Condition number {i}"))
+    card = emergency_card(con, lola)
+    qr = card["qr_text"]
+    assert len(qr) <= 600 and "Penicillin" in qr and "Ana Dela Cruz" in qr and "O+" in qr
+    assert all(ln.split(":")[0] in {"Blood", "Allergy", "Call", "Conditions", "Meds", "Dr", "PhilHealth"}
+               for ln in qr.split("\n")[1:])
+    assert "Condition number 39" not in qr

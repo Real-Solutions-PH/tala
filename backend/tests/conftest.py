@@ -39,7 +39,28 @@ def client(con):
     app.dependency_overrides.clear()
 
 
+@pytest.fixture(autouse=True)
+def _fresh_auth_state():
+    """Sessions and unlock backoff live in process memory; isolate them per test."""
+    from kapiling.auth import lock
+
+    lock.reset_state()
+    yield
+    lock.reset_state()
+
+
+def _unlock(client, pid):
+    r = client.post("/api/unlock", json={"profile_id": pid, "pin": persona.OWNER_PIN})
+    assert r.status_code == 204, r.text
+    assert "kapiling_s" in client.cookies
+    return pid
+
+
 @pytest.fixture
-def lola_unlocked(lola):
-    # Task 6 replaces this with a real unlock (cookie session).
-    return lola
+def lola_unlocked(client, lola):
+    return _unlock(client, lola)
+
+
+@pytest.fixture
+def mika_unlocked(client, mika):
+    return _unlock(client, mika)

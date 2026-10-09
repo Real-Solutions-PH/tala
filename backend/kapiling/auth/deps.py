@@ -1,15 +1,25 @@
-from typing import TypedDict
+from fastapi import HTTPException, Request
 
-from fastapi import Request
+from kapiling.auth import lock
+from kapiling.auth.lock import Actor
 
+SESSION_COOKIE = "kapiling_s"
 
-class Actor(TypedDict):
-    profile_id: int | None
-    name: str
-    role: str
+__all__ = ["Actor", "SESSION_COOKIE", "require_unlocked"]
 
 
 def require_unlocked(request: Request) -> Actor:
-    """STUB (Task 6 swaps the body for real session checks): allows everything as the owner."""
+    """FastAPI dependency: a live session (401 otherwise). On routes with a `{pid}` path parameter the
+    session's profile must match it (403 otherwise). Routes without `{pid}` must check ownership themselves."""
+    actor = lock.session_actor(request.cookies.get(SESSION_COOKIE))
+    if actor is None:
+        raise HTTPException(401, "errors.locked")
     pid = request.path_params.get("pid")
-    return {"profile_id": int(pid) if pid is not None else None, "name": "owner", "role": "owner"}
+    if pid is not None and str(actor["profile_id"]) != str(pid):
+        raise HTTPException(403, "errors.notYourProfile")
+    return actor
+
+
+def require_owner_of(actor: Actor, pid: int) -> None:
+    if actor["profile_id"] != pid:
+        raise HTTPException(403, "errors.notYourProfile")

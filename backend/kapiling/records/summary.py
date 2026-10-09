@@ -94,24 +94,44 @@ def emergency_card(con, pid: int) -> dict:
         "contacts": [{"name": c["name"], "relation": c["relation"], "phone": c["phone"]}
                      for c in contacts if c["is_emergency"]] if "contacts" in f else [],
         "doctor": {"name": doc["name"], "clinic": doc["clinic"], "phone": doc["phone"]} if doc and "doctor" in f else None,
-        "philhealth_last4": p["philhealth_no"][-4:] if "philhealth_last4" in f and p["philhealth_no"] else None,
+        "philhealth_last4": _last4_digits(p["philhealth_no"]) if "philhealth_last4" in f else None,
     }
     card["qr_text"] = _qr_text(card)
     return card
 
 
+def _last4_digits(number: str | None) -> str | None:
+    digits = "".join(ch for ch in number or "" if ch.isdigit())
+    return digits[-4:] if digits else None
+
+
+QR_MAX = 600
+
+
 def _qr_text(c: dict) -> str:
+    """Emergency-first lines; when over QR_MAX, lines that do not fit are dropped whole, lowest priority losing out."""
     lines = [f"{c['name']}" + (f", {c['age']}" if c["age"] is not None else "")]
     if c["blood_type"]:
         lines.append(f"Blood: {c['blood_type']}")
     if c["allergies"]:
         lines.append("Allergy: " + ", ".join(a["substance"] for a in c["allergies"]))
+    if c["contacts"]:
+        lines.append("Call: " + "; ".join(f"{x['name']} {x['phone']}" for x in c["contacts"]))
     if c["conditions"]:
         lines.append("Conditions: " + ", ".join(c["conditions"]))
     if c["meds"]:
         lines.append("Meds: " + ", ".join(" ".join(x for x in (m["name"], m["strength"]) if x) for m in c["meds"]))
-    if c["contacts"]:
-        lines.append("Call: " + "; ".join(f"{x['name']} {x['phone']}" for x in c["contacts"]))
     if c["doctor"]:
         lines.append(f"Dr: {c['doctor']['name']} {c['doctor']['phone']}")
-    return "\n".join(lines)[:599]
+    if c["philhealth_last4"]:
+        lines.append(f"PhilHealth: ****{c['philhealth_last4']}")
+    out: list[str] = []
+    size = 0
+    for line in lines:
+        add = len(line) + (1 if out else 0)
+        if size + add <= QR_MAX:
+            out.append(line)
+            size += add
+    if not out:  # a name longer than the whole budget
+        out = [lines[0][:QR_MAX]]
+    return "\n".join(out)

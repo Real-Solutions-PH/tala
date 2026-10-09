@@ -6,14 +6,16 @@ from datetime import date as _date
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from PIL import Image
 from pydantic import BaseModel
 
 from kapiling import config
-from kapiling.auth.deps import Actor, require_unlocked
+from kapiling.auth.deps import Actor, require_owner_of, require_unlocked
+from kapiling.auth.lock import log_access
 from kapiling.db import get_con
 from kapiling.records import repo
+from kapiling.records.summary import emergency_card
 
 router = APIRouter(prefix="/api")
 Con = Annotated[sqlite3.Connection, Depends(get_con)]
@@ -61,6 +63,41 @@ def _image(rel: str) -> FileResponse:
     return FileResponse(p, media_type=mimetypes.guess_type(p.name)[0] or "application/octet-stream")
 
 
+NO_STORE = {"Cache-Control": "no-store"}
+
+
+@router.get("/profiles")
+def profiles(con: Con):
+    """Public: the lock screen's profile picker."""
+    return [{"id": r["id"], "nickname": r["nickname"], "full_name": r["full_name"],
+             "photo_url": f"/api/profiles/{r['id']}/photo" if r["photo_path"] else None}
+            for r in con.execute("select id, nickname, full_name, photo_path from profiles order by id")]
+
+
+def _emergency_or_404(con, pid: int) -> dict:
+    try:
+        return emergency_card(con, pid)
+    except KeyError:
+        raise HTTPException(404, "Profile not found") from None
+
+
+@router.get("/emergency/{pid}")
+def emergency(pid: int, con: Con, response: Response):
+    """Public by design (spec section 3): a responder must never meet a lock."""
+    response.headers.update(NO_STORE)
+    return _emergency_or_404(con, pid)
+
+
+@router.get("/emergency/{pid}/qr.svg")
+def emergency_qr(pid: int, con: Con):
+    import qrcode
+    import qrcode.image.svg
+
+    text = _emergency_or_404(con, pid)["qr_text"]
+    svg = qrcode.make(text, image_factory=qrcode.image.svg.SvgPathImage, box_size=10, border=2).to_string()
+    return Response(svg, media_type="image/svg+xml", headers=NO_STORE)
+
+
 @router.get("/profiles/{pid}/photo")
 def photo(pid: int, con: Con):
     p = repo.get_profile(con, pid)
@@ -70,8 +107,9 @@ def photo(pid: int, con: Con):
 
 
 @router.get("/profiles/{pid}/summary")
-def summary(pid: int, con: Con, _a: Unlocked):
+def summary(pid: int, con: Con, actor: Unlocked):
     p = _profile_or_404(con, pid)
+    log_access(con, pid, actor, "view_summary", "summary")
     return {"profile": _row(p), "conditions": [_row(r) for r in repo.list_conditions(con, pid)],
             "allergies": [_row(r) for r in repo.list_allergies(con, pid)],
             "meds": [_row(r) for r in repo.list_meds(con, pid)],
@@ -95,8 +133,9 @@ def put_profile(pid: int, con: Con, _a: Unlocked, body: dict = Body(...)):
 
 
 @router.get("/profiles/{pid}/cards")
-def cards(pid: int, con: Con, _a: Unlocked):
+def cards(pid: int, con: Con, actor: Unlocked):
     _profile_or_404(con, pid)
+    log_access(con, pid, actor, "view_cards", "cards")
     return [_card_json(c) for c in repo.list_cards(con, pid)]
 
 
@@ -167,13 +206,14 @@ def add_card(pid: int, con: Con, _a: Unlocked, kind: Annotated[str, Form()], lab
 @router.get("/files/{card_id}/{side}")
 def card_file(card_id: int, side: str, con: Con, actor: Unlocked):
     c = con.execute("select * from cards where id=?", (card_id,)).fetchone()
-    path = c[f"{side}_path"] if c is not None and side in ("front", "back") else None
+    if c is None:
+        raise HTTPException(404, "Card image not found")
+    require_owner_of(actor, c["profile_id"])  # no {pid} in this path, so the dependency cannot check it
+    path = c[f"{side}_path"] if side in ("front", "back") else None
     if not path:
         raise HTTPException(404, "Card image not found")
     resp = _image(path)
-    con.execute("insert into access_log (profile_id, actor, action, target) values (?,?,?,?)",
-                (c["profile_id"], actor["name"], "view_cards", f"card:{card_id}:{side}"))
-    con.commit()
+    log_access(con, c["profile_id"], actor, "view_cards", f"card:{card_id}:{side}")
     return resp
 
 
