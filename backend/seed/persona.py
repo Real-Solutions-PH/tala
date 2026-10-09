@@ -50,8 +50,7 @@ def _copy(rel_dir: str, name: str) -> str:
     """Copy an asset into data_dir/files/<rel_dir>/ and return the path relative to data_dir."""
     src = ASSETS / name
     if not src.is_file():
-        from seed import make_images
-        make_images.main()
+        raise FileNotFoundError(f"missing seed asset {src}; run: uv run python -m seed.make_images")
     dest_rel = Path("files") / rel_dir / name
     dest = config.settings.data_dir / dest_rel
     dest.parent.mkdir(parents=True, exist_ok=True)

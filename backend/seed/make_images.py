@@ -171,7 +171,8 @@ def _photograph(sheet: Image.Image, seed: int) -> Image.Image:
     desk.paste(shadow, (x + 14, y + 18), shadow)
     desk.paste(rot, (x, y), rot)
     desk = desk.filter(ImageFilter.GaussianBlur(0.7))
-    noise = Image.effect_noise(desk.size, 14).convert("RGB")
+    # deterministic sensor noise (effect_noise is not seedable)
+    noise = Image.frombytes("L", desk.size, rng.randbytes(desk.width * desk.height)).convert("RGB")
     return Image.blend(desk, noise, 0.06)
 
 
@@ -231,7 +232,7 @@ def _lab(stem, title, date, rows, seed, extra=None):
     y = _patient_block(d, date, extra=extra)
     y = _table(d, y + 10, rows)
     _signature(d, y + 30)
-    _photograph(sheet.crop((0, 0, 1500, min(sheet.height, y + 460))), seed).save(ASSETS / f"{stem}.png")
+    _photograph(sheet.crop((0, 0, 1500, min(sheet.height, y + 460))), seed).save(ASSETS / f"{stem}.jpg", quality=85)
 
 
 def make_labs():
@@ -286,7 +287,7 @@ def make_discharge():
         d.text((470, y), v, font=f, fill=(10, 10, 10))
         y += 56
     _signature(d, y + 30, tech="Resident on duty", doc="Dr. J. Reyes, Internal Medicine")
-    _photograph(sheet.crop((0, 0, 1500, y + 460)), 5).save(ASSETS / "discharge_2019.png")
+    _photograph(sheet.crop((0, 0, 1500, y + 460)), 5).save(ASSETS / "discharge_2019.jpg", quality=85)
 
 
 def make_prescription():
@@ -311,7 +312,7 @@ def make_prescription():
     d.text((930, 1215), "J. Reyes", font=font(60, hand=True), fill=ink)
     d.text((930, 1300), persona.DOCTOR, font=font(26), fill=(60, 60, 60))
     d.text((70, 1380), "SAMPLE prescription – fictional patient and doctor.", font=font(24), fill=(120, 120, 120))
-    _photograph(sheet, 6).save(ASSETS / "prescription.png")
+    _photograph(sheet, 6).save(ASSETS / "prescription.jpg", quality=85)
 
 
 def main():
@@ -321,7 +322,7 @@ def main():
     make_labs()
     make_discharge()
     make_prescription()
-    print(f"wrote {len(list(ASSETS.glob('*.png')))} images to {ASSETS}")
+    print(f"wrote {len(list(ASSETS.glob('*.png'))) + len(list(ASSETS.glob('*.jpg')))} images to {ASSETS}")
 
 
 if __name__ == "__main__":
