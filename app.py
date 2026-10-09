@@ -29,12 +29,41 @@ Today is {d.isoformat()} ({d.strftime('%A')}). Currency is Philippine pesos (₱
 The user speaks English, Tagalog or Taglish. Reply in the same mix they use, short and warm.
 
 Rules:
-- When the user mentions anything they spent or paid (even casually, e.g. "nag-jeep ako 15, lunch 120"), call add_expenses. Split into one item per thing. Infer the category from {CATEGORIES}. Dates like "kahapon" = yesterday, "kanina" = today.
+- When the user mentions anything they spent or paid (even casually, e.g. "nag-jeep ako 15, lunch 120"), call add_expenses. Split into one item per thing. Always set "merchant" to the place, app or ride (Jeep, Grab, Jollibee, Meralco). Infer the category from {CATEGORIES} (supermarkets like Puregold or SM Supermarket = Groceries; fuel, jeep, Grab = Transport; ATM withdrawals = Others).
+- Dates: set "date" per item. Use "today" unless the user put a day word right before THAT item. A day word applies only to the items that come after it.
+  Example: "jeep 15, lunch 165, kahapon grab 230" -> jeep date "today", lunch date "today", grab date "yesterday".
+  "kahapon" = "yesterday", "kanina"/"ngayon" = "today"; any other day as YYYY-MM-DD.
 - For a receipt photo: log ONE expense for the receipt's grand total, using the merchant name and the receipt date, unless the user asks for each item.
 - For a bank or e-wallet statement: log each debit/payment line as its own expense; skip credits, transfers in and balances.
 - For any question about amounts, totals, trends or "where did my money go", call query_spending (the app draws the chart). Never compute or guess totals yourself; quote only numbers returned by tools.
+  If the user names a category (food, transport, bills...), ALWAYS pass it as "category".
+  Default ranges: "this month" = {d.replace(day=1).isoformat()} to today; "per week"/weekly = last 8 weeks; "per day"/daily = last 30 days; "per month"/monthly = last 3 months.
 - To edit or delete, call list_expenses first to find the id, then edit_expense / delete_expense.
-- After tools run, answer in 1-3 sentences. Do not repeat tables the app already shows."""
+- After tools run, answer in ONE short sentence (max 30 words) with the single most useful insight. The app already shows the chart or table, so do not list every number."""
+
+
+# Turns that only change data get a template reply instead of a second model call (saves ~5s).
+MUTATIONS = {"add_expenses", "edit_expense", "delete_expense", "set_budget", "open_ledger"}
+
+
+def tidy(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    # A lookup table shown before an edit/delete is noise once the change itself is shown.
+    if any(b.get("changed") for b in blocks):
+        return [b for b in blocks if b.get("changed") or b["type"] != "table"]
+    return blocks
+
+
+def quick_reply(blocks: list[dict[str, Any]]) -> str:
+    logged = [r for b in blocks if b.get("title", "").startswith("Logged") for r in b["rows"]]
+    if logged:
+        total = sum(r["amount"] for r in logged)
+        return f"Got it, logged {len(logged)} · ₱{total:,.2f} total."
+    titles = {b.get("type"): b.get("title") for b in blocks}
+    if "view" in titles:
+        return "Opened the ledger."
+    if "budget" in titles:
+        return "Budget saved."
+    return f"{blocks[-1].get('title', 'Done')}."
 
 
 async def llm(messages: list[dict[str, Any]]) -> dict[str, Any]:
@@ -88,11 +117,12 @@ async def chat(
         {"role": "user", "content": content},
     ]
     blocks: list[dict[str, Any]] = []
+    called: set[str] = set()
     for _ in range(MAX_STEPS):
         msg = await llm(messages)
         calls = msg.get("tool_calls") or []
         if not calls:
-            return {"reply": (msg.get("content") or "").strip(), "blocks": blocks}
+            return {"reply": (msg.get("content") or "").strip(), "blocks": tidy(blocks)}
         messages.append({"role": "assistant", "content": msg.get("content") or "", "tool_calls": calls})
         for call in calls:
             name = call["function"]["name"]
@@ -100,6 +130,7 @@ async def chat(
                 args = json.loads(call["function"].get("arguments") or "{}")
             except json.JSONDecodeError:
                 args = {}
+            called.add(name)
             fn = tools.RUN.get(name)
             if fn is None:
                 result: Any = {"error": f"unknown tool {name}"}
@@ -110,7 +141,9 @@ async def chat(
             messages.append(
                 {"role": "tool", "tool_call_id": call.get("id", name), "content": json.dumps(result, default=str)}
             )
-    return {"reply": "Done.", "blocks": blocks}
+        if called <= MUTATIONS and blocks:
+            return {"reply": quick_reply(blocks), "blocks": tidy(blocks)}
+    return {"reply": "Done.", "blocks": tidy(blocks)}
 
 
 @app.post("/api/transcribe")

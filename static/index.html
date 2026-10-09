@@ -39,6 +39,7 @@ table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 td { padding: 5px 4px; border-top: 1px solid var(--line); }
 td.amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 td.cat { color: var(--muted); }
+td.d { white-space: nowrap; color: var(--muted); }
 .total { font-weight: 600; margin-top: 6px; text-align: right; }
 .bar { height: 8px; background: var(--chip); border-radius: 99px; overflow: hidden; margin: 4px 0 10px; }
 .bar > i { display: block; height: 100%; background: var(--accent); }
@@ -100,6 +101,7 @@ aside .big { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-va
 <script>
 const $ = (id) => document.getElementById(id);
 const peso = (n) => "₱" + Number(n).toLocaleString("en-PH", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const day = (iso) => new Date(iso + "T00:00").toLocaleDateString("en-PH", { month: "short", day: "numeric" });
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const history = [];
 let pending = [];
@@ -131,7 +133,7 @@ function addMsg(role, html) {
 }
 
 function rowsTable(rows) {
-  return `<table>${rows.map((r) => `<tr><td>${esc(r.date)}</td><td>${esc(r.merchant || r.note || "")}</td><td class="cat">${esc(r.category)}</td><td class="amt">${peso(r.amount)}</td></tr>`).join("")}</table>`;
+  return `<table>${rows.map((r) => `<tr><td class="d">${esc(day(r.date))}</td><td>${esc(r.merchant || r.note || "")}</td><td class="cat">${esc(r.category)}</td><td class="amt">${peso(r.amount)}</td></tr>`).join("")}</table>`;
 }
 
 function budgetsHtml(rows) {
@@ -199,6 +201,7 @@ async function send(text, source = "chat") {
   fd.append("message", text); fd.append("source", source); fd.append("history", JSON.stringify(history));
   files.forEach((f) => fd.append("files", f));
   const t0 = performance.now();
+  const tick = setInterval(() => { const l = bot.querySelector(".thinking"); if (l) l.lastChild.textContent = `Thinking on this laptop… ${((performance.now() - t0) / 1000).toFixed(0)}s`; }, 500);
   try {
     const r = await fetch("/api/chat", { method: "POST", body: fd });
     const d = await r.json();
@@ -211,6 +214,7 @@ async function send(text, source = "chat") {
   } catch (e) {
     bot.innerHTML = `<div class="text error">${esc(e.message)}</div>`;
   }
+  clearInterval(tick);
   $("log").scrollTop = $("log").scrollHeight;
 }
 

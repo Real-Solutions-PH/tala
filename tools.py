@@ -14,6 +14,11 @@ def today() -> dt.date:
 
 
 def _date(s: Any, default: dt.date | None = None) -> str:
+    word = str(s or "").strip().lower()
+    if word in ("yesterday", "kahapon"):
+        return (today() - dt.timedelta(days=1)).isoformat()
+    if word in ("today", "kanina", "ngayon"):
+        return today().isoformat()
     try:
         return dt.date.fromisoformat(str(s)[:10]).isoformat()
     except (TypeError, ValueError):
@@ -274,7 +279,7 @@ SCHEMAS = [
                     "properties": {
                         "amount": {"type": "number", "description": "Pesos, positive"},
                         "category": _cat_prop,
-                        "date": _date_prop,
+                        "date": {"type": "string", "description": '"today", "yesterday", or YYYY-MM-DD'},
                         "merchant": {"type": "string"},
                         "note": {"type": "string", "description": "What it was, short"},
                     },
