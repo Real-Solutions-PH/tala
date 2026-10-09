@@ -15,15 +15,14 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pypdf import PdfReader
 
-import life
+import store
 import tools
-from db import CATEGORIES, connect, to_pesos
 
 LLM_URL = os.getenv("LLM_URL", "http://127.0.0.1:8080/v1/chat/completions")
 WHISPER_URL = os.getenv("WHISPER_URL", "http://127.0.0.1:8081/inference")
 MAX_STEPS = 6
-RUN = {**tools.RUN, **life.RUN}
-SCHEMAS = tools.SCHEMAS + life.SCHEMAS
+RUN = store.RUN
+SCHEMAS = store.SCHEMAS
 
 # Phones reach the laptop over LAN; only devices that scanned the pairing QR (which carries this key) get in.
 PAIR_KEY = os.getenv("TALA_KEY", "")
@@ -48,52 +47,55 @@ async def paired_only(request: Request, call_next: Any) -> Any:
 
 def system_prompt() -> str:
     d = tools.today()
-    habits = [r[0] for r in connect().execute("SELECT name FROM habits ORDER BY name")]
-    return f"""You are Tala, a friendly personal assistant for money, tasks and habits that runs fully offline on the user's laptop.
-Today is {d.isoformat()} ({d.strftime('%A')}). Next 7 days: {", ".join(f"{(d + tools.dt.timedelta(days=i)).strftime('%A')} {(d + tools.dt.timedelta(days=i)).isoformat()}" for i in range(1, 8))}. Currency is Philippine pesos (₱).
-The user speaks English, Tagalog or Taglish. Reply in the same mix they use, short and warm.
+    week = ", ".join(f"{(d - tools.dt.timedelta(days=i)).strftime('%A')} {(d - tools.dt.timedelta(days=i)).isoformat()}" for i in range(1, 7))
+    return f"""You are Tala, a friendly store assistant for a small Filipino store (sari-sari store, carinderia, market stall). You run fully offline on the owner's own laptop.
+Today is {d.isoformat()} ({d.strftime('%A')}). Past days: {week}. Currency is Philippine pesos (₱).
+The owner speaks English, Tagalog or Taglish. Reply in the same mix, short, warm and practical, like a helpful pamangkin (niece/nephew) who is good with numbers.
+
+Products in the store: {store.product_names()}
+Match what the owner says to these names ("canton" = Lucky Me Pancit Canton, "coke" = Coke Mismo, "kopiko" = Kopiko 3-in-1, "itlog" = Egg). Product categories: {store.CATEGORIES}.
 
 Rules:
-- When the user mentions anything they spent or paid (even casually, e.g. "nag-jeep ako 15, lunch 120"), call add_expenses. Split into one item per thing. Always set "merchant" to the place, app or ride (Jeep, Grab, Jollibee, Meralco). Infer the category from {CATEGORIES} (supermarkets like Puregold or SM Supermarket = Groceries; fuel, jeep, Grab = Transport; ATM withdrawals = Others).
-- Dates: set "date" per item. Use "today" unless the user put a day word right before THAT item. A day word applies only to the items that come after it.
-  Example: "jeep 15, lunch 165, kahapon grab 230" -> jeep date "today", lunch date "today", grab date "yesterday".
-  "kahapon" = "yesterday", "kanina"/"ngayon" = "today"; any other day as YYYY-MM-DD.
-- For a receipt photo: log ONE expense for the receipt's grand total, using the merchant name and the receipt date, unless the user asks for each item.
-- For a bank or e-wallet statement: log each debit/payment line as its own expense; skip credits, transfers in and balances.
-- For any question about amounts, totals, trends or "where did my money go", call query_spending (the app draws the chart). Never compute or guess totals yourself; quote only numbers returned by tools.
-  If the user names a category (food, transport, bills...), ALWAYS pass it as "category".
-  Default ranges: "this month" = {d.replace(day=1).isoformat()} to today; "per week"/weekly = last 8 weeks; "per day"/daily = last 30 days; "per month"/monthly = last 3 months.
-- To edit or delete, call list_expenses first to find the id, then edit_expense / delete_expense.
-- Things to do ("remind me to...", "kailangan ko...", "todo") -> add_tasks. "Done na yung..." / "tapos ko na" -> list_tasks then complete_tasks.
-- Habits done ("nag-workout ako", "read 20 pages", "8 glasses of water") -> log_habits with a short habit name. Existing habits: {habits or "none yet"}. Reuse one when it means the same thing (gym/exercise/nag-gym = Workout, nagbasa = Read). Questions about streaks/consistency -> habit_summary.
-- One message can mix all three (e.g. "lunch 150, nag-gym ako, remind me to pay Meralco") -> call every tool needed.
-- After tools run, answer in ONE short sentence (max 30 words) with the single most useful insight. The app already shows the chart or table, so do not list every number."""
+- Something was SOLD to a customer ("nakabenta", "bumili si...", "2 coke, 1 canton", "benta") -> record_sales. One item per product with its qty.
+- Stock ARRIVED or was BOUGHT from a supplier/grocery ("dumating", "nag-restock", "bumili ako sa Puregold ng 2 box"), or a supplier receipt/delivery photo -> restock. Convert boxes/packs to pieces when the owner says how many per box.
+- A photo of a handwritten sales list (listahan) -> record_sales for every line.
+- Price changes ("taasan ang Coke to 22"), counted stock corrections, reorder levels -> update_product.
+- Questions about sales, kita (profit), best sellers, trends, comparisons -> sales_report (the app draws the chart). Pick group_by and metric to fit the question. Ranges: "this week"/"last 7 days" = {(d - tools.dt.timedelta(days=6)).isoformat()} to today; "this month" = {d.replace(day=1).isoformat()} to today; "today" = today. Best seller means revenue unless the owner asks about pieces.
+- "Kumusta ang tindahan?", advice, what to restock, what is not selling -> business_snapshot, then give ONE practical tip from its numbers.
+- Stock questions ("ilan pa ang...", "ano ang paubos na?") -> stock_status.
+- Wrong entry -> list_sales then delete_sale.
+- Never compute or guess numbers yourself; quote only numbers returned by tools.
+- After tools run, answer in ONE or TWO short sentences (max 35 words). The app already shows the chart or table, so do not list every number."""
 
 
-# Turns that only change data get a template reply instead of a second model call (saves ~5s).
-MUTATIONS = {"add_expenses", "edit_expense", "delete_expense", "set_budget", "open_view", "add_tasks", "complete_tasks", "log_habits"}
+MUTATIONS = store.MUTATIONS
 
 
 def tidy(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    # A lookup table shown before an edit/delete is noise once the change itself is shown.
+    # A lookup list shown before a delete is noise once the change itself is shown.
     if any(b.get("changed") for b in blocks):
-        return [b for b in blocks if b.get("changed") or b["type"] not in ("table", "tasks")]
+        return [b for b in blocks if b.get("changed") or not b["title"].startswith("Sales ·")]
     return blocks
 
 
 def quick_reply(blocks: list[dict[str, Any]]) -> str:
     parts = []
     for b in blocks:
-        if b["type"] == "table" and b["title"].startswith("Logged"):
-            total = sum(r["amount"] for r in b["rows"])
-            parts.append(f"logged {len(b['rows'])} expense{'s' * (len(b['rows']) != 1)} (₱{total:,.2f})")
+        if b["type"] == "sale" and b["title"].startswith("Sold"):
+            items = sum(r["qty"] for r in b["rows"])
+            parts.append(f"₱{b['total']:,.2f} na benta ({items} item{'s' * (items != 1)})")
+            if b.get("low"):
+                parts.append("paubos na ang " + ", ".join(f"{x['name']} ({x['stock']} left)" for x in b["low"]))
+        elif b["type"] == "stock" and b["title"] == "Restocked":
+            parts.append("restocked " + ", ".join(f"{r['product']} +{r['qty']} (now {r['stock']})" for r in b["rows"]))
+        elif b["type"] == "stock" and b["title"] == "Updated":
+            r = b["rows"][0]
+            parts.append(f"{r['product']} is now ₱{r['price']:,.2f}, {r['stock']} in stock")
         elif b["type"] == "view":
             parts.append(f"opened {b['panel']}")
-        elif b["type"] == "budget":
-            parts.append("budget saved")
         else:
             parts.append(b["title"][0].lower() + b["title"][1:])
-    text = ", ".join(parts)
+    text = "; ".join(parts)
     return f"Got it: {text}." if text else "Done."
 
 
@@ -138,7 +140,7 @@ async def chat(
     if not text and not content:
         raise HTTPException(400, "Say or attach something first.")
     if not text:
-        text = "Log this receipt."
+        text = "Record what is in this photo for the store."
     content.insert(0, {"type": "text", "text": text})
 
     past = [m for m in json.loads(history) if m.get("role") in ("user", "assistant")][-12:]
@@ -193,27 +195,13 @@ async def transcribe(audio: UploadFile = File(...)) -> dict[str, str]:
     return {"text": str(r.json().get("text", "")).strip()}
 
 
-@app.get("/api/expenses")
-def expenses(category: str = "", start: str = "", end: str = "", search: str = "") -> dict[str, Any]:
-    result, _ = tools.list_expenses(
-        {"category": category, "start": start or "2000-01-01", "end": end, "search": search, "limit": 100}, ""
-    )
-    rows = result["rows"]
-    month = tools.today().isoformat()[:7]
-    month_total = connect().execute(
-        "SELECT COALESCE(SUM(cents), 0) FROM expenses WHERE substr(date, 1, 7) = ?", [month]
-    ).fetchone()[0]
-    budgets, _ = tools.budget_status({}, "")
-    tasks, _ = life.list_tasks({"status": "all"}, "")
-    habits, _ = life.habit_summary({"days": 30}, "")
-    return {
-        "rows": rows,
-        "month": month,
-        "month_total": to_pesos(month_total),
-        "budgets": budgets.get("budgets", []),
-        "tasks": tasks["tasks"],
-        "habits": habits.get("habits", []),
-    }
+@app.get("/api/store")
+def store_overview() -> dict[str, Any]:
+    kpis, _ = store.business_snapshot({}, "")
+    week, _ = store.sales_report({"start": (tools.today() - tools.dt.timedelta(days=13)).isoformat(), "end": tools.today().isoformat(), "group_by": "day", "metric": "revenue"}, "")
+    stock, _ = store.stock_status({}, "")
+    today_rows, _ = store.list_sales({"date": "today"}, "")
+    return {"kpis": kpis, "trend": week["rows"], "stock": stock["products"], "today": today_rows["sales"]}
 
 
 @app.get("/manifest.webmanifest")
@@ -244,17 +232,6 @@ def pair(request: Request) -> Response:
         raise HTTPException(404, "Phone pairing is off. Start Tala with ./run.sh.")
     svg = qrcode.make(PHONE_URL, image_factory=qrcode.image.svg.SvgPathImage, box_size=12, border=2).to_string().decode()
     return JSONResponse({"url": PHONE_URL.split("?")[0], "link": PHONE_URL, "svg": svg})
-
-
-@app.post("/api/tasks/{task_id}/toggle")
-def toggle_task(task_id: int) -> dict[str, Any]:
-    con = connect()
-    con.execute(
-        "UPDATE tasks SET done_on = CASE WHEN done_on IS NULL THEN ? ELSE NULL END WHERE id = ?",
-        (tools.today().isoformat(), task_id),
-    )
-    con.commit()
-    return {"ok": True}
 
 
 app.mount("/", StaticFiles(directory=Path(__file__).with_name("static"), html=True), name="static")

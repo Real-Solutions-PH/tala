@@ -15,7 +15,7 @@ llama-server -m "$LLM" --mmproj "$MMPROJ" --jinja -c 16384 -ngl 99 \
   --host 127.0.0.1 --port 8080 > llama.log 2>&1 &
 # The prompt biases whisper toward Taglish spelling ("nag-jeep" instead of "Gibaco").
 whisper-server -m "$WHISPER" -l auto --convert \
-  --prompt "Hey Tala. Taglish: nag-jeep ako, nag-Grab, gastos, lunch sa Jollibee, GCash, Meralco, piso, kahapon, kanina." \
+  --prompt "Tala. Sari-sari store: nakabenta ako ng 2 Coke Mismo, 1 Lucky Me Pancit Canton, 3 Kopiko, Bear Brand, Ligo sardinas, itlog, bigas, yelo, pandesal. Dumating ang 2 box. Magkano ang kita?" \
   --host 127.0.0.1 --port 8081 > whisper.log 2>&1 &
 
 [ -f tala.db ] || uv run python seed.py

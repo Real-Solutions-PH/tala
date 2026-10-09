@@ -43,6 +43,33 @@ CREATE TABLE IF NOT EXISTS habit_logs (
   date TEXT NOT NULL,
   PRIMARY KEY (habit_id, date)
 );
+CREATE TABLE IF NOT EXISTS products (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  category TEXT NOT NULL DEFAULT 'Others',
+  unit TEXT NOT NULL DEFAULT 'pc',
+  price_cents INTEGER NOT NULL CHECK (price_cents >= 0),
+  cost_cents INTEGER NOT NULL DEFAULT 0 CHECK (cost_cents >= 0),
+  stock INTEGER NOT NULL DEFAULT 0,
+  reorder_at INTEGER NOT NULL DEFAULT 5
+);
+CREATE TABLE IF NOT EXISTS sales (
+  id INTEGER PRIMARY KEY,
+  date TEXT NOT NULL,
+  product_id INTEGER NOT NULL REFERENCES products(id),
+  qty INTEGER NOT NULL CHECK (qty > 0),
+  price_cents INTEGER NOT NULL,
+  cost_cents INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL DEFAULT 'chat'
+);
+CREATE TABLE IF NOT EXISTS restocks (
+  id INTEGER PRIMARY KEY,
+  date TEXT NOT NULL,
+  product_id INTEGER NOT NULL REFERENCES products(id),
+  qty INTEGER NOT NULL CHECK (qty > 0),
+  cost_cents INTEGER NOT NULL DEFAULT 0,
+  supplier TEXT
+);
 CREATE TABLE IF NOT EXISTS budgets (
   category TEXT PRIMARY KEY,
   cents INTEGER NOT NULL CHECK (cents > 0)

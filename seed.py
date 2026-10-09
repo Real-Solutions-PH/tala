@@ -1,63 +1,76 @@
-"""Seed ~75 days of realistic demo spending. Wipes existing data. Run: uv run python seed.py"""
+"""Seed a sari-sari store with ~8 weeks of sales and restocks. Wipes existing data. Run: uv run python seed.py"""
 
 import datetime as dt
 import random
 
 from db import DB_PATH, connect, to_cents
 
-random.seed(7)
+random.seed(11)
 DB_PATH.unlink(missing_ok=True)
 con = connect()
 end = dt.date.today()
-rows = []
 
+# name, category, unit, price, cost, daily demand (avg pcs), reorder_at, start stock
+PRODUCTS = [
+    ("Lucky Me Pancit Canton", "Noodles & Canned", "pack", 16, 13, 9, 12, 60),
+    ("Lucky Me Beef Mami", "Noodles & Canned", "pack", 12, 9.5, 5, 10, 40),
+    ("Ligo Sardines", "Noodles & Canned", "can", 26, 22, 4, 8, 30),
+    ("Argentina Corned Beef", "Noodles & Canned", "can", 42, 36, 2, 5, 18),
+    ("Coke Mismo", "Drinks", "bottle", 20, 16, 10, 12, 48),
+    ("C2 Apple", "Drinks", "bottle", 25, 20, 4, 8, 24),
+    ("Royal Mismo", "Drinks", "bottle", 20, 16, 3, 8, 24),
+    ("Kopiko 3-in-1", "Coffee & Milk", "sachet", 10, 7.5, 14, 20, 100),
+    ("Nescafe Classic Stick", "Coffee & Milk", "sachet", 8, 6, 6, 15, 60),
+    ("Bear Brand Sachet", "Coffee & Milk", "sachet", 13, 10.5, 7, 15, 60),
+    ("Skyflakes", "Snacks", "pack", 9, 7, 6, 12, 50),
+    ("Piattos", "Snacks", "pack", 18, 14.5, 4, 8, 30),
+    ("Choc Nut", "Snacks", "pc", 3, 2, 10, 30, 150),
+    ("Egg", "Rice & Basics", "pc", 9, 7.5, 12, 24, 90),
+    ("Rice (per kilo)", "Rice & Basics", "kilo", 52, 45, 6, 10, 50),
+    ("Pandesal", "Rice & Basics", "pc", 3, 2.2, 25, 0, 0),
+    ("Silver Swan Soy Sauce", "Condiments", "sachet", 6, 4.5, 3, 10, 40),
+    ("Datu Puti Vinegar", "Condiments", "sachet", 6, 4.5, 3, 10, 40),
+    ("Cooking Oil (sachet)", "Condiments", "sachet", 14, 11, 4, 10, 40),
+    ("Sugar (1/4 kilo)", "Condiments", "pack", 22, 18, 3, 8, 30),
+    ("Safeguard Soap", "Toiletries", "bar", 32, 27, 1.5, 5, 15),
+    ("Palmolive Shampoo Sachet", "Toiletries", "sachet", 7, 5.5, 6, 15, 60),
+    ("Colgate Sachet", "Toiletries", "sachet", 10, 8, 3, 10, 40),
+    ("Tide Bar", "Household", "bar", 15, 12, 3, 8, 30),
+    ("Downy Sachet", "Household", "sachet", 8, 6.5, 4, 10, 40),
+    ("Ice (yelo)", "Others", "pack", 5, 2, 8, 0, 0),
+]
+ids = {}
+for name, cat, unit, price, cost, _, reorder, stock in PRODUCTS:
+    ids[name] = con.execute(
+        "INSERT INTO products (name, category, unit, price_cents, cost_cents, stock, reorder_at) VALUES (?,?,?,?,?,?,?)",
+        (name, cat, unit, to_cents(price), to_cents(cost), stock, reorder),
+    ).lastrowid
 
-def add(day: dt.date, pesos: float, cat: str, merchant: str, note: str) -> None:
-    rows.append((day.isoformat(), to_cents(pesos), cat, merchant, note, "seed"))
-
-
-for i in range(75, 0, -1):
+sales, restocks = [], []
+for i in range(56, -1, -1):
     d = end - dt.timedelta(days=i)
-    weekday = d.weekday() < 5
-    if weekday:
-        add(d, random.choice([13, 15, 26, 30]), "Transport", "Jeepney", "commute")
-        if random.random() < 0.35:
-            add(d, random.randint(180, 420), "Transport", "Grab", "ride home")
-        add(d, random.randint(110, 260), "Food", random.choice(["Jollibee", "Mang Inasal", "Karinderya", "7-Eleven", "Chowking"]), "lunch")
-    if random.random() < 0.45:
-        add(d, random.randint(120, 220), "Food", random.choice(["Starbucks", "Tim Hortons", "Bo's Coffee"]), "coffee")
-    if d.weekday() == 5:
-        add(d, random.randint(1400, 2800), "Groceries", random.choice(["SM Supermarket", "Puregold", "Robinsons Supermarket"]), "weekly groceries")
-        if random.random() < 0.5:
-            add(d, random.randint(450, 1500), "Entertainment", random.choice(["SM Cinema", "Netflix", "Timezone"]), "weekend")
-    if d.weekday() == 6 and random.random() < 0.4:
-        add(d, random.randint(600, 3500), "Shopping", random.choice(["Shopee", "Lazada", "Uniqlo"]), "order")
-    if d.day == 5:
-        add(d, random.randint(2300, 3400), "Bills", "Meralco", "electricity")
-    if d.day == 8:
-        add(d, random.randint(380, 650), "Bills", "Maynilad", "water")
-    if d.day == 12:
-        add(d, 1699, "Load/Internet", "PLDT Home", "fiber")
-    if d.day in (1, 16):
-        add(d, 299, "Load/Internet", "GCash Load", "Globe GoSURF")
-    if random.random() < 0.05:
-        add(d, random.randint(150, 900), "Health", "Mercury Drug", "medicine")
+    boost = 1.35 if d.weekday() >= 5 else 1.0          # weekends are busier
+    boost *= 1.25 if d.day in (15, 30, 31, 1) else 1.0  # sweldo (payday)
+    growth = 1 + (56 - i) * 0.004                        # slowly growing store
+    for name, _, _, price, cost, demand, reorder, _ in PRODUCTS:
+        if name == "Royal Mismo" and i < 16:
+            demand = 0                                   # a slow mover for the insights demo
+        q = max(0, round(random.gauss(demand * boost * growth, demand * 0.35)))
+        if i == 0:
+            q = round(q * 0.55)                          # today is still in progress
+        if q:
+            sales.append((d.isoformat(), ids[name], q, to_cents(price), to_cents(cost), "seed"))
+    if d.weekday() == 1 and i > 0:                       # Tuesday grocery run
+        for name, _, _, _, cost, demand, reorder, start in PRODUCTS:
+            if reorder:
+                restocks.append((d.isoformat(), ids[name], max(start, round(demand * 9)), to_cents(cost), "Puregold"))
 
-con.executemany(
-    "INSERT INTO expenses (date, cents, category, merchant, note, source) VALUES (?,?,?,?,?,?)", rows
-)
-con.executemany(
-    "INSERT INTO budgets (category, cents) VALUES (?, ?)",
-    [("Food", to_cents(7000)), ("Transport", to_cents(3500)), ("Groceries", to_cents(9000)), ("Shopping", to_cents(2500))],
-)
-tasks = [("Pay Meralco bill", 2), ("Renew Grab Pay", None), ("Buy gift for Mama's birthday", 5), ("Submit BIR form", -1)]
-for title, due in tasks:
-    con.execute("INSERT INTO tasks (title, due) VALUES (?, ?)", (title, (end + dt.timedelta(days=due)).isoformat() if due is not None else None))
-con.execute("INSERT INTO tasks (title, due, done_on) VALUES ('Book dentist', ?, ?)", ((end - dt.timedelta(days=2)).isoformat(),) * 2)
-for name, rate in [("Workout", 0.55), ("Read", 0.7), ("Water", 0.8), ("Meditate", 0.35)]:
-    hid = con.execute("INSERT INTO habits (name) VALUES (?)", (name,)).lastrowid
-    for i in range(45, 0, -1):
-        if random.random() < rate or (name == "Read" and i <= 6):
-            con.execute("INSERT INTO habit_logs VALUES (?, ?)", (hid, (end - dt.timedelta(days=i)).isoformat()))
+con.executemany("INSERT INTO sales (date, product_id, qty, price_cents, cost_cents, source) VALUES (?,?,?,?,?,?)", sales)
+con.executemany("INSERT INTO restocks (date, product_id, qty, cost_cents, supplier) VALUES (?,?,?,?,?)", restocks)
+# Stock on hand today: healthy, except three fast movers running low (the demo's restock moment).
+LOW = {"Coke Mismo": 6, "Kopiko 3-in-1": 9, "Egg": 10}
+for name, _, _, _, _, demand, reorder, _ in PRODUCTS:
+    left = LOW.get(name, round(reorder * random.uniform(1.6, 3.2)) if reorder else 0)
+    con.execute("UPDATE products SET stock = ? WHERE id = ?", (left, ids[name]))
 con.commit()
-print(f"seeded {len(rows)} expenses into {DB_PATH.name}")
+print(f"seeded {len(PRODUCTS)} products, {len(sales)} sale lines, {len(restocks)} restocks into {DB_PATH.name}")
