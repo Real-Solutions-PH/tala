@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1120">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tala">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>Tala</title>
 <meta name="description" content="Offline personal assistant for money, tasks and habits. Talk to it; it logs.">
 <script src="chart.umd.min.js"></script>
@@ -47,7 +54,7 @@ svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-widt
 .app { display: grid; grid-template-columns: minmax(0, 1fr) 400px; height: 100dvh; }
 
 /* Header */
-header { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
+header { display: flex; align-items: center; gap: 12px; padding: max(12px, env(safe-area-inset-top)) 24px 12px; border-bottom: 1px solid var(--border); background: var(--surface); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 20px; letter-spacing: -.02em; }
 .status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); padding: 4px 10px; border-radius: 999px; background: var(--surface-2); }
 .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
@@ -147,7 +154,7 @@ td.d { white-space: nowrap; color: var(--muted); font-size: 14px; width: 64px; }
 .week-labels span { flex: 1; text-align: center; }
 
 /* Composer */
-.composer { padding: 12px 24px 20px; }
+.composer { padding: 12px 24px max(20px, env(safe-area-inset-bottom)); }
 .composer-inner { max-width: 760px; margin: 0 auto; }
 #attachments { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 #attachments:empty { display: none; }
@@ -194,6 +201,15 @@ aside { border-left: 1px solid var(--border); background: var(--surface); displa
 .flash { animation: flash 1.2s var(--ease); }
 @keyframes flash { from { background: var(--primary-soft); } }
 .scrim { display: none; }
+dialog { border: 1px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--ink); padding: 24px; max-width: 360px; text-align: center; box-shadow: var(--shadow); }
+dialog::backdrop { background: rgba(0, 0, 0, .55); }
+dialog h3 { font-family: Lexend, sans-serif; font-weight: 600; margin: 0 0 6px; font-size: 20px; }
+dialog p { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+dialog .qr { background: #fff; border-radius: 14px; padding: 10px; margin: 8px auto 12px; width: 240px; }
+dialog .qr svg { width: 100%; height: auto; display: block; }
+dialog ol { text-align: left; color: var(--muted); font-size: 14px; padding-left: 20px; margin: 0 0 16px; }
+dialog code { font-size: 12px; color: var(--ink); word-break: break-all; }
+dialog button.close { height: 44px; width: 100%; border: 0; border-radius: 12px; background: var(--primary); color: var(--on-primary); font-weight: 600; }
 
 @media (max-width: 960px) {
   .app { grid-template-columns: 1fr; }
@@ -201,7 +217,7 @@ aside { border-left: 1px solid var(--border); background: var(--surface); displa
   aside { position: fixed; inset: 0 0 0 auto; width: min(400px, 92vw); z-index: 20; transform: translateX(100%); transition: transform .25s var(--ease); box-shadow: var(--shadow); }
   aside.open { transform: none; }
   .scrim.open { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 10; }
-  header { padding: 10px 16px; }
+  header { padding: max(10px, env(safe-area-inset-top)) 16px 10px; }
   #log, .composer { padding-left: 16px; padding-right: 16px; }
   .toggle .lbl, .status span:last-child { display: none; }
   .suggest { grid-template-columns: 1fr; }
@@ -230,6 +246,7 @@ aside { border-left: 1px solid var(--border); background: var(--surface); displa
   <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
   <symbol id="i-panel" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
 </svg>
 
@@ -245,6 +262,7 @@ aside { border-left: 1px solid var(--border); background: var(--surface); displa
       <button class="toggle" id="speakBtn" aria-pressed="false" title="Read Tala’s answers aloud">
         <svg class="i"><use href="#i-volx"/></svg><span class="lbl">Voice replies</span>
       </button>
+      <button class="toggle" id="phoneBtn" hidden title="Open Tala on your phone"><svg class="i"><use href="#i-phone"/></svg><span class="lbl">Phone</span></button>
       <button class="toggle" id="panelBtn" aria-label="Open overview" aria-controls="side"><svg class="i"><use href="#i-panel"/></svg></button>
     </header>
 
@@ -277,6 +295,19 @@ aside { border-left: 1px solid var(--border); background: var(--surface); displa
   </main>
 
   <div class="scrim" id="scrim"></div>
+  <dialog id="pairDlg" aria-labelledby="pairTitle">
+    <h3 id="pairTitle">Open Tala on your phone</h3>
+    <p>The AI stays on this laptop. Your phone is the remote.</p>
+    <div class="qr" id="pairQr"></div>
+    <ol>
+      <li>Same Wi-Fi, or connect this laptop to the phone’s hotspot (mobile data can stay off).</li>
+      <li>Scan with the camera app. iPhone and Android, nothing to install.</li>
+      <li>Accept the one-time “not private” warning (the certificate is this laptop’s own).</li>
+      <li>Optional: Share → <b>Add to Home Screen</b> to open it like an app.</li>
+    </ol>
+    <p><code id="pairUrl"></code></p>
+    <form method="dialog"><button class="close">Done</button></form>
+  </dialog>
   <aside id="side" aria-label="Overview">
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-money" aria-controls="p-money" aria-selected="true"><svg class="i"><use href="#i-wallet"/></svg>Money</button>
@@ -481,7 +512,10 @@ function setSpeak(on) {
   $("speakBtn").querySelector("use").setAttribute("href", on ? "#i-vol" : "#i-volx");
   if (!on && "speechSynthesis" in window) speechSynthesis.cancel();
 }
-$("speakBtn").onclick = () => setSpeak(!speakOn);
+$("speakBtn").onclick = () => {
+  setSpeak(!speakOn);
+  if (speakOn && "speechSynthesis" in window) speechSynthesis.speak(new SpeechSynthesisUtterance(""));   // iOS: unlock speech from a tap
+};
 setSpeak(speakOn);
 function speak(text, force) {
   return new Promise((done) => {
@@ -682,6 +716,18 @@ $("wakeBtn").onclick = async () => {
   hint(wakeOn ? "Listening for “Hey Tala”… (on this device)" : HINT, wakeOn);
   if (wakeOn) wakeLoop(); else stopCurrent?.();
 };
+
+/* ---------- Phone pairing (only offered on the laptop itself) ---------- */
+if (["localhost", "127.0.0.1"].includes(location.hostname)) {
+  fetch("/api/pair").then((r) => r.ok ? r.json() : null).then((d) => {
+    if (!d) return;
+    $("phoneBtn").hidden = false;
+    $("pairQr").innerHTML = d.svg; $("pairUrl").textContent = d.url;
+    $("phoneBtn").onclick = () => $("pairDlg").showModal();
+  }).catch(() => {});
+}
+// Drop the pairing key from the address bar once the cookie is set.
+if (location.search.includes("k=")) history.replaceState(null, "", "/");
 
 selectTab(store.get("tala.tab") || "money");
 refresh();

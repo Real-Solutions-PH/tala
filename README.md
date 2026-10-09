@@ -16,6 +16,16 @@ Speech recognition, the wake word, the agent, reading photos and documents, and 
 
 Built for the AppBuildersPH Hackathon 2026 (theme: Local AI), 2026-10-09 → 2026-10-10.
 
+## On your phone (iPhone or Android, nothing to install)
+
+The laptop runs the AI; the phone is the app. `./run.sh` prints a QR code (also under **Phone** in the laptop UI).
+
+1. Put the phone and laptop on the same Wi-Fi, or connect the laptop to the phone's hotspot (mobile data can stay off; no internet is needed).
+2. Scan the QR with the camera, accept the one-time certificate warning (the laptop signs its own HTTPS certificate; phones only allow the microphone over HTTPS).
+3. Optional: Share → **Add to Home Screen** for a full-screen app.
+
+Only devices that scanned the QR (it carries a random pairing key, new on every start) can open Tala; anyone else on the network gets a 403.
+
 ## Why local
 
 - **Your money data never leaves your device.** Receipts, bank statements and spending habits are exactly what people don't want on someone else's server.

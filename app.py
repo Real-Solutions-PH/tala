@@ -8,7 +8,10 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+import qrcode
+import qrcode.image.svg
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pypdf import PdfReader
 
@@ -22,7 +25,25 @@ MAX_STEPS = 6
 RUN = {**tools.RUN, **life.RUN}
 SCHEMAS = tools.SCHEMAS + life.SCHEMAS
 
+# Phones reach the laptop over LAN; only devices that scanned the pairing QR (which carries this key) get in.
+PAIR_KEY = os.getenv("TALA_KEY", "")
+PHONE_URL = os.getenv("TALA_PHONE_URL", "")
+
 app = FastAPI(title="Tala")
+
+
+@app.middleware("http")
+async def paired_only(request: Request, call_next: Any) -> Any:
+    host = request.client.host if request.client else ""
+    if host in ("127.0.0.1", "::1"):
+        return await call_next(request)
+    if PAIR_KEY and request.query_params.get("k") == PAIR_KEY:
+        response = await call_next(request)
+        response.set_cookie("tala_k", PAIR_KEY, httponly=True, secure=True, samesite="strict", max_age=86400 * 30)
+        return response
+    if not PAIR_KEY or request.cookies.get("tala_k") != PAIR_KEY:
+        return JSONResponse({"detail": "Scan the pairing QR code on the laptop to open Tala."}, status_code=403)
+    return await call_next(request)
 
 
 def system_prompt() -> str:
@@ -193,6 +214,36 @@ def expenses(category: str = "", start: str = "", end: str = "", search: str = "
         "tasks": tasks["tasks"],
         "habits": habits.get("habits", []),
     }
+
+
+@app.get("/manifest.webmanifest")
+def manifest() -> JSONResponse:
+    # Served dynamically: an iOS home-screen app has its own cookie jar, so its start URL carries the pairing key.
+    start = f"/?k={PAIR_KEY}" if PAIR_KEY else "/"
+    return JSONResponse(
+        {
+            "name": "Tala",
+            "short_name": "Tala",
+            "description": "Just say what happened. Tala logs it. Offline.",
+            "start_url": start,
+            "display": "standalone",
+            "background_color": "#0b1120",
+            "theme_color": "#0b1120",
+            "icons": [
+                {"src": "icon-180.png", "sizes": "180x180", "type": "image/png"},
+                {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+            ],
+        },
+        media_type="application/manifest+json",
+    )
+
+
+@app.get("/api/pair")
+def pair(request: Request) -> Response:
+    if not PHONE_URL or (request.client and request.client.host not in ("127.0.0.1", "::1")):
+        raise HTTPException(404, "Phone pairing is off. Start Tala with ./run.sh.")
+    svg = qrcode.make(PHONE_URL, image_factory=qrcode.image.svg.SvgPathImage, box_size=12, border=2).to_string().decode()
+    return JSONResponse({"url": PHONE_URL.split("?")[0], "link": PHONE_URL, "svg": svg})
 
 
 @app.post("/api/tasks/{task_id}/toggle")
