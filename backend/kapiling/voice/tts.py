@@ -18,11 +18,27 @@ _loaded: dict[str, tuple] = {}
 # Numbers are spelled with num2words(lang="en") for both languages: MMS-tgl reads English
 # numerals better than anything num2words would produce for Tagalog.
 _UNITS = [
-    (r"\bmg\s*/\s*dL\b", "milligrams per deciliter"),
-    (r"\bmmol\s*/\s*L\b", "millimoles per liter"),
-    (r"\bmmHg\b", "millimeters of mercury"),
-    (r"\bmg\b", "milligrams"),
+    (r"mg\s*/\s*dL", " milligrams per deciliter "),
+    (r"mmol\s*/\s*L", " millimoles per liter "),
+    (r"mmHg", " millimeters of mercury "),
+    (r"mg", " milligrams "),
 ]
+_MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august",
+           "september", "october", "november", "december"]
+
+
+def _iso_date(m: re.Match[str]) -> str:
+    y, mo, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    if not (1 <= mo <= 12 and 1 <= d <= 31):
+        return m.group()
+    return f"{_MONTHS[mo - 1]} {num2words(d)}, {num2words(y, to='year')}"
+
+
+def _fraction(m: re.Match[str]) -> str:
+    # 1/2 -> "one half"; anything else is read plainly as "a slash b" (a date like 3/4 is ambiguous).
+    if m.group(1) == "1" and m.group(2) == "2":
+        return "1 half"
+    return f"{m.group(1)} slash {m.group(2)}"
 
 
 def _norm_lang(lang: str) -> str:
@@ -46,10 +62,11 @@ def load(lang: str = "tl") -> None:
     with _locks[lang]:
         if lang not in _loaded:
             name = MODELS[lang]
-            tok = AutoTokenizer.from_pretrained(name)
-            model = VitsModel.from_pretrained(name).eval()
-            _loaded[lang] = (model, tok)
-            _synth(lang, "handa na po" if lang == "tl" else "ready")  # warm-up: first call is slow
+            # local_files_only: a missing cache fails fast instead of stalling on the network.
+            tok = AutoTokenizer.from_pretrained(name, local_files_only=True)
+            model = VitsModel.from_pretrained(name, local_files_only=True).eval()
+            _synth((model, tok), "handa na po" if lang == "tl" else "ready")  # warm-up: first call is slow
+            _loaded[lang] = (model, tok)  # registered only once warm-up succeeded
 
 
 def _say_numbers(text: str) -> str:
@@ -63,7 +80,7 @@ def _say_numbers(text: str) -> str:
         return out
 
     text = re.sub(r"₱\s?([\d,]+(?:\.\d+)?)", money, text)
-    text = re.sub(r"(\d+)\s?%", lambda m: f"{num2words(int(m.group(1)))} percent", text)
+    text = re.sub(r"(\d+(?:\.\d+)?)\s?%", lambda m: f"{num2words(float(m.group(1)) if '.' in m.group(1) else int(m.group(1)))} percent", text)
     text = re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)  # 1,250 -> 1250
     text = re.sub(r"\d+(?:\.\d+)?", lambda m: num2words(float(m.group()) if "." in m.group() else int(m.group())), text)
     return text
@@ -71,20 +88,25 @@ def _say_numbers(text: str) -> str:
 
 def clean(text: str, lang: str = "tl") -> str:
     # lang is accepted for symmetry; both models get the same English-spelled numbers and units.
-    text = re.sub(r"(\d+)\s*/\s*(\d+)", r"\1 over \2", text)  # blood pressure 130/80
-    for pat, spoken in _UNITS:
-        text = re.sub(pat, spoken, text)
+    text = re.sub(r"\b(\d{4})-(\d{2})-(\d{2})\b", _iso_date, text)  # ISO date
+    text = re.sub(r"\b(\d{2,3})/(\d{2,3})\b", r"\1 over \2", text)  # blood pressure 130/80
+    text = re.sub(r"\b(\d+)/(\d+)\b", _fraction, text)
+    for pat, spoken in _UNITS:  # lookarounds, not \b: units may be glued to the number (50mg)
+        text = re.sub(rf"(?<![A-Za-z]){pat}(?![A-Za-z])", spoken, text, flags=re.IGNORECASE)
+    text = re.sub(r"(?<!\w)-(?=\d)", "minus ", text)
+    text = re.sub(r"(?<=\d)-(?=\d)", " to ", text)
     text = re.sub(r"\b[A-Z]{2,}\b", lambda m: " ".join(m.group().lower()), text)  # FBS -> f b s
     text = _say_numbers(text)
     text = re.sub(r"[☀-➿\U0001F300-\U0001FAFF]", "", text)  # emoji
-    return re.sub(r"\s+", " ", text.replace("-", " ")).strip().lower()
+    text = re.sub(r"\s+", " ", text.replace("-", " ")).strip().lower()
+    return re.sub(r" ([,.;:!?])", r"\1", text)
 
 
-def _synth(lang: str, text: str) -> bytes:
+def _synth(pair: tuple, text: str) -> bytes:
     import scipy.io.wavfile
     import torch
 
-    model, tok = _loaded[lang]
+    model, tok = pair
     with torch.inference_mode():
         wave = model(**tok(text, return_tensors="pt")).waveform[0].clamp(-1, 1)
     pcm = (wave * 32767).short().numpy()  # 16-bit PCM: the WAV flavour every phone browser plays
@@ -98,7 +120,7 @@ def _speak(text: str, lang: str) -> bytes:
     load(lang)
     t = clean(text, lang) or ("pasensya po" if lang == "tl" else "sorry")
     with _locks[lang]:
-        return _synth(lang, t)
+        return _synth(_loaded[lang], t)
 
 
 def speak(text: str, lang: str = "tl") -> bytes:

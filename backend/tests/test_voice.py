@@ -55,6 +55,38 @@ def test_clean_other_units():
     assert tts.clean("Losartan 50 mg, 12%", "tl") == "losartan fifty milligrams, twelve percent"
 
 
+def test_clean_glued_units():
+    assert tts.clean("Losartan 50mg", "tl") == "losartan fifty milligrams"
+    assert tts.clean("130mmHg", "en") == "one hundred and thirty millimeters of mercury"
+    assert tts.clean("5.6mmol/L", "en") == "five point six millimoles per liter"
+
+
+def test_clean_decimal_percent():
+    assert tts.clean("6.5%", "en") == "six point five percent"
+
+
+def test_clean_signs_ranges_and_dates():
+    assert tts.clean("-5", "en") == "minus five"
+    assert tts.clean("3-5 tablets", "tl") == "three to five tablets"
+    assert tts.clean("2024-01-05", "en") == "january five, twenty twenty four"
+
+
+def test_clean_bp_only_is_over():
+    assert tts.clean("BP 130/80", "en") == "b p one hundred and thirty over eighty"
+    half = tts.clean("1/2 tablet", "en")
+    assert half == "one half tablet" and "over" not in half
+    assert "over" not in tts.clean("3/4", "en")
+
+
+def test_load_fails_fast_and_stays_unloaded_when_cache_missing(monkeypatch):
+    monkeypatch.setenv("HF_HUB_OFFLINE", "1")
+    monkeypatch.setitem(tts.MODELS, "en", "facebook/does-not-exist-xyz")
+    monkeypatch.setattr(tts, "_loaded", {})
+    with pytest.raises(Exception):
+        tts.load("en")
+    assert not tts.is_loaded()
+
+
 # --- STT ------------------------------------------------------------------
 
 def test_stt_posts_language_and_returns_text(monkeypatch):
