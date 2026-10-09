@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.db
+*.gguf
+*.bin
+.env
+.DS_Store
