@@ -183,8 +183,9 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 
 /* ---- Toast ---- */
 .toasts {
-  /* Sits above the bottom menu (64px) so it never covers navigation. */
-  position: fixed; left: 0; right: 0; bottom: calc(var(--tap-lg) + var(--s-3) + env(safe-area-inset-bottom));
+  /* Sits above the bottom menu. --nav-h is the menu's measured height (BottomNav's ResizeObserver), so the
+     toast clears it at every text size; without a menu it sits above the home indicator. */
+  position: fixed; left: 0; right: 0; bottom: calc(var(--nav-h, env(safe-area-inset-bottom)) + var(--s-3));
   display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
   padding: 0 var(--s-4); pointer-events: none; z-index: 50;
 }
@@ -228,3 +229,79 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .navitem[aria-current='page'] { color: var(--primary); background: var(--primary-soft); }
 .navitem:active { background: var(--surface-2); }
 .navitem:focus-visible { outline-offset: -3px; }
+
+/* ---- App shell: one plane ----
+   A 100dvh grid whose three rows are the header, the content and the bottom menu. Only the content
+   scrolls; nothing is sticky, fixed or floating over it (DESIGN.md principle 4). */
+.shell {
+  display: grid; grid-template-rows: auto 1fr auto;
+  height: 100vh; height: 100dvh; overflow: hidden;
+  padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
+  background: var(--bg);
+}
+.shell__main { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+.topbar {
+  /* One row at normal text size. At larger sizes the profile keeps its room (flex-basis in em) and the
+     Emergency and Settings controls wrap to a second row instead of squeezing the name. */
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-width: 0;
+  padding: calc(var(--s-2) + env(safe-area-inset-top)) var(--s-3) var(--s-2);
+  background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.topbar__profile {
+  flex: 1 1 7.5em; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1); border: 0; border-radius: var(--radius-btn);
+  background: transparent; color: var(--ink); font: inherit; font-weight: 700; text-align: left; cursor: pointer;
+}
+.topbar__profile:active { background: var(--surface-2); }
+.topbar__name {
+  min-width: 0; line-height: 1.2; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+}
+/* The Emergency control: 64px tall, red, icon above the word (DESIGN.md: emergency is colour + icon + word). */
+.topbar__sos, .topbar__iconlink {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: var(--tap-lg); min-width: var(--tap-lg); padding: var(--s-1) var(--s-3);
+  border-radius: var(--radius-btn); text-decoration: none;
+  font-family: var(--font-head); font-weight: 700; line-height: 1.15; text-align: center;
+  transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
+}
+.topbar__sos { flex: 1 0 auto; max-width: 12em; background: var(--danger); color: var(--on-danger); font-size: var(--fs-body); }
+.topbar__sos svg { width: 1.5em; height: 1.5em; }
+.topbar__sos:hover { filter: brightness(0.95); }
+.topbar__sos:active { transform: scale(0.97); }
+.topbar__iconlink { flex: none; padding-inline: var(--s-1); color: var(--primary); font-size: var(--fs-sm); }
+.topbar__iconlink svg { width: 26px; height: 26px; }
+.topbar__iconlink:active { background: var(--surface-2); }
+
+.avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 700; }
+
+.bottomnav {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-1);
+  padding: 0 var(--s-1) env(safe-area-inset-bottom);
+  background: var(--surface); border-top: 1px solid var(--border);
+}
+.bottomnav .navitem { border-radius: var(--radius-btn); margin-block: var(--s-1); text-align: center; line-height: 1.2; }
+
+.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-5) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); align-content: start; }
+
+/* Pages outside the shell (lock, emergency, dev preview) scroll with the document. */
+.standalone {
+  min-height: 100vh; min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.standalone__back { justify-self: start; margin-left: calc(-1 * var(--s-3)); padding-inline: var(--s-3); text-decoration: none; }
+.emergency__title { display: flex; align-items: center; gap: var(--s-2); color: var(--danger); }
+.emergency__title svg { flex: none; width: 1em; height: 1em; }
+.emergency__name { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
+
+.profile-list { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-2); }
+.profile-list__item {
+  width: 100%; display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--border); border-radius: var(--radius-btn); background: var(--surface); color: var(--ink);
+  font: inherit; font-weight: 700; text-align: left; cursor: pointer;
+}
+.profile-list__item[aria-current='true'] { border-color: var(--primary); background: var(--primary-soft); }
+.profile-list__item svg { margin-left: auto; color: var(--primary); }
+.profile-list__name { flex: 1; min-width: 0; }
