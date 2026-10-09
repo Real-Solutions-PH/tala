@@ -1,0 +1,19 @@
+[project]
+name = "kapiling"
+version = "0.1.0"
+description = "Kapiling: local-first personal health record"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi", "uvicorn", "python-multipart", "httpx", "pypdf", "qrcode",
+    "sqlite-vec", "docling", "langchain-core", "transformers", "torch",
+    "scipy", "num2words", "pillow",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
