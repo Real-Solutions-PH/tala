@@ -190,6 +190,8 @@ CREATE TABLE access_log (id INTEGER PRIMARY KEY, profile_id INTEGER NOT NULL, ac
 | `GET /profiles/{pid}/summary` | `{profile, conditions[], allergies[], meds[], latest: {code: Observation}, contacts[]}` |
 | `GET/PUT /profiles/{pid}` | profile fields |
 | `GET /profiles/{pid}/cards` | `[{id, kind, label, number_masked, front_url, back_url, expires}]` |
+| `GET /files/{card_id}/{side}` (side = front/back) | the card image. Locked and logged as `view_cards`. Card `front_url`/`back_url` point here. |
+| `GET /profiles/{pid}/photo` (public) | the profile photo, used by the lock screen and the emergency card |
 | `POST /profiles/{pid}/cards` (multipart `kind`, `label`, `number?`, `front`, `back?`) | created card |
 | `GET /emergency/{pid}/qr.svg` (public) | SVG |
 | `GET /profiles/{pid}/meds?date=YYYY-MM-DD` | `{meds: [...], today: [{med_id, slot, taken_at|null}]}` |
@@ -355,8 +357,8 @@ class Settings:
 settings = Settings()
 ```
 
-`main.py`: the app, the pairing middleware carried over from the old `app.py` (same cookie logic, with `/api/emergency/*` and `/api/profiles` also allowed through), `/api/health` probing each server's `/health` with a 1 s timeout (TTS = model loaded), and the static mount of `backend/static` when it exists.
-- [ ] **Step 5: Frontend scaffold.** In `frontend/`: `bun add react-router @tanstack/react-query lucide-react recharts react-markdown @ricky0123/vad-web onnxruntime-web` and `bun add -d vitest @testing-library/react @testing-library/user-event jsdom @playwright/test`. Scripts: `dev`, `build` (outputs to `../backend/static`), `test`, `typecheck` (`tsc -b --noEmit`). The Vite proxy sends `/api` to `http://127.0.0.1:8787`.
+Modules read settings as `from kapiling import config` then `config.settings.<field>` **at call time** (never `from kapiling.config import settings`), so tests can swap `config.settings`. `main.py`: the app, the pairing middleware carried over from the old `app.py` (same cookie logic, with `/api/emergency/*` and `/api/profiles` also allowed through), `/api/health` probing each server's `/health` with a 1 s timeout (TTS = model loaded), and the static mount of `backend/static` when it exists.
+- [ ] **Step 5: Frontend scaffold.** In `frontend/`: `bun add react-router @tanstack/react-query lucide-react recharts react-markdown @ricky0123/vad-web onnxruntime-web` and `bun add -d vitest @testing-library/react @testing-library/user-event jsdom @playwright/test`. Scripts: `dev`, `build` (outputs to `../backend/static`), `test` (`vitest --passWithNoTests`), `typecheck` (`tsc -b --noEmit`). The Vite proxy sends `/api` to `http://127.0.0.1:8787`.
 - [ ] **Step 6: Verify.** `uv run pytest -q` passes. `bun run build` writes `backend/static/index.html`.
 - [ ] **Step 7: Commit.** `chore: scaffold backend package and Vite frontend for Kapiling`
 
@@ -392,7 +394,7 @@ def test_profile_delete_cascades(con):
     assert con.execute("select count(*) from vaccines where profile_id=?", (pid,)).fetchone()[0] == 0
 ```
 
-`conftest.py` points `settings` at a `tmp_path` data dir (monkeypatch `kapiling.config.settings` with `dataclasses.replace`), calls `connect()` and then `persona.seed(con)`.
+`conftest.py` provides fixtures `con`, `lola` (int id) and `mika` (int id). It points `config.settings` at a `tmp_path` data dir (monkeypatch `kapiling.config.settings` with `dataclasses.replace`), calls `connect()` and then `persona.seed(con)`.
 - [ ] **Step 2: Run it** and see it fail.
 - [ ] **Step 3: Implement `db.py`.** `connect()` creates `data_dir`, opens the DB with `check_same_thread=False`, sets `PRAGMA foreign_keys=ON` and `journal_mode=WAL`, runs `sqlite_vec.load(con)`, and applies the C1 schema when `user_version < 1`, then sets it to 1. Migrations are a list of SQL strings indexed by version.
 - [ ] **Step 4: Implement the seed.** The persona, all fictional:
@@ -479,7 +481,9 @@ test('placeholders match between languages', () => {
   - `Qwen/Qwen3-Embedding-0.6B-GGUF` file `Qwen3-Embedding-0.6B-Q8_0.gguf`
   - `gpustack/bge-reranker-v2-m3-GGUF` file `bge-reranker-v2-m3-Q8_0.gguf`
 
-  The MMS models download on first use through transformers (`facebook/mms-tts-tgl`, `facebook/mms-tts-eng`).
+  - `Qwen/Qwen3-Embedding-0.6B` tokenizer files only (`tokenizer.json tokenizer_config.json vocab.json merges.txt special_tokens_map.json config.json`) into the HF cache, for Docling's chunker
+  - `facebook/mms-tts-tgl` and `facebook/mms-tts-eng` into the HF cache
+  After this script runs, nothing needs the network. Add `embed_tokenizer: str = os.getenv("EMBED_TOKENIZER", "Qwen/Qwen3-Embedding-0.6B")` to `Settings`, and set `HF_HUB_OFFLINE=1` in `run.sh`.
 - [ ] **Step 2: Rewrite `run.sh`.** Keep the existing chat/vision and whisper lines, the certificate, the pairing QR and the warm-up, and add:
 
 ```bash
@@ -507,7 +511,7 @@ llama-server -m "$RERANK" --reranking -c 8192 -ub 8192 -ngl 99 --host 127.0.0.1 
 
 **Interfaces:**
 - Consumes: `connect()`, the `con` fixture.
-- Produces: the C2 records endpoints (including `POST /profiles/{pid}/cards`), `essential_summary`, `emergency_card`, and repo functions `get_profile(con, pid)`, `list_meds(con, pid, active=True)`, `meds_today(con, pid, date)`, `mark_taken(con, mid, date, slot)`, `unmark_taken(...)`, `list_cards(con, pid)`, `list_vaccines(con, pid)`, `observations(con, pid, code=None, status='confirmed')`, `latest_observations(con, pid) -> dict[str, Row]`, `timeline(con, pid, kind=None)`. These are used by Task 12's tools.
+- Produces: the C2 records endpoints (including `POST /profiles/{pid}/cards`, `GET /files/{card_id}/{side}` and `GET /profiles/{pid}/photo`), `essential_summary`, `emergency_card`, and repo functions `get_profile(con, pid)`, `list_meds(con, pid, active=True)`, `meds_today(con, pid, date)`, `mark_taken(con, mid, date, slot)`, `unmark_taken(...)`, `list_cards(con, pid)`, `list_vaccines(con, pid)`, `observations(con, pid, code=None, status='confirmed')`, `latest_observations(con, pid) -> dict[str, Row]`, `timeline(con, pid, kind=None)`. These are used by Task 12's tools.
 
 - [ ] **Step 1: Failing tests:**
 
@@ -620,7 +624,7 @@ async def ingest(con, doc) -> None:
     else:                                                           # PDF: Docling directly; OCR only if no text layer
         dl = DocumentConverter().convert(path).document
         md = dl.export_to_markdown()                                # kept for display and extraction only, never for chunking
-    chunker = HybridChunker(tokenizer=HuggingFaceTokenizer.from_pretrained("Qwen/Qwen3-Embedding-0.6B", max_tokens=512), merge_peers=True)
+    chunker = HybridChunker(tokenizer=HuggingFaceTokenizer.from_pretrained(config.settings.embed_tokenizer, max_tokens=512), merge_peers=True)
     docs = [Document(page_content=c.text, metadata={"title": doc.title, "headings": c.meta.headings or [],
             "page": first_page(c), "bbox": first_bbox(c), "ord": i})
             for i, c in enumerate(chunker.chunk(dl))]
@@ -820,7 +824,7 @@ test('RUN_ERROR keeps partial text and marks failed', () => { /* ... */ })
 
 **Interfaces:**
 - Consumes: `chunks`, `chunks_fts`, `chunks_vec` (Task 7), `embed_texts` (Task 7).
-- Produces: `search(con, pid, query, k=6) -> list[Hit]`, `to_sources(hits, answer_text) -> list[Source]` (assigns `n`, cuts `before`/`match`/`after` from the stored chunk text), `RERANK_FLOOR` (a module constant, calibrated in Task 19).
+- Produces: `search(con, pid, query, k=6) -> list[Hit]`, `to_sources(hits, query) -> list[Source]` (assigns `n`; `match` is the chunk sentence sharing the most tokens with the query, or the first 160 characters; `before`/`after` are up to 80 characters around it, all cut from the stored bare chunk text), `RERANK_FLOOR` (a module constant, calibrated in Task 19).
 
 ```python
 CANDIDATES = 24
@@ -864,7 +868,7 @@ def test_empty_index_returns_empty_not_error(con, lola): assert search(con, lola
 
 **Files:**
 - Create: `backend/kapiling/chat/{agent.py,tools.py,prompts.py,safety.py}`, `backend/tests/test_agent.py`, `backend/tests/test_tools.py`
-- Modify: `backend/kapiling/chat/routes.py` (replace the echo with `agent.stream_run`)
+- Modify: `backend/kapiling/chat/routes.py` (replace the echo with `agent.stream_run`; add `POST /api/speak` (form `text` ≤ 400 chars, `lang`) returning `audio/wav` from `tts.speak` via `run_in_threadpool`, locked)
 
 **Interfaces:**
 - Consumes: Tasks 5, 8, 9 (for `speak=1`), 11.
@@ -947,7 +951,7 @@ async def test_unknown_tool_is_reported_to_model_not_crash(ctx_factory, fake_llm
 - **Lock:**
   - Profile avatars in a row (from `GET /profiles`).
   - A 6-digit PIN pad with 64 px keys, and a visible dot for each digit entered.
-  - "Unlock with Face ID" appears only when `PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()` returns true.
+  - No biometric button here; Task 15 adds it.
   - A large red **Emergency** button at the top that opens `/emergency/:pid` without unlocking.
   - A wrong PIN shakes the dots (no shake under reduced motion) and shows the error text.
   - On 429, the countdown is shown.
@@ -997,7 +1001,7 @@ async def test_unknown_tool_is_reported_to_model_not_crash(ctx_factory, fake_llm
   - Has an `aria-label` summary such as "FBS rose from 118 to 132 mg/dL between July 2024 and July 2026".
 - **DocumentViewer:**
   - The page image, zoomable, with "Basahin ang nakasulat" (read the transcribed text) showing `transcript_md`.
-  - When opened from a citation (`?chunk=`), it scrolls to and highlights the `match` text in the transcript.
+  - When opened from a citation (`?chunk=`), it scrolls to and highlights the `match` text in the transcript, only when `before + match + after` is found verbatim in it (VCAC-D-013); otherwise it opens at the top with no highlight.
   - Processing state: "Binabasa pa po ni Kapiling..." ("Kapiling is still reading this..."), polling every 3 s while the status is `queued` or `reading`.
 - **ReviewExtraction:**
   - After a document is indexed, its `proposed` observations are listed as editable rows (label, value, unit, date) with "Tama ito" (this is right) to confirm all, or per-row edit and remove.
@@ -1026,6 +1030,7 @@ async def test_unknown_tool_is_reported_to_model_not_crash(ctx_factory, fake_llm
   - Lock now.
   - About: what runs on this device.
 - **Profile:** the personal information form (labels above fields, inputs ≥ 56 px, `inputmode` set per field), family history, contacts.
+- **Lock screen button:** add "Buksan gamit ang Face ID / fingerprint" to `LockScreen.tsx`, shown only when `PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()` is true and `GET /api/profiles` reports `has_biometric: true` for that profile (add that field).
 - **WebAuthn:** `POST /api/webauthn/register/options|verify` and `/api/webauthn/login/options|verify` with `rp_id` taken from the request host, platform authenticator only and user verification required. The backend refuses when the host is an IP address and returns the i18n key `lock.biometricNeedsDomain`.
 
 - [ ] Failing tests:
@@ -1052,7 +1057,7 @@ async def test_unknown_tool_is_reported_to_model_not_crash(ctx_factory, fake_llm
 - **Live steps:** while streaming, `StepList` shows each step as a row with a small spinner and the i18n text. A finished step shows a check. When the run ends, the steps collapse into a disclosure ("3 hakbang"). The spinner respects reduced motion. Only the step change is announced (one `aria-live` update per step, not per frame).
 - **Text:** rendered with react-markdown (no raw HTML), with a caret while streaming. Blocks render under the text in arrival order. `Sources` shows numbered chips that link to `/records/documents/:id?chunk=`.
 - **Failure:** partial text stays, with an "Hindi natapos" ("Didn't finish") badge and a **Subukan muli** (try again) button that resends the last user message. Stopped messages show "Itinigil" ("Stopped").
-- **Read aloud:** each assistant message has "Basahin nang malakas" (read aloud), which plays `POST /api/speak` (keep this endpoint in `chat/routes.py`, backed by `tts.speak`).
+- **Read aloud:** each assistant message has "Basahin nang malakas" (read aloud), which plays the WAV from `POST /api/speak` (form `text`, `lang`; built in Task 12).
 - **History:** the drawer comes from the header, lists conversations newest first with relative dates, and supports tap to open, long-press or a menu for rename and delete (with confirm and toast), plus "Bagong usapan" (new conversation).
   - Loading a past conversation shows a message skeleton, not the empty greeting (G-C-013).
   - The URL carries the conversation id (`/chat/:cid`), so going back works.
