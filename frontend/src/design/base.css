@@ -154,7 +154,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 
 /* Round icon disc beside or above a word (never alone). */
 .icon-disc {
-  display: inline-grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); border-radius: 50%;
+  display: inline-grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); border-radius: 14px;
   background: var(--surface); color: var(--primary);
 }
 .icon-disc svg { width: 24px; height: 24px; }
@@ -339,7 +339,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   font-family: var(--font-head); font-weight: 700; line-height: 1.15; text-align: center;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
-/* Round header buttons, after the reference: a light circle for Settings, a red one for Emergency. */
+/* One round action in the header, after Orionix: Emergency, red, with its glow. */
 .topbar__sos, .topbar__iconlink { width: var(--tap-lg); height: var(--tap-lg); padding: 0; border-radius: 50%; flex: none; }
 .topbar__sos { background: var(--danger-fill); color: var(--on-danger); box-shadow: 0 8px 20px color-mix(in srgb, var(--danger-fill) 30%, transparent); }
 .topbar__sos svg, .topbar__iconlink svg { width: 26px; height: 26px; }
@@ -350,24 +350,34 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .topbar__iconlink:active { background: var(--surface-2); }
 
 .avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
-.topbar .avatar { background: var(--primary-fill); box-shadow: 0 0 0 3px var(--primary-fill); }
+.topbar .avatar { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px color-mix(in srgb, var(--primary-fill) 30%, transparent); }
+/* Two-line greeting, after Orionix: a quiet hello above the bold name. */
+.topbar__who { min-width: 0; display: flex; flex-direction: column; }
+.topbar__hello { font-size: var(--fs-sm); font-weight: 400; color: var(--muted); line-height: 1.2; white-space: nowrap; }
+.topbar__name { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 700; }
 
 .bottomnav {
-  /* Floating circles, after the reference: no bar, each tab its own round button, the current one big and blue. */
-  display: flex; justify-content: center; align-items: center; gap: var(--s-3);
-  margin: 0; padding: var(--s-2) var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom));
-  background: transparent;
+  /* The dock, after Orionix and Scanova: one dark capsule, centred, icons only, the current tab lit. */
+  display: flex; align-items: center; gap: var(--s-1);
+  justify-self: center; margin: 0 0 calc(var(--s-4) + env(safe-area-inset-bottom)); padding: var(--s-2);
+  background: var(--dock); border-radius: var(--radius-pill);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--dock) 35%, transparent);
 }
 .bottomnav .navitem {
-  flex: none; width: var(--tap-lg); height: var(--tap-lg); min-height: 0; padding: 0; margin: 0; border-radius: 50%;
-  background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  position: relative; flex: none; width: var(--tap-lg); height: 56px; min-height: 0; padding: 0; margin: 0;
+  border-radius: var(--radius-pill); background: transparent; color: var(--dock-icon); box-shadow: none;
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .bottomnav .navitem svg { width: 26px; height: 26px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
-.bottomnav .navitem[aria-current='page'] { width: 76px; height: 76px; background: var(--primary-fill); color: var(--on-primary); box-shadow: 0 10px 24px color-mix(in srgb, var(--primary-fill) 35%, transparent); }
-.bottomnav .navitem[aria-current='page'] svg { background: none; color: var(--on-primary); }
-.bottomnav .navitem:active:not([aria-current='page']) { background: var(--surface-2); }
+.bottomnav .navitem[aria-current='page'] { color: var(--dock-active); background: color-mix(in srgb, var(--dock-dot) 18%, transparent); }
+.bottomnav .navitem[aria-current='page'] svg { background: none; color: var(--dock-active); }
+/* The lit tab: a small glowing dot under the icon. */
+.bottomnav .navitem[aria-current='page']::after {
+  content: ''; position: absolute; bottom: 7px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%;
+  background: var(--dock-dot); box-shadow: 0 0 8px var(--dock-dot);
+}
+.bottomnav .navitem:active:not([aria-current='page']) { color: var(--dock-active); }
 
 .page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-5) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
 /* Every screen title is a display line: big, tight, calm. */
@@ -394,6 +404,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .emergency__title svg { flex: none; width: 1em; height: 1em; }
 .emergency__name { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
 
+.profile-actions { display: grid; gap: var(--s-2); }
 .profile-list { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-2); }
 .profile-list__item {
   width: 100%; display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);

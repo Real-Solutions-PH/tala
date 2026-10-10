@@ -31,6 +31,10 @@
   --danger-soft: #FCE8E6;
   --shimmer: #FFFFFF;
   --scrim: rgb(0 0 0 / 0.5);
+  --dock: #0E1424;        /* the dark bottom dock */
+  --dock-icon: #7D879C;   /* inactive dock icons, 5.1:1 on --dock */
+  --dock-active: #FFFFFF; /* the current tab's icon */
+  --dock-dot: #6C8BFF;    /* the dot under the current tab, 5.9:1 on --dock */
   --viewer-bg: #000000;   /* full-screen card viewer */
   --on-viewer: #FFFFFF;
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Droplet, FlaskConical, HeartPulse, TriangleAlert, type LucideIcon } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUp, Droplet, FlaskConical, HeartPulse, TriangleAlert, type LucideIcon } from 'lucide-react'
 import { useObservations, useSummary } from '../../api/queries'
 import type { Observation } from '../../api/types'
 import { Badge } from '../../components/Badge'
@@ -61,7 +61,6 @@ function Tile({ name, icon: Icon, to, latest, value, series, flag }: TileProps) 
       <span className="stat-tile__head">
         <span className="icon-disc" aria-hidden="true"><Icon strokeWidth={2} /></span>
         <span className="stat-tile__name">{t(name)}</span>
-        <ArrowUpRight className="stat-tile__go" aria-hidden="true" strokeWidth={2} />
       </span>
       <span className="stat-tile__value"><span className="num">{value}</span> <span className="stat-tile__unit">{latest.unit}</span></span>
       <time className="stat-tile__date small muted" dateTime={latest.date}>{formatDate(latest.date, lang)}</time>

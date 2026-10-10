@@ -36,15 +36,12 @@ export function TopBar() {
     <header className="topbar">
       <button type="button" className="topbar__profile" onClick={() => setOpen(true)} aria-haspopup="dialog"
         aria-label={name ? `${name}, ${t('common.switchProfile')}` : t('common.switchProfile')}>
-        <Avatar p={me} size={56} />
-        <span className="sr-only">{name}</span>
+        <Avatar p={me} size={48} />
+        <span className="topbar__who">
+          <span className="topbar__hello" aria-hidden="true">{t('common.hello')}</span>
+          <span className="topbar__name">{name}</span>
+        </span>
       </button>
-
-      {/* Round icon buttons, as in the reference: the words stay for screen readers and long-press labels. */}
-      <Link to="/settings" className="topbar__iconlink" title={t('nav.settings')}>
-        <Settings aria-hidden="true" strokeWidth={2} />
-        <span className="sr-only">{t('nav.settings')}</span>
-      </Link>
 
       <Link to={`/emergency/${profileId}`} className="topbar__sos" title={t('emergency.button')}>
         <Siren aria-hidden="true" strokeWidth={2} />
@@ -63,7 +60,13 @@ export function TopBar() {
             </li>
           ))}
         </ul>}
-        <Button variant="secondary" block icon={UserRound} onClick={() => { setOpen(false); navigate('/profile') }}>{t('common.profile')}</Button>
+        <div className="profile-actions">
+          <Button variant="secondary" block icon={UserRound} onClick={() => { setOpen(false); navigate('/profile') }}>{t('common.profile')}</Button>
+          <Link to="/settings" className="btn btn--secondary btn--block" onClick={() => setOpen(false)}>
+            <Settings aria-hidden="true" strokeWidth={2} />
+            <span>{t('nav.settings')}</span>
+          </Link>
+        </div>
       </Sheet>
     </header>
   )

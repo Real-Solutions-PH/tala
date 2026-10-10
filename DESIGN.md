@@ -119,7 +119,7 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | List card (`.list`) | One white card of quiet rows: icon disc, title, small grey line, chevron or status badge; hairlines between rows. |
 | Screens | Kausap: Usap hero + Ngayon. Card: PhilHealth hero + one list. Gamot: next-dose hero + taken list. Talaan: no hero; blood type and allergies, one trend, three latest entries. |
 | Bars (`.bars`) | Capsule bar chart for a reading over time: 14 px round-ended bars in `--primary`, dates under each, latest value labelled. |
-| Icon disc (`.icon-disc`) | 48 px round icon holder, always beside or above a word. |
+| Icon disc (`.icon-disc`) | 48 px rounded-square (14 px radius) icon holder, always beside or above a word. Circles are kept for the avatar, Emergency and the CTA end icon only. |
 | `Badge` | Tone ok, warn, danger, info: tone-coloured word (plus icon) on its soft tint. Never colour alone. |
 | `Chip` | 48 px pill. Quick actions carry an icon. As a toggle (`selected`), the selected chip is gold with dark ink text. |
 | `Sheet` | Bottom sheet on the native modal `<dialog>`: focus trapped, Escape and the labelled Close button dismiss it. |
@@ -129,12 +129,12 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue, on a warn tint with an icon. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | Four floating 64 px circles, no bar: Kausap · Card · Gamot · Talaan. The current tab is a 76 px filled blue circle. Words are screen-reader labels and tooltips (a deliberate trade for the reference look; principle 3 now holds for content, not chrome). |
-| Header | A 56 px avatar with a blue ring (opens the profile sheet) on the left; on the right a light 64 px Settings circle and a red 64 px Emergency circle. Words are screen-reader labels and tooltips. |
+| Bottom menu | The dock, after Orionix and Scanova (Behance): one dark `--dock` capsule centred above the home indicator, four icons (Kausap · Card · Gamot · Talaan). Inactive icons `--dock-icon` grey, the current one white on a faint blue pill with a glowing `--dock-dot` under it. Words are screen-reader labels and tooltips. |
+| Header | A 48 px ringed avatar and a two-line greeting ("Kumusta po," / **name**) that opens the profile sheet (switch profile, Profile, Settings); one red round Emergency button on the right, 64 px, on every screen. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
-| Metric tile | Icon disc and ↗ circle on top, label, big number with a small unit, trend word, range badge. On Talaan they form the blue results bento. |
+| Metric tile | Rounded-square icon on top, label, big number with a small unit, trend word, range badge; the whole tile is the link. On Talaan they form the blue results bento. |
 | CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
-| List row | Rounded-square icon thumbnail, title, small grey line, ↗ circle. |
+| List row | Rounded-square icon thumbnail, title, small grey line, a quiet chevron. |
 | Segmented filter | One white pill holding the filter chips, scrolls sideways. |
 
 States: every fetching view has a skeleton, an empty state with a next action, and an error state with Retry.

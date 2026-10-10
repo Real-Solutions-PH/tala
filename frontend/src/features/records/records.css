@@ -36,9 +36,8 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .summary .stat-tile--empty { background: rgb(255 255 255 / 0.06); }
 .stat-tile__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2); width: 100%; }
 .stat-tile__head .stat-tile__name { order: 3; flex-basis: 100%; }
-.stat-tile__head .icon-disc { width: 40px; height: 40px; }
+.stat-tile__head .icon-disc { width: 40px; height: 40px; border-radius: 12px; }
 .stat-tile__head .icon-disc svg { width: 20px; height: 20px; }
-.stat-tile__go { flex: none; width: 36px; height: 36px; padding: 8px; border-radius: 50%; background: rgb(255 255 255 / 0.16); color: var(--on-strong); }
 .stat-tile__name { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 .stat-tile__value { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-2xl); line-height: 1.1; letter-spacing: -0.03em; }
 .stat-tile__unit { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
@@ -67,7 +66,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .tl-row__icon--vaccine { background: var(--accent-soft); color: var(--accent); }
 .tl-row__text { flex: 1; min-width: 0; display: grid; }
 .tl-row__title { font-weight: 700; overflow-wrap: anywhere; }
-.tl-row__go { flex: none; width: 40px; height: 40px; padding: 10px; border-radius: 50%; background: var(--surface-2); color: var(--ink); }
+.tl-row__go { flex: none; width: 1.3em; height: 1.3em; color: var(--muted); }
 .timeline__empty { padding: var(--s-3) 0; }
 
 /* ---- Upload sheet ---- */
