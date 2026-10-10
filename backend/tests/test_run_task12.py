@@ -381,3 +381,45 @@ def test_tts_warm_up_failure_is_harmless(con, monkeypatch):
     with TestClient(main.app, client=("127.0.0.1", 50000)) as c:
         time.sleep(0.05)
         assert c.get("/api/health").status_code == 200
+
+
+# --- Task 18 wiring: transcript saved, listen-in gate ---------------------------------------
+
+def _fake_stt(monkeypatch, said):
+    from kapiling.voice import stt
+
+    async def transcribe(audio, mime, lang):
+        return said
+
+    monkeypatch.setattr(stt, "transcribe", transcribe)
+
+
+def test_usap_audio_is_transcribed_and_saved_as_the_user_message(client, con, lola_unlocked, fake_llm, monkeypatch):
+    _fake_stt(monkeypatch, "Ano ang gamot ko?")
+    fake_llm.script([text("Opo.")])
+    data = run_data(lola_unlocked, mode="usap")
+    del data["message"]
+    events = sse(client.post("/api/runs", data=data, files={"audio": ("a.wav", b"RIFFxxxx", "audio/wav")}))
+    transcript = [e for e in events if e.get("name") == "transcript"]
+    assert transcript and transcript[0]["value"]["text"] == "Ano ang gamot ko?"
+    assert events[-1]["result"]["status"] == "complete"
+    rows = con.execute("select role, content, mode from messages order by rowid").fetchall()
+    assert [tuple(r) for r in rows] == [("user", "Ano ang gamot ko?", "usap"), ("assistant", "Opo.", "usap")]
+
+
+def test_listen_gate_false_saves_only_the_transcript(client, con, lola_unlocked, fake_llm, monkeypatch):
+    from kapiling.chat import listen
+
+    _fake_stt(monkeypatch, "Mainit ngayon.")
+
+    async def gate(text, lang):
+        return False
+
+    monkeypatch.setattr(listen, "about_record", gate)
+    data = run_data(lola_unlocked, mode="listen", speak=1)
+    del data["message"]
+    events = sse(client.post("/api/runs", data=data, files={"audio": ("a.wav", b"RIFFxxxx", "audio/wav")}))
+    assert not [e for e in events if e["type"].startswith("TEXT_MESSAGE") or e.get("name") == "audio"]
+    assert events[-1]["result"]["status"] == "complete"
+    rows = con.execute("select role, content, mode from messages order by rowid").fetchall()
+    assert [tuple(r) for r in rows] == [("user", "Mainit ngayon.", "listen")]

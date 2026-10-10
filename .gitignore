@@ -13,3 +13,4 @@ backend/data/
 frontend/node_modules/
 frontend/test-results/
 logs/
+frontend/public/vad/

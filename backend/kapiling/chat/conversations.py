@@ -52,6 +52,12 @@ def append(con: sqlite3.Connection, cid: str, role: str, content: str, *, id: st
     return mid
 
 
+def set_content(con: sqlite3.Connection, mid: str, content: str) -> None:
+    """Replace a message's text (a voice turn's user row gets its transcript once it is known)."""
+    con.execute("update messages set content=? where id=?", (content, mid))
+    con.commit()
+
+
 def owner(con: sqlite3.Connection, cid: str) -> int | None:
     row = con.execute("select profile_id from conversations where id=?", (cid,)).fetchone()
     return None if row is None else row[0]

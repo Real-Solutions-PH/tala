@@ -1,0 +1,132 @@
+/* Usap: one full-screen plane over the shell. State is a word plus colour, never colour alone. */
+.usap {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 'banner' 'stage' 'foot';
+  background: var(--bg);
+  color: var(--ink);
+  --usap-state: var(--primary);
+}
+.usap--thinking { --usap-state: var(--warn); }
+.usap--speaking { --usap-state: var(--accent); }
+
+.usap__banner {
+  grid-area: banner;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 700;
+  font-size: var(--fs-body);
+}
+.usap__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  animation: usap-pulse 1.4s ease-in-out infinite;
+}
+@keyframes usap-pulse { 50% { opacity: 0.35; } }
+
+.usap__stage {
+  grid-area: stage;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-6) var(--s-4) var(--s-4);
+  text-align: center;
+}
+.usap__word {
+  margin: 0;
+  min-height: calc(var(--fs-xl) * var(--lh-head));
+  font-family: var(--font-head);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  line-height: var(--lh-head);
+  color: var(--usap-state);
+}
+.usap--speaking .usap__word { color: var(--accent); }
+
+.usap__talk {
+  width: 100%;
+  max-width: 40rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  text-align: left;
+}
+.usap__hint { margin: 0; color: var(--muted); text-align: center; font-size: var(--fs-body); }
+.usap__said, .usap__reply {
+  margin: 0;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--radius-card);
+  font-size: var(--fs-lg);
+  line-height: var(--lh);
+}
+.usap__said { background: var(--surface-2); color: var(--ink); }
+.usap__reply { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.usap__label {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: var(--s-1);
+}
+
+.usap__prompt, .usap__alert {
+  width: 100%;
+  max-width: 40rem;
+  padding: var(--s-4);
+  border-radius: var(--radius-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  align-items: center;
+}
+.usap__prompt { background: var(--primary-soft); color: var(--ink); }
+.usap__prompt-q { margin: 0; font-family: var(--font-head); font-size: var(--fs-xl); font-weight: 700; color: var(--primary); }
+.usap__prompt-hint { margin: 0; color: var(--muted); }
+.usap__alert { background: var(--danger-soft); color: var(--danger); font-weight: 700; }
+.usap__alert p { margin: 0; }
+
+.usap__foot { grid-area: foot; padding: var(--s-3) var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom)); }
+.usap__end { min-height: 64px; }
+
+/* Laptop demo only: the timing waterfall in a side column. */
+.usap-timing { display: none; }
+@media (min-width: 1024px) {
+  .usap {
+    grid-template-columns: 1fr 360px;
+    grid-template-areas: 'banner banner' 'stage timing' 'foot timing';
+  }
+  .usap-timing {
+    grid-area: timing;
+    display: block;
+    overflow-y: auto;
+    padding: var(--s-4);
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .usap-timing__title { margin: 0 0 var(--s-3); font-size: var(--fs-body); }
+  .usap-timing__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+  .usap-timing__row { display: grid; grid-template-columns: 1fr 4.5rem; gap: var(--s-2); align-items: center; }
+  .usap-timing__track { position: relative; height: 14px; background: var(--surface-2); border-radius: 4px; }
+  .usap-timing__bar { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+  .usap-timing__bar--0 { background: var(--primary); }
+  .usap-timing__bar--1 { background: var(--gold); }
+  .usap-timing__bar--2 { background: var(--accent); }
+  .usap-timing__bar--3 { background: var(--warn); }
+  .usap-timing__ms { font-size: var(--fs-sm); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .usap__dot { animation: none; }
+}

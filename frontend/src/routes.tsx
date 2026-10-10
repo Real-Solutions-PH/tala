@@ -16,6 +16,7 @@ import { LabDetail } from './features/records/LabDetail'
 import { RecordsPage } from './features/records/RecordsPage'
 import { ProfilePage } from './features/settings/ProfilePage'
 import { SettingsPage } from './features/settings/SettingsPage'
+import { UsapMode } from './features/voice/UsapMode'
 
 /** Router root: any 401 from the API forgets the profile and goes to /lock. */
 function Root() {
@@ -63,6 +64,7 @@ export const routes: RouteObject[] = [
         element: <Shell />,
         children: [
           { path: '/chat/:cid?', element: <ChatPage /> },
+          { path: '/usap', element: <UsapMode /> },
           { path: '/cards', element: <CardsPage /> },
           { path: '/cards/:id', element: <CardDetailPage /> },
           { path: '/meds', element: <MedsPage /> },

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router'
-import { FileHeart, History, MessageSquarePlus, Pill, WalletCards, FlaskConical } from 'lucide-react'
+import { AudioLines, FileHeart, History, MessageSquarePlus, Pill, WalletCards, FlaskConical } from 'lucide-react'
 import { keys, useConversation, useProfiles } from '../../api/queries'
 import type { Message as ApiMessage } from '../../api/types'
 import { Skeleton } from '../../components/Skeleton'
@@ -110,6 +110,9 @@ export function ChatPage() {
         {!empty && <h1 className="sr-only">{conv.data?.title || t('nav.chat')}</h1>}
         <button type="button" className="chat__headbtn" onClick={() => setDrawer(true)} aria-haspopup="dialog">
           <History aria-hidden="true" strokeWidth={2} /><span>{t('chat.history')}</span>
+        </button>
+        <button type="button" className="chat__headbtn" onClick={() => navigate('/usap')}>
+          <AudioLines aria-hidden="true" strokeWidth={2} /><span>{t('voice.usapTitle')}</span>
         </button>
         {!empty && (
           <button type="button" className="chat__headbtn" onClick={newChat}>

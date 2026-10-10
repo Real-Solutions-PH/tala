@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "bun scripts/copy-vad.ts && vite",
+    "build": "bun scripts/copy-vad.ts && tsc -b && vite build",
+    "postinstall": "bun scripts/copy-vad.ts",
     "test": "bun scripts/contrast.ts && vitest --passWithNoTests",
     "typecheck": "tsc -b --noEmit",
     "lint": "oxlint",
