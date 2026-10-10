@@ -33,6 +33,9 @@ worker_task: asyncio.Task | None = None
 # Load both MMS-TTS voices at startup so the first spoken reply is not slow. Tests set KAPILING_TTS_WARM=0,
 # like KAPILING_WORKER for the ingestion worker.
 TTS_WARM = os.getenv("KAPILING_TTS_WARM", "1") == "1"
+# Prime llama-server's prompt cache with the real system prompt and tool schemas (one max_tokens=1 request), so the
+# first question after startup is not slow. Tests set KAPILING_LLM_WARM=0.
+LLM_WARM = os.getenv("KAPILING_LLM_WARM", "1") == "1"
 
 
 def _warm_tts() -> None:
@@ -49,11 +52,18 @@ async def lifespan(_app: FastAPI):
     global worker_task
     if TTS_WARM:
         threading.Thread(target=_warm_tts, name="tts-warmup", daemon=True).start()
+    llm_warm = None
+    if LLM_WARM:  # detached: never blocks startup, and warm_prompt_cache never raises
+        from kapiling.chat import agent
+
+        llm_warm = asyncio.create_task(agent.warm_prompt_cache())
     if config.settings.worker:
         worker_task = asyncio.create_task(run_pending())
     try:
         yield
     finally:
+        if llm_warm is not None and not llm_warm.done():
+            llm_warm.cancel()
         if worker_task is not None:
             worker_task.cancel()
             with suppress(asyncio.CancelledError):

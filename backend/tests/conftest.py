@@ -5,6 +5,7 @@ import os
 os.environ.setdefault("KAPILING_WORKER", "0")
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 os.environ.setdefault("KAPILING_TTS_WARM", "0")  # no MMS-TTS warm-up thread in tests (Task 12)
+os.environ.setdefault("KAPILING_LLM_WARM", "0")  # no prompt-cache warm-up request in tests
 
 import pytest
 

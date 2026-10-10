@@ -71,6 +71,42 @@ async def _llm_stream(payload: dict) -> AsyncIterator[dict]:
         raise LLMUnavailable(type(e).__name__) from e
 
 
+def _warm_messages() -> list[dict] | None:
+    """The real system prompt of the first profile (the demo's main user), or None with no profile."""
+    from kapiling import db
+
+    con = db.connect()
+    try:
+        row = con.execute("select id, language from profiles order by id limit 1").fetchone()
+        if row is None:
+            return None
+        lang = row["language"] if row["language"] in ("en", "tl") else "tl"
+        return [{"role": "system", "content": prompts.system_prompt(con, row["id"], lang)},
+                {"role": "user", "content": "hi"}]
+    finally:
+        con.close()
+
+
+async def warm_prompt_cache() -> None:
+    """One max_tokens=1 request with the run's system prompt and tool schemas, so llama-server caches that
+    prefix and the first real question is fast. Never raises: a down LLM only means a slower first reply."""
+    try:
+        messages = await run_in_threadpool(_warm_messages)
+        if messages is None:
+            return
+        payload = {"messages": messages, "tools": tools.SCHEMAS, "stream": True, "temperature": TEMPERATURE,
+                   "max_tokens": 1}
+        stream = _llm_stream(payload)
+        try:
+            async for _ in stream:
+                pass
+        finally:
+            await stream.aclose()
+        log.info("prompt cache warmed")
+    except Exception as e:  # noqa: BLE001
+        log.warning("prompt cache warm-up failed: %s", type(e).__name__)
+
+
 def _mime(img: bytes) -> str:
     if img.startswith(b"\x89PNG"):
         return "image/png"

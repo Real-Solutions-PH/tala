@@ -314,6 +314,59 @@ def test_tts_warm_up_is_off_in_tests(con, monkeypatch):
     assert loaded == []
 
 
+def test_prompt_cache_warm_up_sends_one_request_with_tools(con, lola, fake_llm):
+    fake_llm.script([text("")])
+    asyncio.run(agent.warm_prompt_cache())
+    assert len(fake_llm.payloads) == 1
+    p = fake_llm.payloads[0]
+    assert p["max_tokens"] == 1 and p["tools"] == json.loads(json.dumps(agent.tools.SCHEMAS))
+    # The same system prompt a run for the first profile gets, so the cached prefix is reused.
+    from kapiling.chat import prompts
+    assert p["messages"][0] == {"role": "system", "content": prompts.system_prompt(con, lola, "tl")}
+
+
+def test_prompt_cache_warm_up_swallows_errors(con, monkeypatch):
+    calls = []
+
+    async def down(payload):
+        calls.append(payload)
+        raise agent.LLMUnavailable("ConnectError")
+        yield
+
+    monkeypatch.setattr(agent, "_llm_stream", down)
+    asyncio.run(agent.warm_prompt_cache())  # does not raise
+    assert len(calls) == 1
+
+
+def test_prompt_cache_warm_up_runs_on_startup_without_blocking(con, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from kapiling import main
+
+    seen = []
+
+    async def hung(payload):
+        seen.append(payload)
+        await asyncio.sleep(5)  # a hung LLM must not hold up startup
+        yield {}
+
+    monkeypatch.setattr(agent, "_llm_stream", hung)
+    monkeypatch.setattr(main, "LLM_WARM", True)
+    t = time.monotonic()
+    with TestClient(main.app, client=("127.0.0.1", 50000)) as c:
+        assert c.get("/api/health").status_code == 200
+        deadline = time.monotonic() + 2
+        while not seen and time.monotonic() < deadline:
+            time.sleep(0.01)
+    assert len(seen) == 1 and time.monotonic() - t < 4
+
+
+def test_prompt_cache_warm_up_is_off_in_tests():
+    from kapiling import main
+
+    assert main.LLM_WARM is False
+
+
 def test_tts_warm_up_failure_is_harmless(con, monkeypatch):
     from fastapi.testclient import TestClient
 

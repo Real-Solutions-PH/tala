@@ -309,7 +309,6 @@ def test_decline_tool_emits_refusal(ctx_factory, fake_llm):
     ("Should I double my Metformin?", "medication"),
     ("Can I increase my dose?", "medication"),
     ("Ano ang sakit ko?", "diagnosis"),
-    ("Do I have diabetes?", "diagnosis"),
     ("Can you diagnose this rash?", "diagnosis"),
 ])
 def test_precheck_forces_refusal_even_if_model_ignores_it(ctx_factory, fake_llm, question, kind):
@@ -334,6 +333,19 @@ def test_precheck_leaves_ordinary_questions_alone():
     assert safety.precheck("Show my PhilHealth") is None
     assert safety.precheck("Kumusta ang blood sugar ko?") is None
     assert safety.precheck("Puwede ko bang ITIGIL ang Metformin?") == "medication"
+
+
+@pytest.mark.parametrize("question", ["Do I have allergies?", "May allergy ba ako?", "Ano ang mga gamot ko?",
+                                      "When was I diagnosed with diabetes?", "Kailan itinigil ang Amlodipine?"])
+def test_precheck_ignores_record_lookups(question):
+    assert safety.precheck(question) is None
+
+
+def test_record_lookup_gets_no_refusal_block(ctx_factory, fake_llm):
+    fake_llm.script([text("Penicillin at shrimp po.")])
+    ev = collect(ctx_factory("Do I have allergies?"))
+    assert not [b for b in blocks_of(ev) if b["type"] == "refusal"]
+    assert "already shown" not in fake_llm.payloads[0]["messages"][-1]["content"]
 
 
 def test_bad_refusal_kind_is_normalised(ctx_factory, fake_llm):
