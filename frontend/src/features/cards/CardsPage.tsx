@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CalendarClock, Camera, Plus, WalletCards } from 'lucide-react'
+import type React from 'react'
 import { api } from '../../api/client'
-import { keys, useCards } from '../../api/queries'
+import { keys, useCards, useSummary } from '../../api/queries'
 import type { WalletCard } from '../../api/types'
 import { Badge } from '../../components/Badge'
 import { Button } from '../../components/Button'
@@ -37,14 +38,20 @@ function ExpiryBadge({ expires, now }: { expires: string | null; now: number }) 
 }
 
 /** Card thumbnail. A failed image is retried once, then shows a labelled placeholder instead of a broken icon. */
-function Thumb({ src }: { src: string }) {
-  const [tries, setTries] = useState(0)
-  if (tries > 1) {
-    return <span className="wallet__thumb wallet__thumb--none" aria-hidden="true"><WalletCards strokeWidth={1.5} /></span>
-  }
+const CARD_BG: Record<WalletCard['kind'], string> = {
+  philhealth: 'var(--card-a)', hmo: 'var(--card-b)', senior: 'var(--card-c)', pwd: 'var(--card-c)', national_id: 'var(--card-c)',
+  vaccination: 'var(--card-d)', other: 'var(--card-d)',
+}
+
+/** The prototype's wallet card: a gradient card with the name, its kind, the number, the holder and the birth date. */
+function WCard({ c, holder, dob }: { c: WalletCard; holder: string; dob: string | null }) {
+  const t = useT()
   return (
-    <img className="wallet__thumb" src={tries ? `${src}?retry=1` : src} alt="" loading="lazy"
-      onError={() => { setTimeout(() => setTries(n => n + 1), tries ? 0 : 400) }} />
+    <span className="wcard" style={{ '--wc': CARD_BG[c.kind] } as React.CSSProperties}>
+      <span className="wcard__t"><b>{c.label}</b>{!c.label.startsWith(t(`cards.${c.kind}` as Key)) && <span>{t(`cards.${c.kind}` as Key)}</span>}</span>
+      <span className="wcard__num tabular">{c.number_masked ?? ''}</span>
+      <span className="wcard__nm"><span>{holder.toUpperCase()}</span>{dob && <span>{t('cards.dob', { date: dob })}</span>}</span>
+    </span>
   )
 }
 
@@ -138,6 +145,8 @@ export function CardsPage() {
   const t = useT()
   const { profileId } = useLock()
   const cards = useCards(profileId)
+  const profile = useSummary(profileId).data?.profile
+  const [lang] = useLang()
   const [adding, setAdding] = useState(false)
   const [now] = useState(() => Date.now())
   const location = useLocation()
@@ -152,7 +161,10 @@ export function CardsPage() {
 
   return (
     <div className="page">
-      <DisplayTitle>{t('cards.title')}</DisplayTitle>
+      <div className="greet">
+        <h1 className="h">{t('cards.myCards')}</h1>
+        <p className="sub">{t('cards.tapHint')}</p>
+      </div>
       {cards.isPending ? (
         <ul className="wallet" aria-busy="true">
           {[0, 1].map(i => (
@@ -172,15 +184,14 @@ export function CardsPage() {
           <ul className="wallet" ref={listRef}>
             {cards.data.map(c => (
               <li key={c.id} className="wallet__item">
-                <Link to={`/cards/${c.id}`} className="wallet__link" data-card-id={c.id}>
-                  <Thumb src={c.front_url} />
-                  <span className="wallet__label">{c.label}</span>
+                <Link to={`/cards/${c.id}`} className="wallet__link" data-card-id={c.id} aria-label={c.label}>
+                  <WCard c={c} holder={profile?.full_name ?? ''} dob={profile?.birth_date ? formatDate(profile.birth_date, lang, { month: '2-digit', day: '2-digit', year: 'numeric' }) : null} />
                 </Link>
                 <ExpiryBadge expires={c.expires} now={now} />
               </li>
             ))}
           </ul>
-          <Button size="lg" block icon={Plus} className="btn--cta" onClick={() => setAdding(true)}>{t('cards.addCard')}</Button>
+          <button type="button" className="scanbtn" onClick={() => setAdding(true)}><Plus aria-hidden="true" strokeWidth={2} /><span><b>{t('cards.addCard')}</b></span></button>
         </>
       )}
       <AddCardSheet open={adding} onClose={() => setAdding(false)} />

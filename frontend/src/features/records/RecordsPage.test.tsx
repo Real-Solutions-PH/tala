@@ -19,16 +19,15 @@ beforeEach(() => localStorage.clear())
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers() })
 
 describe('RecordsPage', () => {
-  test('has the summary, a big add-a-result button and the timeline', async () => {
+  test('has the title, the scan tile and the timeline', async () => {
     mockFetch({
       'GET /api/profiles/1/summary': () => json(SUMMARY),
       'GET /api/profiles/1/timeline': () => json(TIMELINE),
     })
     renderRoutes(routes, '/records')
-    expect(screen.getByRole('heading', { level: 1, name: 'Talaan' })).toBeTruthy()
-    expect(await screen.findByRole('heading', { name: 'Kalagayan' })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: 'Rekord' })).toBeTruthy()
     const add = screen.getByRole('button', { name: 'Magdagdag ng resulta' })
-    expect(add.className).toContain('btn--lg')
+    expect(add.className).toContain('scanbtn') // the prototype's dashed scan tile, 64 px or taller
     expect(await screen.findByText('Maintenance check-up')).toBeTruthy()
     // lab and document entries open the document; visits and vaccines are plain rows
     expect(screen.getByRole('link', { name: /FBS and HbA1c/ }).getAttribute('href')).toBe('/records/documents/7')

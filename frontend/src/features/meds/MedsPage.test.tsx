@@ -58,8 +58,8 @@ describe('MedsPage', () => {
   test('groups today by Umaga, Tanghali, Gabi : untaken doses offer "Markahang nainom", taken ones show "Nainom na"', async () => {
     mockApi()
     renderAt('/meds')
-    expect(await screen.findByRole('heading', { name: 'Ngayong araw' })).toBeTruthy()
-    const umaga = screen.getByRole('region', { name: 'Umaga' })
+    expect(await screen.findByRole('heading', { level: 1, name: 'Mga gamot ngayon' })).toBeTruthy()
+    const umaga = await screen.findByRole('region', { name: 'Umaga' })
     expect(within(umaga).getAllByTestId('dose')).toHaveLength(2)
     const gabi = screen.getByRole('region', { name: 'Gabi' })
     expect(within(gabi).getAllByTestId('dose')).toHaveLength(2)
@@ -79,7 +79,7 @@ describe('MedsPage', () => {
     expect(btn.getAttribute('aria-pressed')).toBe('false')
     await userEvent.click(btn)
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('true')) // optimistic: before the server answers
-    expect(btn.textContent).toBe('Nainom na') // the action became the status
+    expect(btn.querySelector('.dose__chip')?.textContent).toBe('Nainom na') // the action became the status
     expect(screen.queryByText('Nainom na po ang Losartan.')).toBeNull()
     answer(new Response(null, { status: 204 }))
     const post = f.mock.calls.find(c => String(c[0]) === '/api/profiles/1/meds/1/taken')!
@@ -89,6 +89,15 @@ describe('MedsPage', () => {
     expect(await screen.findByText('Nainom na po ang Losartan.')).toBeTruthy()
   })
 
+  test('the taken toast offers Undo, which un-marks the dose (DELETE)', async () => {
+    const f = mockApi({ '/api/profiles/1/meds/1/taken': () => new Response(null, { status: 204 }) })
+    renderAt('/meds')
+    const btn = within(await losartanRow()).getByRole('button', { name: /^Markahang nainom/ })
+    await userEvent.click(btn)
+    await userEvent.click(await screen.findByRole('button', { name: 'Ibalik' }))
+    await waitFor(() => expect(f.mock.calls.some(c => String(c[0]) === '/api/profiles/1/meds/1/taken' && (c[1] as RequestInit).method === 'DELETE')).toBe(true))
+  })
+
   test('on failure the toggle reverts and the error toast shows', async () => {
     mockApi({ '/api/profiles/1/meds/1/taken': () => json({ detail: 'x' }, 500) })
     renderAt('/meds')
@@ -96,24 +105,13 @@ describe('MedsPage', () => {
     await userEvent.click(btn)
     expect(await screen.findByText('Hindi po natuloy. Pakisubukan ulit.')).toBeTruthy()
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('false'))
-    expect(btn.textContent).toBe('Markahang nainom')
+    expect(btn.querySelector('.dose__chip')?.textContent).toBe('Inumin')
   })
 
-  test('shows a refill badge when supply_left <= 7, and lists all medicines with purpose and prescriber', async () => {
+  test('shows a refill panel when supply_left <= 7', async () => {
     mockApi()
     renderAt('/meds')
-    expect((await screen.findAllByText('Bumili na po: 5 na lang ang natitira')).length).toBeGreaterThan(0)
-    const all = screen.getByRole('region', { name: 'Lahat ng gamot' })
-    expect(within(all).getAllByText(/Blood pressure/).length).toBe(2)
-    expect(within(all).getAllByText(/Dr\. Jose Reyes/).length).toBe(3)
-  })
-
-  test('accepts schedule as JSON text, which is how the backend sends it today', async () => {
-    const asText = { ...DAY, meds: DAY.meds.map(m => ({ ...m, schedule: JSON.stringify(m.schedule) })) }
-    mockApi({ '/api/profiles/1/meds': () => json(asText) })
-    renderAt('/meds')
-    const all = await screen.findByRole('region', { name: 'Lahat ng gamot' })
-    expect(within(all).getAllByText(/^Oras: /)).toHaveLength(3)
+    expect((await screen.findAllByText(/5 tableta na lang\. Bumili na ngayong linggo\./)).length).toBe(1)
   })
 
   test('shows a skeleton while pending, not the empty state', async () => {

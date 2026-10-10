@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import {
-  ALargeSmall, FingerprintPattern, IdCard, Info, KeyRound, Languages, Lock, ScrollText, ShieldCheck,
+  FingerprintPattern, Palette, IdCard, Info, KeyRound, Lock, ScrollText, ShieldCheck,
   UserPlus, UserRound, Users,
 } from 'lucide-react'
 import { api } from '../../api/client'
@@ -24,11 +24,8 @@ import { ConfirmSheet } from './ConfirmSheet'
 import { errorKey } from './errorKey'
 import { Field, FormError, Section } from './parts'
 import { applyTextScale, readTextScale, SCALES, type Scale } from './textScale'
+import { applyTheme, readTheme, THEMES, type Theme } from './theme'
 import './settings.css'
-import { BackLink } from '../../components/BackLink'
-import { DisplayTitle } from '../../components/DisplayTitle'
-
-const SCALE_LABEL: Record<Scale, Key> = { 1: 'settings.textNormal', 1.25: 'settings.textLarge', 1.5: 'settings.textLarger' }
 
 function OwnerOnlyNote() {
   const t = useT()
@@ -37,12 +34,14 @@ function OwnerOnlyNote() {
 
 // --- language and text size ---------------------------------------------------------------
 
-function LanguageSection({ profileId }: { profileId: number | null }) {
+/** The prototype's first panel: Language and Text size as segmented rows, then the auto-lock rule. */
+function GeneralPanel({ profileId }: { profileId: number | null }) {
   const t = useT()
   const [lang, setLang] = useLang()
   const toast = useToast()
   const qc = useQueryClient()
-  const choose = async (l: Lang) => {
+  const [scale, setScale] = useState<Scale>(readTextScale)
+  const chooseLang = async (l: Lang) => {
     if (l === lang) return
     setLang(l) // applies at once; the profile copy follows
     try {
@@ -53,40 +52,53 @@ function LanguageSection({ profileId }: { profileId: number | null }) {
       toast(translate(l, 'toasts.failed'), 'error')
     }
   }
+  const chooseScale = (s: Scale) => { applyTextScale(s); setScale(s); toast(t('settings.textSizeChanged')) }
   return (
-    <Section icon={Languages} title={t('settings.language')}>
-      <div className="choice-row">
-        {(['en', 'tl'] as const).map(l => (
-          <button key={l} type="button" className="choice" aria-pressed={lang === l} onClick={() => choose(l)} lang={l === 'tl' ? 'fil' : 'en'}>
-            {l === 'en' ? t('common.english') : t('common.tagalog')}
-          </button>
-        ))}
+    <div className="panel rows">
+      <div className="row">
+        <span className="row__l"><b>{t('settings.language')}</b></span>
+        <div className="seg" role="group" aria-label={t('settings.language')}>
+          {(['en', 'tl'] as const).map(l => (
+            <button key={l} type="button" aria-pressed={lang === l} onClick={() => chooseLang(l)} lang={l === 'tl' ? 'fil' : 'en'}>
+              {l === 'en' ? t('common.english') : t('common.tagalog')}
+            </button>
+          ))}
+        </div>
       </div>
-    </Section>
+      <div className="row">
+        <span className="row__l"><b>{t('settings.textSizeH')}</b></span>
+        <div className="seg" role="group" aria-label={t('settings.textSize')}>
+          {SCALES.map(sc => (
+            <button key={sc} type="button" aria-pressed={scale === sc} onClick={() => chooseScale(sc)}>{Math.round(sc * 100)}%</button>
+          ))}
+        </div>
+      </div>
+      <div className="row">
+        <span className="row__l"><b>{t('settings.autoLock')}</b><span>{t('settings.autoLockSub')}</span></span>
+      </div>
+    </div>
   )
 }
 
-function TextSizeSection() {
+// --- theme -------------------------------------------------------------------------------------------------
+
+const THEME_LABEL: Record<Theme, Key> = { blue: 'settings.themeBlue', mint: 'settings.themeMint', navy: 'settings.themeNavy', contrast: 'settings.themeContrast' }
+
+/** Four looks from the prototype. Each button shows its two colours (data-skin on the swatch) and its name. */
+function ThemeSection() {
   const t = useT()
-  const toast = useToast()
-  const [scale, setScale] = useState<Scale>(readTextScale)
-  const choose = (s: Scale) => {
-    applyTextScale(s)
-    setScale(s)
-    toast(t('settings.textSizeChanged'))
-  }
+  const [theme, setTheme] = useState<Theme>(readTheme)
+  const choose = (th: Theme) => { applyTheme(th); setTheme(th) }
   return (
-    <Section icon={ALargeSmall} title={t('settings.textSize')}>
-      <div className="choice-row choice-row--stack">
-        {SCALES.map(s => (
-          // The sample is sized relative to the current scale so each row previews its own size.
-          <button key={s} type="button" className="choice" aria-pressed={scale === s} onClick={() => choose(s)}>
-            <span>{Math.round(s * 100)}%</span>
-            <span className="choice__sample" style={{ fontSize: `calc(var(--fs-body) * ${s} / var(--text-scale))` }}>{t(SCALE_LABEL[s])}</span>
+    <Section icon={Palette} title={t('settings.theme')}>
+      <div className="skins">
+        {THEMES.map(th => (
+          <button key={th} type="button" className="skin" aria-pressed={theme === th} onClick={() => choose(th)}>
+            <span className="skin__sw" data-skin={th} aria-hidden="true"><i /><i /></span>
+            <span>{t(THEME_LABEL[th])}</span>
           </button>
         ))}
       </div>
-      <p className="text-preview">{t('settings.textPreview')}</p>
     </Section>
   )
 }
@@ -419,16 +431,15 @@ function AccessLogSection({ profileId, info }: { profileId: number | null; info:
 export function SettingsPage() {
   const t = useT()
   const navigate = useNavigate()
-  const { profileId } = useLock()
+  const { profileId, lock } = useLock()
   const info = useSettingsInfo(profileId)
 
   return (
     <div className="page">
-      <BackLink />
-      <DisplayTitle>{t('settings.title')}</DisplayTitle>
+      <div className="greet"><h1 className="h">{t('settings.title')}</h1></div>
       {info.data && <p className="muted">{t('settings.signedInAs', { name: info.data.actor })}</p>}
-      <LanguageSection profileId={profileId} />
-      <TextSizeSection />
+      <GeneralPanel profileId={profileId} />
+      <ThemeSection />
       <Button variant="secondary" size="lg" block icon={UserRound} onClick={() => navigate('/profile')}>{t('settings.openProfile')}</Button>
       {info.isPending && <div className="skeleton-stack" aria-busy="true"><Skeleton height={180} radius={20} /><Skeleton height={140} radius={20} /></div>}
       {info.isError && <ErrorState onRetry={() => { info.refetch() }} />}
@@ -446,6 +457,7 @@ export function SettingsPage() {
           <p>{t('settings.aboutListen')}</p>
         </div>
       </Section>
+      <Button variant="ink" size="lg" block icon={Lock} onClick={() => { void lock().finally(() => navigate('/lock', { replace: true })) }}>{t('settings.lockNow')}</Button>
     </div>
   )
 }

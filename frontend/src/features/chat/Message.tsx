@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { CircleAlert, CircleStop, RotateCcw, Volume2 } from 'lucide-react'
+import { HeartPulse, CircleAlert, CircleStop, RotateCcw, Volume2 } from 'lucide-react'
 import { API_BASE } from '../../api/client'
 import type { Block, Source } from '../../api/types'
 import { Badge } from '../../components/Badge'
@@ -74,6 +74,7 @@ export function Message({ m, onRetry }: { m: MessageView; onRetry?: () => void }
 
   return (
     <article className="msg msg--assistant" aria-busy={streaming || undefined}>
+      <div className="from"><HeartPulse aria-hidden="true" strokeWidth={2} />{t('chat.from')}</div>
       <StepList steps={m.steps} live={streaming} />
       {(m.text || streaming) && (
         <div className="msg__text">

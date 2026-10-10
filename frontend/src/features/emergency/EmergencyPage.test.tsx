@@ -1,5 +1,4 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { Providers } from '../../App'
@@ -49,16 +48,14 @@ describe('EmergencyPage', () => {
     expect(badges[0].textContent).toContain('Penicillin')
   })
 
-  test('contacts are tel: buttons named "Tawagan si Ana", and the band carries name and age', async () => {
+  test('contacts are tel: links named "Tawagan si Ana", and the red header carries blood type, name and age', async () => {
     mockApi(() => json(CARD))
     renderAt('/emergency/1')
     const call = await screen.findByRole('link', { name: 'Tawagan si Ana' })
     expect(call.getAttribute('href')).toBe('tel:0917-000-0002')
     const band = document.querySelector('.ecard__band') as HTMLElement
-    expect(within(band).getByText('Lola Remy')).toBeTruthy()
-    expect(within(band).getByText('73 taong gulang')).toBeTruthy()
-    expect(screen.getByText('O+')).toBeTruthy()
-    expect(screen.getByText('•••• 0000')).toBeTruthy()
+    expect(within(band).getByText('O+')).toBeTruthy()
+    expect(within(band).getByText('Lola Remy · 73 taon')).toBeTruthy()
   })
 
   test('Back goes to the lock screen when nobody is unlocked', async () => {
@@ -67,13 +64,10 @@ describe('EmergencyPage', () => {
     expect((await screen.findByRole('link', { name: /Bumalik/ })).getAttribute('href')).toBe('/lock')
   })
 
-  test('Show QR opens a sheet with the QR image', async () => {
+  test('the QR for responders is on the card itself', async () => {
     mockApi(() => json(CARD))
     renderAt('/emergency/1')
-    await userEvent.click(await screen.findByRole('button', { name: /QR/ }))
-    const img = document.querySelector('img.ecard__qr') as HTMLImageElement
-    expect(img.getAttribute('src')).toBe('/api/emergency/1/qr.svg')
-    expect(img.alt).toBeTruthy()
+    expect((await screen.findByRole('img', { name: /QR/ })).getAttribute('src')).toBe('/api/emergency/1/qr.svg')
   })
 
   test('shows a skeleton while pending, not an empty card', async () => {

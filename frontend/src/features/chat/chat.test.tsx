@@ -176,7 +176,7 @@ describe('ChatPage', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Isara' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/chat/c1'))
     expect(await screen.findByText('Ito po ang PhilHealth card ninyo.')).toBeTruthy()
-    expect(screen.getByText('Ipakita ang PhilHealth')).toBeTruthy()
+    expect(document.querySelector('.msg--user')?.textContent).toBe('Ipakita ang PhilHealth')
   })
 
   test('history rename sends PATCH and toasts', async () => {

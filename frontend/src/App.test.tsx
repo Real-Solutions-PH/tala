@@ -44,7 +44,7 @@ describe('routing and the lock', () => {
     mockApi()
     const router = renderAt('/chat')
     await waitFor(() => expect(router.state.location.pathname).toBe('/lock'))
-    expect(await screen.findByRole('heading', { name: 'Naka-lock ang Kapiling' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Kapiling' })).toBeTruthy()
     expect(screen.queryByRole('navigation')).toBeNull()
   })
 
@@ -52,7 +52,7 @@ describe('routing and the lock', () => {
     mockApi()
     const router = renderAt('/emergency/1')
     expect(await screen.findByRole('heading', { name: 'Emergency card' })).toBeTruthy()
-    expect(await screen.findByText('Remedios Santos Dela Cruz')).toBeTruthy()
+    expect(await screen.findByText(/Remedios Santos Dela Cruz/)).toBeTruthy()
     expect(router.state.location.pathname).toBe('/emergency/1')
   })
 
@@ -73,7 +73,7 @@ describe('routing and the lock', () => {
     expect(router.state.location.pathname).toBe('/meds')
   })
 
-  test.each(['/chat', '/chat/abc', '/cards', '/cards/3', '/meds', '/records', '/records/labs/fbs', '/records/documents/2', '/settings', '/profile'])(
+  test.each(['/home', '/chat', '/chat/abc', '/cards', '/cards/3', '/meds', '/records', '/records/labs/fbs', '/records/documents/2', '/settings', '/profile'])(
     'locked route %s renders inside the shell', async path => {
       localStorage.setItem(PROFILE_KEY, '1')
       mockApi()
@@ -87,13 +87,12 @@ describe('routing and the lock', () => {
 describe('shell', () => {
   beforeEach(() => { localStorage.setItem(PROFILE_KEY, '1'); mockApi() })
 
-  test('the bottom nav has 4 items with visible text and marks the current one', async () => {
+  test('the dock has 4 tabs with visible text and the round Ask mic, and marks the current one', async () => {
     renderAt('/meds')
     const nav = await screen.findByRole('navigation', { name: 'Pangunahing menu' })
     const links = within(nav).getAllByRole('link')
-    expect(links).toHaveLength(4)
-    for (const a of links) expect(a.textContent?.trim()).toBeTruthy()
-    expect(links.map(a => a.textContent)).toEqual(['Kausap', 'Card', 'Gamot', 'Talaan'])
+    expect(links.map(a => a.textContent)).toEqual(['Tahanan', 'Rekord', 'Pitaka', 'Gamot', ''])
+    expect(links[4].getAttribute('aria-label')).toBe('Magtanong kay Kapiling')
     const current = links.filter(a => a.getAttribute('aria-current') === 'page')
     expect(current).toHaveLength(1)
     expect(current[0].textContent).toBe('Gamot')
@@ -102,23 +101,26 @@ describe('shell', () => {
   test('a nested route keeps its tab current', async () => {
     renderAt('/records/labs/fbs')
     const nav = await screen.findByRole('navigation', { name: 'Pangunahing menu' })
-    expect(within(nav).getByRole('link', { name: 'Talaan' }).getAttribute('aria-current')).toBe('page')
+    expect(within(nav).getByRole('link', { name: 'Rekord' }).getAttribute('aria-current')).toBe('page')
   })
 
-  test('the header has the profile name, a large red Emergency button and Settings', async () => {
-    renderAt('/chat')
+  test('Home: the header greets the person and has Settings; Emergency is one tap away', async () => {
+    renderAt('/home')
     const header = await screen.findByRole('banner')
-    expect(await within(header).findByText('Lola Remy')).toBeTruthy()
-    const sos = within(header).getByRole('link', { name: /Emergency/ })
-    expect(sos.className).toContain('topbar__sos')
-    expect(sos.querySelector('svg')).toBeTruthy()
-    expect(sos.textContent).toBe('Emergency')
-    // 64 px tall and red: the shared control rule sets the height, the sos rule the colour.
-    const css = readFileSync('src/design/base.css', 'utf8')
-    expect(css.match(/\n\.topbar__sos, \.topbar__iconlink\s*\{([^}]*)\}/)?.[1]).toMatch(/min-height:\s*var\(--tap-lg\)/)
-    expect(css.match(/\n\.topbar__sos\s*\{([^}]*)\}/)?.[1]).toMatch(/background:\s*var\(--danger(-fill)?\)/)
-    expect(sos.getAttribute('href')).toBe('/emergency/1')
+    expect(await within(header).findByText('Kumusta, Lola Remy')).toBeTruthy()
     expect(within(header).getByRole('link', { name: /Settings/ })).toBeTruthy()
+    expect(within(header).getByRole('button', { name: /Pribado/ })).toBeTruthy()
+    const sos = await screen.findByRole('link', { name: /Emergency/ })
+    expect(sos.getAttribute('href')).toBe('/emergency/1')
+    expect(sos.querySelector('svg')).toBeTruthy()
+  })
+
+  test('other screens: a title bar with back, the screen name and the avatar', async () => {
+    renderAt('/meds')
+    const header = await screen.findByRole('banner')
+    expect(within(header).getByRole('button', { name: 'Bumalik' })).toBeTruthy()
+    expect(within(header).getByText('Gamot')).toBeTruthy()
+    expect(within(header).getByRole('button', { name: /Palitan ang tao/ })).toBeTruthy()
   })
 
   test('one plane: header, main and nav are the only rows of the shell, main is the only scroller', async () => {

@@ -6,9 +6,9 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-areas: 'banner' 'stage' 'foot';
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26%);
   color: var(--ink);
-  --usap-state: var(--primary);
+  --usap-state: var(--ink);
 }
 .usap--thinking { --usap-state: var(--warn); }
 .usap--speaking { --usap-state: var(--accent); }
@@ -17,13 +17,15 @@
   grid-area: banner;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--s-2);
-  padding: var(--s-3) var(--s-4);
+  margin: calc(12px + env(safe-area-inset-top)) 16px 0;
+  padding: 10px 13px;
+  border-radius: 18px;
   background: var(--danger-soft);
   color: var(--danger);
   font-weight: 700;
-  font-size: var(--fs-body);
+  font-size: calc(14.4px * var(--text-scale));
 }
 .usap__dot {
   width: 12px;
@@ -48,12 +50,11 @@
   margin: 0;
   min-height: calc(var(--fs-xl) * var(--lh-head));
   font-family: var(--font-head);
-  font-size: var(--fs-xl);
-  font-weight: 700;
+  font-size: calc(19.2px * var(--text-scale));
+  font-weight: 600;
   line-height: var(--lh-head);
   color: var(--usap-state);
 }
-.usap--speaking .usap__word { color: var(--accent); }
 
 .usap__talk {
   width: 100%;
@@ -67,12 +68,13 @@
 .usap__said, .usap__reply {
   margin: 0;
   padding: var(--s-3) var(--s-4);
-  border-radius: var(--radius-card);
-  font-size: var(--fs-lg);
+  padding: 11px 14px;
+  font-size: var(--fs-body);
   line-height: var(--lh);
 }
-.usap__said { background: var(--surface-2); color: var(--ink); }
-.usap__reply { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+.usap__said { align-self: flex-end; max-width: 90%; border-radius: 16px 16px 4px 16px; background: linear-gradient(180deg, var(--sky), var(--primary-fill)); color: var(--on-primary); }
+.usap__said .usap__label { color: var(--on-primary); opacity: 0.85; }
+.usap__reply { align-self: flex-start; max-width: 90%; border-radius: 16px 16px 16px 4px; background: var(--surface); box-shadow: var(--shadow); }
 .usap__label {
   display: block;
   font-size: var(--fs-sm);
@@ -98,7 +100,7 @@
 .usap__alert p { margin: 0; }
 
 .usap__foot { grid-area: foot; padding: var(--s-3) var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom)); }
-.usap__end { min-height: 64px; }
+.usap__end { min-height: 52px; }
 
 /* Laptop demo only: the timing waterfall in a side column. */
 .usap-timing { display: none; }
@@ -130,3 +132,16 @@
 @media (prefers-reduced-motion: reduce) {
   .usap__dot { animation: none; }
 }
+
+/* The prototype's listening ring (.listencard .tring). */
+.tring { position: relative; display: grid; place-items: center; width: 176px; height: 176px; margin-top: 8px; }
+.tring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tring .tk { stroke: var(--border); stroke-width: 2.2; stroke-linecap: round; }
+.tring .tk.on { stroke: var(--primary-fill); }
+.usap--listening .tring .tk.on { animation: tk 1.2s ease-in-out infinite; }
+@keyframes tk { 50% { stroke: var(--sky); } }
+.usap--thinking .tring .tk.on { stroke: var(--warn); }
+.usap--speaking .tring .tk.on { stroke: var(--accent); }
+.tring .core { display: grid; place-items: center; width: 56%; height: 56%; border-radius: 50%; background: linear-gradient(160deg, var(--sky), var(--primary-fill)); color: var(--on-primary); box-shadow: var(--shadow); }
+.tring .core svg { position: static; width: 40px; height: 40px; }
+@media (prefers-reduced-motion: reduce) { .usap--listening .tring .tk.on { animation: none; } }

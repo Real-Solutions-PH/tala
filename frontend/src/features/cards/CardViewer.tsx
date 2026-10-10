@@ -1,7 +1,7 @@
 // Full-screen card viewer for showing a card to the nurse: black background, the screen kept awake,
 // a front/back toggle, pinch to zoom, and a labelled Close button (Escape closes too).
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { X } from 'lucide-react'
+import { Sun, X } from 'lucide-react'
 import type { WalletCard } from '../../api/types'
 import { useT } from '../../i18n'
 import './cards.css'
@@ -114,12 +114,12 @@ export function CardViewer({ card, onClose }: { card: WalletCard; onClose: () =>
   const sideLabel = t(side === 'front' ? 'cards.front' : 'cards.back')
 
   return (
-    <div ref={rootRef} className="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
+    <div ref={rootRef} className="viewer viewer--bright" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
       <div className="viewer__bar">
         <h1 id="viewer-title" className="viewer__title">{card.label}</h1>
         <button ref={closeRef} type="button" className="viewer__close" onClick={onClose}>
           <X aria-hidden="true" strokeWidth={2.25} />
-          <span>{t('common.close')}</span>
+          <span className="sr-only">{t('common.close')}</span>
         </button>
       </div>
 
@@ -136,7 +136,7 @@ export function CardViewer({ card, onClose }: { card: WalletCard; onClose: () =>
             ))}
           </div>
         )}
-        <p className="viewer__hint">{t('cards.zoomHint')}</p>
+        <p className="viewer__bright"><Sun aria-hidden="true" strokeWidth={2} />{t('cards.brightNote')}</p>
       </div>
     </div>
   )

@@ -2,6 +2,31 @@
 @import './tokens.css';
 
 /* Self-hosted fonts (public/fonts) so the app works offline. */
+/* Urbanist: the prototype's one typeface, self-hosted so the app works offline. */
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('/fonts/urbanist-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-400-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('/fonts/urbanist-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-500-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('/fonts/urbanist-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-600-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('/fonts/urbanist-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-700-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
 @font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 400; font-display: swap;
   src: url('/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
@@ -41,7 +66,7 @@ a, button, [role='button'], summary { touch-action: manipulation; cursor: pointe
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26rem) no-repeat, var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--fs-body);
@@ -50,7 +75,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 500; line-height: var(--lh-head); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: var(--lh-head); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
 h1 { font-size: var(--fs-2xl); }
 h2 { font-size: var(--fs-xl); }
 h3 { font-size: var(--fs-lg); font-weight: 600; }
@@ -76,15 +101,15 @@ p { margin: 0; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap); min-width: var(--tap); padding: var(--s-2) var(--s-5);
-  border: 2px solid transparent; border-radius: var(--radius-btn);
-  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-body); line-height: 1.2;
+  border: 2px solid transparent; border-radius: var(--radius-pill);
+  font: inherit; font-family: var(--font-head); font-weight: 600; font-size: var(--fs-body); line-height: 1.2;
   text-align: center; cursor: pointer; user-select: none;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .btn svg { flex: none; width: 1.25em; height: 1.25em; }
-.btn--lg { min-height: var(--tap-lg); padding: var(--s-3) var(--s-6); font-size: var(--fs-lg); }
+.btn--lg { min-height: 52px; padding: 0 var(--s-5); font-size: var(--fs-body); }
 .btn--block { width: 100%; }
-.btn--primary { background: var(--primary-fill); color: var(--on-primary); }
+.btn--primary { background: linear-gradient(180deg, var(--sky), var(--primary-fill)); color: var(--on-primary); }
 .btn--secondary { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .btn--danger { background: var(--danger-fill); color: var(--on-danger); }
 .btn--ghost { background: transparent; color: var(--primary); }
@@ -264,11 +289,13 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   display: flex; align-items: center; gap: var(--s-3);
   max-width: 560px; width: 100%; padding: var(--s-3) var(--s-4);
   background: var(--ink); color: var(--bg);
-  border-radius: var(--radius-btn); box-shadow: var(--shadow);
-  font-weight: 600; pointer-events: auto;
+  border-radius: var(--radius-card); box-shadow: var(--shadow);
+  font-size: calc(14.7px * var(--text-scale)); font-weight: 500; pointer-events: auto;
   animation: toast-in var(--dur) var(--ease);
 }
 .toast svg { flex: none; width: 1.3em; height: 1.3em; }
+.toast__msg { flex: 1; min-width: 0; }
+.toast__undo { flex: none; min-height: 44px; padding: 5px 6px; border: 0; background: none; color: var(--on-ink-accent); font: inherit; font-weight: 700; cursor: pointer; }
 @keyframes toast-in { from { transform: translateY(12px); opacity: 0; } }
 
 /* ---- Mark (Usap character) ---- */
@@ -320,88 +347,91 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   height: 100vh; height: 100dvh; overflow: hidden;
   padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
   /* A soft blue light from the top right: the screen feels lit, the cards stay solid white. */
-  background: radial-gradient(90% 50% at 100% 0%, color-mix(in srgb, var(--primary-fill) 16%, transparent), transparent 70%), var(--bg);
+  /* The prototype's sky wash: pale blue at the top fading into the grey ground. */
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26%);
 }
 .shell__main { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 .topbar {
-  /* One row at normal text size. At larger sizes the profile keeps its room (flex-basis in em) and the
-     Emergency and Settings controls wrap to a second row instead of squeezing the name. */
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-width: 0;
-  padding: calc(var(--s-3) + env(safe-area-inset-top)) var(--s-4) var(--s-2);
+  /* After the prototype (.top / .titlebar). */
+  display: flex; align-items: center; gap: 11px; min-width: 0;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 8px;
   background: transparent;
 }
-.topbar__profile {
-  flex: 1 1 auto; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-2);
-  padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1); border: 0; border-radius: var(--radius-btn);
-  background: transparent; color: var(--ink); font: inherit; font-weight: 600; text-align: left; cursor: pointer;
+.topbar--title { display: grid; grid-template-columns: 44px 1fr 44px; }
+.topbar__title { margin: 0; text-align: center; font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; }
+.iconbtn {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow); text-decoration: none; cursor: pointer;
 }
-.topbar__profile:active { background: var(--surface-2); }
-/* The Emergency control: 64px tall, red, icon above the word (DESIGN.md: emergency is colour + icon + word). */
-.topbar__sos, .topbar__iconlink {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  min-height: var(--tap-lg); min-width: var(--tap-lg); padding: var(--s-1) var(--s-3);
-  border-radius: var(--radius-btn); text-decoration: none;
-  font-family: var(--font-head); font-weight: 600; line-height: 1.15; text-align: center;
-  transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
+.iconbtn svg { width: 20px; height: 20px; }
+.iconbtn--av { box-shadow: none; background: none; justify-self: end; }
+.iconbtn:active { transform: scale(0.95); }
+.av {
+  display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--primary-fill); color: var(--on-primary);
+  font-family: var(--font-body); font-weight: 700; font-size: var(--fs-sm);
 }
-/* Header, after the reference: avatar on the left, light round Settings and red round Emergency on the right. */
-.topbar__sos, .topbar__iconlink { width: var(--tap-lg); height: var(--tap-lg); padding: 0; border-radius: 50%; flex: none; }
-.topbar__sos { background: var(--danger-fill); color: var(--on-danger); box-shadow: 0 8px 20px color-mix(in srgb, var(--danger-fill) 30%, transparent); }
-.topbar__sos svg, .topbar__iconlink svg { width: 26px; height: 26px; }
-.topbar__sos:hover { filter: brightness(0.95); }
-.topbar__sos:active { transform: scale(0.97); }
-.topbar__iconlink { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.hello { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.hello .av { box-shadow: 0 0 0 3px var(--surface); font-size: var(--fs-body); }
+.hello__text { display: grid; min-width: 0; }
+.hello__text b, .hello__text span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hello__text b { font-size: calc(16.3px * var(--text-scale)); font-weight: 600; }
+.hello__text span { font-size: var(--fs-sm); color: var(--muted); }
+.trust {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 35px; padding: 6px 11px; border: 0; border-radius: var(--radius-pill);
+  background: var(--surface); box-shadow: var(--shadow); color: var(--accent); font: inherit; font-size: var(--fs-xs); font-weight: 500; cursor: pointer;
+}
+.trust svg { width: 14px; height: 14px; }
 
-.topbar__iconlink:active { background: var(--surface-2); }
-
-.avatar { flex: none; border-radius: var(--radius-btn); object-fit: cover; background: var(--surface-2); }
-.topbar .avatar { border-radius: 50%; background: var(--primary-fill); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--primary-fill); }
-.avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 600; }
+.avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.avatar--initial { display: grid; place-items: center; background: var(--primary-fill); color: var(--on-primary); font-family: var(--font-head); font-weight: 600; }
 
 .bottomnav {
-  /* After the reference: a floating white capsule on the pale ground, round icon buttons, the current one a
-     solid blue circle. Unlike the reference every icon keeps its word under it (Principle 3). Still a row
-     of the shell grid, never fixed over content. */
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: stretch;
-  margin: 0 var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom)); padding: var(--s-2);
-  background: var(--surface); border-radius: var(--radius-sheet); box-shadow: var(--shadow);
+  /* The prototype's dock: a white pill of four tabs and, beside it, the round blue mic. A shell row, never fixed. */
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px calc(13px + env(safe-area-inset-bottom));
+}
+.bottomnav__tabs {
+  flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px;
+  padding: 6px; border-radius: var(--radius-pill); background: var(--surface); box-shadow: var(--shadow);
 }
 .bottomnav .navitem {
-  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  min-width: 0; min-height: var(--tap-lg); padding: 0 2px; margin: 0; border-radius: var(--radius-btn);
-  background: none; box-shadow: none; color: var(--muted); font-size: 15px; font-weight: 500; line-height: 1.1;
+  display: grid; justify-items: center; align-content: center; gap: 2px;
+  min-width: 0; min-height: 50px; padding: 5px 3px; margin: 0;
+  border: 1.5px solid transparent; border-radius: var(--radius-pill);
+  background: none; box-shadow: none; color: var(--muted); font-size: var(--fs-xs); font-weight: 500; line-height: 1.2;
 }
-.bottomnav .navitem__icon {
-  display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%;
-  background: var(--bg); color: var(--ink); transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
-.bottomnav .navitem svg { width: 24px; height: 24px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
+.bottomnav .navitem__icon { display: grid; place-items: center; background: none; box-shadow: none; }
+.bottomnav .navitem svg { width: 22px; height: 22px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
 .bottomnav .navitem__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bottomnav .navitem[aria-current='page'] { color: var(--primary); font-weight: 600; }
-.bottomnav .navitem[aria-current='page'] .navitem__icon { background: var(--primary-fill); color: var(--on-primary); }
-.bottomnav .navitem[aria-current='page'] svg { color: var(--on-primary); background: none; }
-.bottomnav .navitem:active .navitem__icon { transform: scale(0.94); }
-.bottomnav .navitem:active svg { background: none; }
+.bottomnav__tabs .navitem[aria-current='page'] { background: var(--primary-soft); border-color: var(--primary-fill); color: var(--primary); }
+.bottomnav__tabs .navitem[aria-current='page'] svg { color: var(--primary); }
+.aibtn {
+  flex: none; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; color: var(--on-primary);
+  background: linear-gradient(180deg, var(--sky), var(--primary-fill)); box-shadow: 0 10px 22px -8px var(--primary-fill);
+}
+.aibtn svg { width: 26px; height: 26px; }
+.aibtn[aria-current='page'] { outline: 3px solid var(--primary-soft); outline-offset: 3px; }
+.aibtn:active { transform: scale(0.96); }
 
 /* Back: a light round button with an arrow, after the reference. */
 .back-link { justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); color: var(--ink); }
 .back-link svg { width: 26px; height: 26px; }
 .back-link:active { transform: scale(0.95); }
 
-.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-5) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
+.page { width: 100%; max-width: 640px; margin: 0 auto; padding: 0 16px 20px; display: grid; gap: 16px; align-content: start; }
 /* Every screen title is a display line: big, tight, calm. */
-.page > h1 { font-size: calc(44px * var(--text-scale)); line-height: 1.08; letter-spacing: -0.03em; }
+.page > h1 { font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
 /* Display titles: regular words, one bold word, like "Mga **gamot**". */
-.display-title { font-weight: 400; }
-.display-title strong { font-weight: 600; }
+/* One weight per title, as in the prototype. */
+.display-title, .display-title strong { font-weight: 600; }
 strong, b { font-weight: 600; }
 /* Thin icon strokes, as in the reference. */
 .lucide { stroke-width: 1.75; }
 
 /* Section titles, as in the reference ("Blood Pressure"): plain, regular weight, ink. */
-.page section > h2, .page .meds__h2, .summary > h2 {
-  font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
+.page section > h2, .page .meds__h2, .summary > h2, .summary__head h2 {
+  font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
 }
 .hero__of { font-weight: 400; color: var(--on-strong-muted); }
 
@@ -409,7 +439,8 @@ strong, b { font-weight: 600; }
 .standalone {
   min-height: 100vh; min-height: 100dvh;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  background: radial-gradient(90% 50% at 100% 0%, color-mix(in srgb, var(--primary-fill) 16%, transparent), transparent 70%), var(--bg);
+  /* The prototype's sky wash: pale blue at the top fading into the grey ground. */
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26%);
 }
 .standalone__back { justify-self: start; margin-left: calc(-1 * var(--s-3)); padding-inline: var(--s-3); text-decoration: none; }
 .emergency__title { display: flex; align-items: center; gap: var(--s-2); color: var(--danger); }
@@ -443,3 +474,63 @@ strong, b { font-weight: 600; }
 .page > :nth-child(3) { animation-delay: 80ms; }
 .page > :nth-child(4) { animation-delay: 120ms; }
 .page > :nth-child(n + 5) { animation-delay: 160ms; }
+
+/* ---- Prototype primitives (Kapiling-App-Prototype.html, v5) ---- */
+.panel { background: var(--surface); color: var(--ink); border-radius: var(--radius-card); box-shadow: var(--shadow); padding: 17.6px; }
+.greet { display: grid; gap: 3px; padding-top: 4px; }
+.sub { font-size: var(--fs-sm); color: var(--muted); }
+.chip-s { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--radius-pill); font-size: var(--fs-xs); font-weight: 500; line-height: 1.3; white-space: nowrap; }
+.chip-s svg { width: 13px; height: 13px; flex: none; }
+.c-ok { background: var(--accent-soft); color: var(--accent); }
+.c-warn { background: var(--warn-soft); color: var(--warn); }
+.c-bad { background: var(--danger-soft); color: var(--danger); }
+.c-blue { background: var(--primary-soft); color: var(--primary); }
+.btn--ink { background: var(--ink); color: var(--surface); text-decoration: none; }
+.btn--ink:hover:not(:disabled) { filter: brightness(1.15); }
+/* Segmented control: one grey pill, the chosen part white. */
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface-2); }
+.seg button { flex: 1; min-height: 38px; padding: 8px 10px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--muted); font: inherit; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; }
+.seg button[aria-pressed='true'] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgb(11 31 63 / 0.12); }
+/* Switch */
+.switch { position: relative; flex: none; width: 51px; height: 30px; border: 0; border-radius: var(--radius-pill); background: var(--border); cursor: pointer; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); transition: translate var(--dur) var(--ease); }
+.switch[aria-checked='true'] { background: var(--primary-fill); }
+.switch[aria-checked='true']::after { translate: 21px 0; }
+/* Rows inside a panel (settings, contacts, trust). */
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+.row:first-child { border-top: 0; }
+.row__l { display: grid; gap: 2px; min-width: 0; }
+.row__l span { font-size: var(--fs-sm); color: var(--muted); }
+/* "Whose record?" */
+.plist { display: grid; gap: 8px; margin-bottom: 12px; }
+.pbtn { display: flex; align-items: center; gap: 13px; padding: 12px; border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.pbtn[aria-pressed='true'] { border-color: var(--primary-fill); }
+.pbtn__l { display: grid; }
+.pbtn__l span { font-size: var(--fs-sm); color: var(--muted); }
+.sheet__note { margin: 0 0 12px; font-size: var(--fs-sm); color: var(--muted); }
+.trust-list { list-style: none; margin: 0 0 16px; padding: 3px 16px; box-shadow: none; }
+.trust-list li { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+.trust-list li + li { border-top: 1px solid var(--border); }
+.trust-list svg { flex: none; width: 22px; height: 22px; color: var(--accent); }
+.trust-list li > span { display: grid; gap: 2px; }
+.trust-list li > span > span { font-size: var(--fs-sm); color: var(--muted); }
+.h { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+
+/* Full-screen overlays (prototype .ov): emergency card, scan, reading. */
+.ov { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); overflow-y: auto; }
+.ov-top { display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; }
+.ov-top h1 { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px calc(20px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+.ov-top h2 { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 600; }
+/* Steps with a spinner, then a check (reading a photo). */
+.steps { list-style: none; margin: 0; display: grid; gap: 10px; }
+.steps li { display: flex; align-items: center; gap: 8px; }
+.spin { flex: none; width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--primary-fill); animation: rot 0.8s linear infinite; }
+@keyframes rot { to { rotate: 360deg; } }
+.check { display: inline-grid; color: var(--accent); }
+.check svg { width: 15px; height: 15px; }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+/* Small pill actions (prototype .mini). */
+.mini { display: inline-flex; align-items: center; gap: 6px; min-height: 35px; padding: 6px 11px; border: 0; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink); font: inherit; font-size: calc(12.8px * var(--text-scale)); font-weight: 700; cursor: pointer; }
+.mini svg { width: 14px; height: 14px; }

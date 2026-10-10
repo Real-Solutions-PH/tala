@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 import { makeQueryClient } from './api/queries'
 import { ToastProvider } from './components/Toast'
 import { LockProvider } from './features/lock/useLock'
+import { useStoredTheme } from './features/settings/theme'
 import { useStoredTextScale } from './features/settings/textScale'
 import { I18nProvider } from './i18n'
 import { routes } from './routes'
@@ -12,6 +13,7 @@ import { routes } from './routes'
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(makeQueryClient)
   useStoredTextScale()
+  useStoredTheme()
   return (
     <QueryClientProvider client={client}>
       <I18nProvider>

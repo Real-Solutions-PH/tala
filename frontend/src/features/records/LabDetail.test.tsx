@@ -1,7 +1,8 @@
 import { cleanup, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { LabDetail, niceAxis } from './LabDetail'
+import { LabDetail } from './LabDetail'
+import { niceAxis } from './trend'
 import { json, mockFetch, obs, renderRoutes } from './testing'
 
 const FBS = [

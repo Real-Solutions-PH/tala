@@ -1,11 +1,11 @@
 /* ID wallet and the full-screen card viewer. Colours come only from tokens.css. */
-.wallet { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-5); }
+.wallet { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .wallet__item { display: grid; gap: var(--s-2); justify-items: start; }
 .wallet__link {
   display: grid; gap: var(--s-2); width: 100%; color: var(--ink); text-decoration: none;
   border-radius: var(--radius-card);
 }
-.wallet__link:active .wallet__thumb { transform: scale(0.985); }
+.wallet__link:active .wcard { transform: scale(0.985); }
 .wallet__thumb {
   display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover;
   border-radius: var(--radius-card); border: 0; background: var(--surface-2);
@@ -64,3 +64,29 @@
 .viewer__sides { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); width: 100%; max-width: 420px; }
 .viewer__side[aria-pressed='true'] { background: var(--on-viewer); color: var(--viewer-bg); }
 .viewer__hint { font-size: var(--fs-sm); }
+
+/* The prototype's wallet card: brand gradient, a soft circle, the name and kind, the number, the holder. */
+.wcard {
+  position: relative; overflow: hidden; display: grid; align-content: space-between; gap: 22px; width: 100%; aspect-ratio: 1.586 / 1;
+  box-sizing: border-box; padding: 18px 19px; border-radius: var(--radius-card); color: var(--card-ink);
+  background: linear-gradient(135deg, var(--wc), color-mix(in srgb, var(--wc) 70%, var(--card-shade)));
+  transition: transform var(--dur) var(--ease);
+}
+.wcard::after { content: ''; position: absolute; right: -30%; top: -40%; width: 90%; aspect-ratio: 1; border-radius: 50%; background: rgb(255 255 255 / 0.08); }
+.wcard__t { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.wcard__t b { font-size: calc(18.4px * var(--text-scale)); font-weight: 600; }
+.wcard__t span { font-size: var(--fs-xs); opacity: 0.85; text-align: right; }
+.wcard__num { font-family: ui-monospace, Menlo, monospace; font-size: calc(16.8px * var(--text-scale)); letter-spacing: 0.06em; }
+.wcard__nm { display: flex; justify-content: space-between; gap: 8px; font-size: calc(13.6px * var(--text-scale)); opacity: 0.9; white-space: nowrap; }
+.wcard__nm span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Bright viewer (prototype .ov.bright): white, a round close button, the card, the brightness note. */
+.viewer--bright { background: var(--surface); color: var(--ink); }
+.viewer--bright .viewer__bar { flex-direction: row-reverse; justify-content: flex-end; }
+.viewer--bright .viewer__title { color: var(--ink); font-size: var(--fs-lg); font-weight: 600; }
+.viewer--bright .viewer__close { width: 44px; min-height: 44px; height: 44px; padding: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink); }
+.viewer--bright .viewer__side { min-height: 44px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--muted); font-weight: 600; }
+.viewer--bright .viewer__side[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-fill); }
+.viewer--bright .viewer__close:focus-visible, .viewer--bright .viewer__side:focus-visible { outline-color: var(--primary); }
+.viewer__bright { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: var(--fs-sm); color: var(--muted); }
+.viewer__bright svg { width: 18px; height: 18px; }

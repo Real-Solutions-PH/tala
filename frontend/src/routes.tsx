@@ -9,6 +9,7 @@ import { useLock } from './features/lock/useLock'
 import { ChatPage } from './features/chat/ChatPage'
 import { CardDetailPage, CardsPage } from './features/cards/CardsPage'
 import { EmergencyPage } from './features/emergency/EmergencyPage'
+import { HomePage } from './features/home/HomePage'
 import { LockScreen } from './features/lock/LockScreen'
 import { MedsPage } from './features/meds/MedsPage'
 import { DocumentViewer } from './features/records/DocumentViewer'
@@ -63,6 +64,7 @@ export const routes: RouteObject[] = [
       {
         element: <Shell />,
         children: [
+          { path: '/home', element: <HomePage /> },
           { path: '/chat/:cid?', element: <ChatPage /> },
           { path: '/usap', element: <UsapMode /> },
           { path: '/cards', element: <CardsPage /> },
@@ -76,8 +78,8 @@ export const routes: RouteObject[] = [
         ],
       },
       ...(Kitchen ? [{ path: '/dev/kitchen', element: <Suspense><Kitchen /></Suspense> }] : []),
-      { path: '/', element: <Navigate to="/chat" replace /> },
-      { path: '*', element: <Navigate to="/chat" replace /> },
+      { path: '/', element: <Navigate to="/home" replace /> },
+      { path: '*', element: <Navigate to="/home" replace /> },
     ],
   },
 ]

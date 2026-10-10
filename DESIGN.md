@@ -32,7 +32,7 @@ remembers for you, so you never have to recite your history from memory or carry
 | Element | Decision |
 |---|---|
 | Mark | Two circles: a large one (the person) and a smaller one leaning in from the upper right (the companion). Their overlap is a small Araw Gold lens, the shared memory. Flat, two colours, no strokes, on a 24×24 grid (`frontend/src/brand/geometry.ts`), legible at 16 px. |
-| Usap | In talk mode the large circle becomes the character: two calm eye dots, no mouth. States are a small scale or opacity change (listening, thinking, speaking); while listening, two solid signal rings breathe around it (`.mark-rings`). All stop under reduced motion. |
+| Usap | The prototype's listening ring: 72 ticks around a blue gradient circle with the state's icon (mic, thinking, speaker). Ticks breathe while listening and turn amber (thinking) or green (speaking). All stop under reduced motion. |
 | App icon | White mark with the gold lens on a Kapiling Blue square. 180 (apple-touch, full bleed), 192 and 512 (rounded), a maskable 512 with 20% padding, and `favicon.svg`. Regenerate with `bun scripts/icons.ts`. |
 | Voice | Warm, plain, respectful. "Heto po ang PhilHealth card ninyo." It speaks as a helper, never as a doctor. It says *litrato*, *record*, *itago*, never "AI", "data" or "upload". |
 
@@ -46,7 +46,7 @@ Technical claims belong only on the laptop's demo panel and in the README.
 
 ## Principles
 
-1. **Big and plain.** Body text is 18 px, nothing below 15 px, line height 1.55. Targets are at least 48 px, 64 px for main actions, with 8 px between them. A text-size setting scales everything (100 / 125 / 150%).
+1. **A carbon copy of the prototype.** `Kapiling-App-Prototype.html` (v5) is the source of truth for layout, type and colour: body 16 px, small 14 px, captions 12 px, titles 20 px, line height 1.5. Targets are at least 44 px. The text-size setting (100 / 125 / 150%) scales everything for anyone who needs it larger.
 2. **Two taps to anything the hospital asks for.** PhilHealth or HMO card, medicine list, allergies, blood type, latest labs, emergency contact: at most two taps or one spoken sentence.
 3. **Label everything.** Every icon sits next to a word. An icon alone is never the only cue.
 4. **One plane.** Header, content, bottom menu, stacked. Nothing floats over content except a toast, and the toast sits above the menu, never on it.
@@ -57,53 +57,45 @@ Technical claims belong only on the laptop's demo panel and in the README.
 
 ## Colour
 
-**Option A palette: `#0F62E6` blue, `#FFFFFF`, `#000000`, `#E9F1FC`, `#DDE5EF`.** A pale-blue ground, white cards,
-black ink, and one vivid-blue hero card per screen. Clean healthcare at a glance, held to contrast older eyes can
-read. Light only, like the reference: every phone shows the same pale-blue and white look. Ratios are WCAG contrast on `--bg` / `--surface`, as printed by `contrast.ts`.
+**The prototype's Medical Blue: `#155EEF` blue, `#F5F6F8` ground, white cards, `#1C1C1C` ink.** Source:
+`Kapiling-App-Prototype.html` (v5). A grey ground washed with sky blue at the top (`--grad-top` fading into `--bg`),
+white cards, one blue for every action. Ratios are WCAG contrast on `--bg` / `--surface`; `contrast.ts` checks
+every pair in every theme.
 
-| Token | Light | Contrast | Use |
+| Token | Blue (light) | Contrast | Use |
 |---|---|---|---|
-| `--bg` (Langit) | `#E9F1FC` | | Pale blue ground |
-| `--surface` | `#FFFFFF` | | Cards, header, menu, sheets |
-| `--surface-2` / `--border` | `#DDE5EF` | | Inputs, pressed state, skeleton, edges |
-| `--ink` | `#000000` | 18.5 / 21 | Main text |
-| `--muted` | `#475467` | 6.8 / 7.7 | Secondary text. Nothing lighter carries text |
-| `--primary` / `--primary-fill` (Kapiling Blue) | `#0F62E6` | 4.9 / 5.5 | Buttons, links, selected tab, the mark |
-| `--on-primary` | `#FFFFFF` | 5.5 on primary | Text on primary |
-| `--primary-strong` | `#0F62E6` | | The hero card, once per screen |
-| `--on-strong` / `--on-strong-muted` | `#FFFFFF` / `#F0F5FF` | 5.5 / 5.1 on hero | Text on the hero |
-| `--gold` (Araw Gold) | `#F2A900` | **never text** (2.0:1 on white) | Fills: mark lens, today |
-| `--on-gold` | `#000000` | 10.5 on gold | Text on gold |
-| `--accent` | `#137336` | 5.2 / 5.9 | Taken, success |
-| `--warn` | `#A34B07` | 5.2 / 5.9 | Refill soon, high |
-| `--danger` | `#B42318` | 5.8 / 6.6 | Emergency, allergy, errors |
-| `--on-danger` | `#FFFFFF` | 6.6 on danger | Text on the Emergency button |
-| `--primary-soft` / `--accent-soft` / `--warn-soft` / `--danger-soft` | tints | tone on its tint ≥ 4.5 | Badge and icon backgrounds |
+| `--bg` / `--grad-top` | `#F5F6F8` / `#E4ECFE` | | Ground, and the sky wash at the top of each screen |
+| `--surface` | `#FFFFFF` | | Cards, dock, sheets |
+| `--surface-2` / `--border` | `#F0F2F5` / `#E4E7EC` | | Inputs, pressed state, skeleton / hairlines |
+| `--ink` | `#1C1C1C` | 15+ | Main text |
+| `--muted` | `#4D4D4D` | 7.8 on bg | Secondary text. Nothing lighter carries text |
+| `--primary` / `--primary-fill` | `#155EEF` | 5.0 on bg | Buttons, links, current tab, the mark |
+| `--sky` | `#528BFF` | **fill only** | Top of the blue button gradient (the text sits on the darker end) |
+| `--on-primary` | `#FFFFFF` | | Text on primary |
+| `--gold` (Araw Gold) | `#F2A900` | **never text** | Fills: mark lens |
+| `--accent` / `--warn` / `--danger` | `#067647` / `#B54708` / `#B42318` | ≥ 4.5 | Taken / refill, high / emergency, allergy, errors |
+| `--danger-fill` / `--on-danger` | `#D92D20` / `#FFFFFF` | 4.8 | Danger buttons |
+| `--*-soft` | tints | tone on its tint ≥ 4.5 | Badge, chip, banner and icon backgrounds |
 
-`--muted`, `--accent` and `--warn` are a shade darker than the usual Tailwind values so they hold 4.5:1 on the
-blue ground. Gold reads only 3:1 against the vivid blue, so the hero's progress marks are white, not gold.
+**Themes** (Settings > Tema), as in the prototype: **Blue** (the default; follows the phone's dark mode), **Mint**,
+**Night** (dark navy) and **Matingkad** (high contrast, black edges). Each lists every colour in `tokens.css`
+under `:root[data-skin="…"]`; the choice is stored per device (`features/settings/theme.ts`). Dark palettes put
+dark text on their light-blue buttons.
 
 ## Type
 
-The reference (the blue health shot) is set in **SF Pro** throughout, in light weights, and Kapiling follows it.
+One typeface, as in the prototype: **Urbanist**, self-hosted (`public/fonts`, works offline), 400 / 500 / 600 / 700.
 
-| Role | Face | Weights |
-|---|---|---|
-| Everything | **SF Pro** via `-apple-system` on iPhone and Mac, self-hosted **Figtree** elsewhere (Android) | 400 text and labels, 500 values and buttons, 600 the one bold word of a title |
-
-- Screen titles are 44 px display lines: regular words, one bold word (`DisplayTitle`).
-- Section titles are 22 px, weight 500, sentence case ("Kalagayan", "Ngayong araw").
-- Icons are Lucide at a 1.75 stroke.
-- Atkinson Hyperlegible Next is no longer used for reading text (a deliberate trade for the reference look). Its files stay in `public/fonts` if we switch back.
+- The prototype's scale: 20 px titles and section titles, 16 px body, 14 px secondary lines, 12 px chips, tab labels and captions (`--fs-lg` / `--fs-body` / `--fs-sm` / `--fs-xs`), all times `--text-scale`.
+- One weight per title (600). Numbers in tiles 20 px 600.
+- Icons are Lucide at a 2 stroke, 20 to 22 px.
 
 ## Shape, space and motion
 
-- Radius: a calm scale, never bubbly. 6 px for tiny badges and chart tooltips, 10 px for inputs inside cards, tags and thumbnails, 14 px for buttons, chips, text fields and segmented controls, 20 px for cards, tiles and stat tiles, 28 px for the top corners of sheets and dialogs. The pill (999 px) and circles are only for avatars, status and count badges, toggle tracks and the round Emergency button.
-- Spacing scale: 4, 8, 12, 16, 24, 32, 48.
+- Radius: 16 px cards and tiles, 12 px icon tiles and inputs, 24 px sheet corners, and the pill for every button, chip, segmented control and the dock. Circles for avatars, the back and Settings buttons, keypad keys and the Kausap button.
+- Spacing scale: 4, 8, 12, 16, 24, 32, 48. 16 px gutters, 16 px between blocks.
 - Touch: `--tap` 48 px, `--tap-lg` 64 px.
-- One shadow level (`--shadow`), tinted navy so depth reads blue, not grey. No gradients, no glass.
-- Layout: calm by default. Three things above the menu: a display greeting, one hero card, two quiet borderless cards under an `.eyebrow`. 28 px between sections, 20 px gutters. Charts and lists live one tap deeper.
-- Headings track tight (-0.02em); hero numbers -0.03em.
+- One soft shadow (`--shadow`), no borders on cards. Gradients only where the prototype has them: the sky wash at the top of the screen and the blue buttons (sky to blue).
 - Focus ring: 3 px solid `--primary` with a 3 px offset, always visible on keyboard focus.
 - Motion: `--dur` 200 ms with an ease-out curve; zero under `prefers-reduced-motion`.
 
@@ -113,30 +105,30 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 
 | Component | Rule |
 |---|---|
-| `Button` | Variants primary (blue fill), secondary (tinted: soft blue fill, blue text, no outline), danger, ghost. Lifts 1 px on hover where there is a mouse. `md` ≥ 48 px, `lg` ≥ 64 px. Optional Lucide icon beside the word. Pressed state scales to 0.97. `loading` shows a spinner, disables the button and sets `aria-busy`. |
-| `Card` | White surface, no border, 20 px radius, one blue-tinted shadow. `flat` drops the shadow. |
+| `Button` | Pill. Primary is the blue gradient (sky to blue) with white text; secondary soft blue with blue text; danger; ghost. `md` ≥ 48 px, `lg` ≥ 64 px. Optional Lucide icon beside the word. Pressed scales to 0.97. `loading` shows a spinner and sets `aria-busy`. |
+| `Card` | White surface, no border, 16 px radius, the one soft shadow. `flat` drops the shadow. |
 | Hero card (`.hero`) | One per screen, one idea, one action. On Kausap it is Usap (`.hero--center`): the talking mark in a white `.orb` with white signal rings, one question, one white Magsalita pill. |
 | Meter (`.meter`) | One capsule per dose, filled `--primary-fill` when taken (white on the hero). |
 | List card (`.list`) | One white card of quiet rows: icon disc, title, small grey line, chevron or status badge; hairlines between rows. |
-| Screens | Kausap: Usap hero + Ngayon. Card: PhilHealth hero + one list. Gamot: next-dose hero + taken list. Talaan: no hero; blood type and allergies, one trend, three latest entries. |
+| Screens | As `Kapiling-App-Prototype.html`: Lock, Home, Records (name line, scan tile, FBS trend chart/table, tagged timeline), Wallet (gradient cards from card data, bright viewer), Medicines (refill panel, slot rows), Ask (consultation bar, bubbles, suggestion pills), Settings (segmented rows, theme tiles, Lock now), the emergency card overlay. |
 | Bars (`.bars`) | Capsule bar chart for a reading over time: 14 px round-ended bars in `--primary`, dates under each, latest value labelled. |
 | Icon disc (`.icon-disc`) | 48 px rounded-square (14 px radius) icon holder, always beside or above a word. Circles are kept for the avatar, Emergency and the CTA end icon only. |
 | `Badge` | Tone ok, warn, danger, info: tone-coloured word (plus icon) on its soft tint. Never colour alone. |
 | `Chip` | 48 px borderless pill on white with the hairline shadow. Quick actions carry an icon. Selected (`selected`) is the dark `--dock` pill with white text, matching the bottom menu. |
 | `Sheet` | Bottom sheet on the native modal `<dialog>`: focus trapped, Escape and the labelled Close button dismiss it. |
-| `Toast` | `ToastProvider` + `useToast()`. Polite live region, auto-dismiss after 4 s, sits above the bottom menu. Every user action reports its outcome. |
+| `Toast` | `ToastProvider` + `useToast()`. The prototype's dark pill: ink background, the message, and an optional Undo (`toast(msg, tone, undo)`; Mark as taken uses it). Polite live region, auto-dismiss after 4 s, sits above the dock. |
 | `Skeleton` | Block on `--surface-2` with a shimmer that stops under reduced motion. Every fetching view has one. |
 | `EmptyState` | Icon, title, body, and the next action as a large button. |
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue on a soft amber card; its icon sits in a white rounded square. No coloured side bar. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | After the reference: a floating white capsule (28 px radius) on the pale ground holding four 48 px round icon buttons; the current one is a solid blue circle with a white icon. Unlike the reference every icon keeps its word underneath (Principle 3). A shell row, never fixed over content. |
-| Header | After the reference: a 56 px round avatar on a blue ring (opens the profile sheet) on the left; a white Settings circle and a red Emergency circle, 64 px, on the right. Words are screen-reader labels and tooltips. |
+| Bottom menu | The prototype's dock: a white pill of four tabs (Home / Records / Wallet / Medicines; Tahanan / Rekord / Pitaka / Gamot) with 12 px words, the current one an outlined soft-blue pill; beside it a 62 px round blue gradient mic for Ask, with no word (its name is the accessible label). |
+| Header | Home: initials avatar, "Hi, <name>" and the time-of-day greeting (opens "Whose record?"), the green Private pill (the trust sheet) and a round Settings button. Elsewhere: a 44 px round chevron back, the centred screen name (Ask shows "Kapiling") and the initials avatar. |
 | `BackLink` | 64 px light round arrow button above the display title on every screen opened from the header (Settings, Profile) or one tap deeper. Goes to the previous screen, or a fixed fallback when opened directly. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
-| Metric tile | After the reference's blue panel: a deeper-blue `--primary-strong` panel, a white pill with the avatar and "Kalagayan ni …", then brand-blue tiles 2 across (one column at 125% text). Each tile: white circle icon and chevron, the name, the value, a worded range badge and trend, the date. Allergies and conditions stay white cards below. |
+| Metric tile | White card: tinted circle icon and chevron, the name, the value with its unit, a worded range badge and trend, the date. Two across at 375 px, one column at 125% text. |
 | CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
-| List row | Rounded-square icon thumbnail, title, small grey line, a quiet chevron. Dose rows add the time as a small chip and the taken action as a full-width tinted bar. |
+| List row | Rounded-square icon tile tinted by kind (lab blue, document red, vaccine amber, visit grey), title, small grey line. Dose rows: the whole row is the button, a round tick that fills green, the time, an Inumin / Nainom na chip; taken rows turn soft green and strike the name. |
 | Segmented filter | One white pill holding the filter chips, scrolls sideways. |
 
 States: every fetching view has a skeleton, an empty state with a next action, and an error state with Retry.
@@ -150,19 +142,19 @@ States: every fetching view has a skeleton, an empty state with a next action, a
 - Fixed safety text (disclaimer, refusals, emergency labels) comes from the catalogue, never from the model.
 - Avoid with users: AI, model, data, upload, sync, cloud.
 
-## Screens after the reference
+## Screens after the prototype
 
-| Screen | From the reference |
+| Screen | From `Kapiling-App-Prototype.html` |
 |---|---|
-| Talaan | Blue panel (name pill, 2 x 2 tiles); conditions and allergies as white cards with a grey-circle icon and small grey label |
-| Gamot | Top card: value, grey chip, inner grey panel of dose bars and the next time |
-| Lab result | "Your **Test** Result": round back button, display title, capsule bars (latest dark, value on top), full-width blue pill |
-| Card, lock, emergency, documents | Same type weights (400 / 500), round back buttons, white cards |
-| Kausap (chat) | Mixed-weight greeting with the name bold; starter chips as white cards with grey-circle icons; answer blocks and sources as borderless white cards and pills; the composer a floating white panel with round camera and voice buttons and a blue send pill |
-| Settings, Profile | Display title; each section a white card with a grey-circle icon; choices borderless white, the selected one blue; iOS-style toggles; inputs soft white fields |
-
-Feature styles use weight 500 for emphasis (600 on the emergency card, read at a glance).
+| Lock | Mark, title, round PIN dots, round white keys, biometric under the pad, and the Emergency card as a full-width soft-red pill at the bottom (no unlock needed) |
+| Tahanan | Greeting header, "0 sa 4 gamot ang nainom na ngayon", next-medicine card with dose bars and Markahang nainom, Ask Kapiling pill, three quick actions, latest results list, "Nasa phone na ito lang" line |
+| Talaan | Dashed "Magdagdag ng resulta" scan tile, white vital tiles, allergies and conditions, history with pill filters and typed icon tiles |
+| Gamot | Date and "pindutin ang gamot kapag nainom na", refill banner, rows grouped Umaga / Tanghali / Gabi |
+| Kausap | Greeting, starter cards with soft-blue icons, gradient user bubbles, white answer cards, pill composer |
+| Settings | Wika, Laki ng sulat, Tema (four swatches), then the existing sections |
+| Scan | Dark camera screen: page frame, round white shutter (the phone's camera), "Pumili ng litrato o PDF"; then "Binabasa sa phone na ito" steps; then the document with the values to confirm |
+| Usap | A ring of 72 ticks around a blue mic circle, the state word, bubbles for what was said and the answer; listen-in shows the red consultation bar |
 
 ## Process
 
-UI/UX Pro Max (`ui-ux-pro-max`) is the QA checklist: accessibility, touch, tap delay (`touch-action: manipulation`), press scale, staggered entrance (40 ms, transform and opacity only, off under reduced motion), one primary CTA per screen. Where the reference and the checklist disagree (icon-only nav), the reference wins and the trade is written down here.
+UI/UX Pro Max (`ui-ux-pro-max`) is the QA checklist: accessibility, touch, tap delay (`touch-action: manipulation`), press scale, staggered entrance (40 ms, transform and opacity only, off under reduced motion), one primary CTA per screen. Where the prototype and the checklist disagree, the prototype wins (the user asked for a carbon copy); the trades are the 12 px tab labels and the word-less mic.

@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
 export type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'ink'
   size?: 'md' | 'lg'
   icon?: LucideIcon
   loading?: boolean
