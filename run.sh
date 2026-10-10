@@ -16,6 +16,7 @@ RERANK="${RERANK:-$MODELS/bge-reranker-v2-m3-Q8_0.gguf}"
 
 # Everything is local after scripts/fetch_models.sh.
 export HF_HUB_OFFLINE=1
+export DOCLING_ARTIFACTS="${DOCLING_ARTIFACTS:-$MODELS/docling}"
 
 # Never kill another process: refuse to start when a port is taken.
 for port in 8080 8081 8082 8083 8787 8443; do

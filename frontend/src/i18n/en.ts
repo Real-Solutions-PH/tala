@@ -215,6 +215,7 @@ export const en = {
     notFound: 'We couldn’t find that.',
     fileTooBig: 'That file is too big. Please choose one under 20 MB.',
     fileType: 'Please choose a photo or a PDF.',
+    tooManyPages: 'That PDF has too many pages. Please choose one with 30 pages or fewer.',
     micDenied: 'Kapiling can’t use the microphone. Please allow it, or type instead.',
     cameraDenied: 'Kapiling can’t use the camera. Please allow it, or choose a photo instead.',
     locked: 'Kapiling is locked. Please unlock it first.',

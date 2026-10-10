@@ -115,8 +115,9 @@ async def extract(markdown: str) -> dict:
         "facility": _text(raw.get("facility")),
     }
     obs = raw.get("observations") if isinstance(raw.get("observations"), list) else []
+    written = numbers_in(markdown)
     seen, meta["observations"] = set(), []
-    for o in (validate(x) for x in obs if isinstance(x, dict)):
+    for o in (validate(x, written) for x in obs if isinstance(x, dict)):
         key = o and tuple(o.values())
         if o and key not in seen:  # drop exact repeats
             seen.add(key)
@@ -157,7 +158,7 @@ def iso_date(v) -> str | None:
 
 # A known code is kept only when the label names that test (live check: the model labelled a whole CBC 'hemoglobin').
 LABEL_PATTERNS = {
-    "fbs": r"fasting|\bfbs\b|glucose|blood sugar",
+    "fbs": r"fasting|\bfbs\b",   # random, post-prandial or urine glucose is not FBS
     "hba1c": r"a1c",
     "total_chol": r"total.*cholesterol|cholesterol.*total|^cholesterol$",
     "ldl": r"\bldl\b|low.density",
@@ -171,13 +172,39 @@ LABEL_PATTERNS = {
 }
 
 
-def validate(o: dict) -> dict | None:
-    """Python-side checks on one model observation: label required, numbers parse, ISO date, known code."""
+_NUMBER = re.compile(r"(?<![\d.])(?:\d{1,3}(?:,\d{3})+|\d+)?(?:\.\d+)?(?![\d])")
+
+
+def _ref(v, written: set[float]) -> float | None:
+    n = number(v)
+    return n if _grounded(n, written) else None
+
+
+def numbers_in(text: str) -> set[float]:
+    """Every number written in the text ('132', '7.2', '.9', '1,200'), as floats."""
+    out = set()
+    for m in _NUMBER.finditer(text or ""):
+        tok = m.group(0)
+        if tok and tok != ".":
+            out.add(round(float(tok.replace(",", "")), 6))
+    return out
+
+
+def _grounded(v: float | None, written: set[float]) -> bool:
+    return v is not None and round(v, 6) in written
+
+
+def validate(o: dict, written: set[float]) -> dict | None:
+    """Python-side checks on one model observation: label required, numbers parse, ISO date, known code, and
+    grounding: a numeric value that is not written in the transcript is rejected (the model invented it), and an
+    unwritten reference limit is dropped. `written` is numbers_in(transcript)."""
     label = _text(o.get("label"))
     if not label:
         return None
     code = o.get("code")
     value = number(o.get("value"))
+    if value is not None and not _grounded(value, written):
+        return None
     # known codes are charted numbers: one without a number, or whose label names another test, becomes other:<label>
     if code not in LABEL_PATTERNS or value is None or not re.search(LABEL_PATTERNS[code], label, re.I):
         code = f"other:{label}"
@@ -187,5 +214,5 @@ def validate(o: dict) -> dict | None:
     if value is None and value_text is None:
         return None
     return {"code": code, "label": label, "value": value, "value_text": value_text, "unit": _text(o.get("unit")),
-            "ref_low": number(o.get("ref_low")), "ref_high": number(o.get("ref_high")),
+            "ref_low": _ref(o.get("ref_low"), written), "ref_high": _ref(o.get("ref_high"), written),
             "date": iso_date(o.get("date")), "facility": _text(o.get("facility"))}

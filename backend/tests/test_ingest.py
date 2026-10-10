@@ -1,5 +1,6 @@
 import asyncio
 import json
+import sqlite3
 from pathlib import Path
 
 import httpx
@@ -415,9 +416,9 @@ def test_scanned_pdf_is_transcribed_page_by_page(con, lola, fake_models):
 def test_validate_drops_text_copy_of_a_number():
     # live check: the model echoed the unit into value_text next to a numeric value
     o = vision.validate({"code": "fbs", "label": "FBS", "value": 130, "value_text": "mg/dL", "unit": "mg/dL",
-                         "ref_low": None, "ref_high": "100", "date": "2026-03-02", "facility": None})
+                         "ref_low": None, "ref_high": "100", "date": "2026-03-02", "facility": None}, {130.0, 100.0})
     assert (o["value"], o["value_text"], o["ref_high"]) == (130.0, None, 100.0)
-    assert vision.validate({"code": "x", "label": "", "value": 1}) is None
+    assert vision.validate({"code": "x", "label": "", "value": 1}, {1.0}) is None
 
 
 @pytest.mark.parametrize("code,label,expected", [
@@ -426,6 +427,10 @@ def test_validate_drops_text_copy_of_a_number():
     ("hemoglobin", "Hemoglobin A1c (HbA1c)", "other:Hemoglobin A1c (HbA1c)"),
     ("hemoglobin", "Hemoglobin", "hemoglobin"),
     ("fbs", "Fasting Blood Sugar", "fbs"),
+    ("fbs", "FBS", "fbs"),
+    ("fbs", "Random Blood Glucose", "other:Random Blood Glucose"),   # only fasting glucose is FBS
+    ("fbs", "2-hr Post-prandial Blood Sugar", "other:2-hr Post-prandial Blood Sugar"),
+    ("fbs", "Urine Glucose", "other:Urine Glucose"),
     ("hba1c", "Hemoglobin A1c (HbA1c)", "hba1c"),
     ("total_chol", "Total Cholesterol", "total_chol"),
     ("ldl", "HDL Cholesterol", "other:HDL Cholesterol"),
@@ -433,11 +438,233 @@ def test_validate_drops_text_copy_of_a_number():
     ("creatinine", "Blood Urea Nitrogen", "other:Blood Urea Nitrogen"),
 ])
 def test_known_code_must_match_its_label(code, label, expected):
-    o = vision.validate({"code": code, "label": label, "value": 1.0})
+    o = vision.validate({"code": code, "label": label, "value": 1.0}, {1.0})
     assert o["code"] == expected
 
 
 def test_known_code_needs_a_number():
     # live check: the discharge summary's "uncontrolled" came back as an HbA1c observation
-    o = vision.validate({"code": "hba1c", "label": "HbA1c", "value": None, "value_text": "uncontrolled"})
+    o = vision.validate({"code": "hba1c", "label": "HbA1c", "value": None, "value_text": "uncontrolled"}, set())
     assert (o["code"], o["value_text"]) == ("other:HbA1c", "uncontrolled")
+
+
+# --- review fixes ----------------------------------------------------------------
+
+def test_values_not_written_in_the_transcript_are_rejected():
+    written = vision.numbers_in("| Fasting Blood Sugar | 132 | mg/dL | 70 - 100 |\n| HbA1c | 7.2 | % | 4.0 - 5.6 |")
+    assert vision.validate({"code": "fbs", "label": "Fasting Blood Sugar", "value": "132", "ref_low": 70,
+                            "ref_high": 100}, written)["value"] == 132.0
+    assert vision.validate({"code": "hba1c", "label": "HbA1c", "value": 7.2}, written)["value"] == 7.2
+    assert vision.validate({"code": "fbs", "label": "Fasting Blood Sugar", "value": 123}, written) is None  # invented
+    o = vision.validate({"code": "hba1c", "label": "HbA1c", "value": 7.2, "ref_low": 4.0, "ref_high": 6.5}, written)
+    assert (o["ref_low"], o["ref_high"]) == (4.0, None)  # an unwritten reference limit is dropped
+
+
+def test_extraction_drops_an_invented_value(con, lola, fake_models, monkeypatch):
+    invented = dict(EXTRACTION, observations=[*EXTRACTION["observations"][:2],
+                    {"code": "ldl", "label": "LDL Cholesterol", "value": 141, "unit": "mg/dL", "date": "2026-03-02"}])
+    monkeypatch.setitem(globals(), "EXTRACTION", invented)
+    did = _ingest(con, lola)
+    codes = {r[0] for r in con.execute("select code from observations where document_id=?", (did,))}
+    assert codes == {"fbs", "hba1c"}
+
+
+def _pdf_with(pages: int, size=(595, 842)) -> bytes:
+    import io
+
+    import pypdfium2 as pdfium
+
+    pdf = pdfium.PdfDocument.new()
+    for _ in range(pages):
+        pdf.new_page(*size)
+    buf = io.BytesIO()
+    pdf.save(buf)
+    return buf.getvalue()
+
+
+def test_upload_refuses_a_pdf_over_the_page_cap(client, con, lola_unlocked):
+    from kapiling.docs import store
+
+    r = client.post(f"/api/profiles/{lola_unlocked}/documents",
+                    files={"file": ("long.pdf", _pdf_with(store.MAX_PDF_PAGES + 1), "application/pdf")})
+    assert r.status_code == 413 and r.json()["detail"] == "errors.tooManyPages"
+    assert con.execute("select count(*) from documents").fetchone()[0] == 0
+    ok = client.post(f"/api/profiles/{lola_unlocked}/documents",
+                     files={"file": ("ok.pdf", _pdf_with(store.MAX_PDF_PAGES), "application/pdf")})
+    assert ok.status_code == 200
+
+
+def test_huge_mediabox_renders_under_the_pixel_cap(tmp_path):
+    import io
+
+    from PIL import Image
+
+    from kapiling.docs import store
+
+    p = tmp_path / "huge.pdf"
+    p.write_bytes(_pdf_with(1, size=(14400, 14400)))  # 200 x 200 inches, the PDF maximum
+    with Image.open(io.BytesIO(store.render_pdf_page(p, 1))) as img:
+        assert img.width * img.height <= store.MAX_RENDER_PIXELS
+        assert img.width >= 1900  # clamped, not collapsed
+    q = tmp_path / "a4.pdf"
+    q.write_bytes(_pdf_with(1))
+    with Image.open(io.BytesIO(store.render_pdf_page(q, 1))) as img:
+        assert img.size == (1190, 1684)  # an ordinary page keeps scale 2
+
+
+def test_document_page_list_is_bounded(client, con, lola, fake_models, lola_unlocked):
+    from kapiling.docs import store
+
+    did = _ingest(con, lola)
+    con.execute("update documents set pages=100000 where id=?", (did,))
+    con.commit()
+    assert len(client.get(f"/api/documents/{did}").json()["page_urls"]) == store.MAX_PDF_PAGES
+    assert client.get(f"/api/documents/{did}/page/{store.MAX_PDF_PAGES + 1}.png").status_code == 404
+
+
+def test_heic_upload_is_converted_to_jpeg(client, con, lola_unlocked):
+    import io
+
+    import pillow_heif
+    from PIL import Image
+
+    heif = pillow_heif.from_pillow(Image.new("RGB", (64, 48), (30, 120, 200)))
+    buf = io.BytesIO()
+    heif.save(buf, format="HEIF")
+    assert buf.getvalue()[4:12] == b"ftypheic"
+    r = client.post(f"/api/profiles/{lola_unlocked}/documents", files={"file": ("IMG_0001.HEIC", buf.getvalue())})
+    assert r.status_code == 200, r.text
+    doc = con.execute("select mime, file_path from documents where id=?", (r.json()["id"],)).fetchone()
+    assert doc["mime"] == "image/jpeg" and doc["file_path"].endswith("IMG_0001.jpg")
+    with Image.open(io.BytesIO(client.get(f"/api/documents/{r.json()['id']}/file").content)) as img:
+        assert img.format == "JPEG" and img.size == (64, 48)
+
+
+def test_confirm_is_logged(con, lola, fake_models, client, lola_unlocked):
+    did = _ingest(con, lola)
+    oid = con.execute("select id from observations where document_id=?", (did,)).fetchone()[0]
+    assert client.post(f"/api/documents/{did}/observations/confirm", json={"ids": [oid], "edits": {}}).status_code == 204
+    row = con.execute("select actor, action, target from access_log order by id desc").fetchone()
+    assert tuple(row) == ("Lola Remy", "confirm_observations", f"document:{did}")
+
+
+def test_worker_db_work_does_not_block_the_event_loop(con, lola, fake_models, monkeypatch):
+    import time
+
+    did = enqueue(con, lola, FIXTURE_IMG, "fbs.jpg", "image/jpeg", TITLE, "lab")
+    real_write = ingest._write
+
+    def slow_write(*a):
+        time.sleep(0.5)  # stands in for a write waiting on a busy database
+        return real_write(*a)
+
+    monkeypatch.setattr(ingest, "_write", slow_write)
+
+    async def main():
+        stamps = []
+        done = asyncio.Event()
+
+        async def ticker():
+            while not done.is_set():
+                stamps.append(time.monotonic())
+                await asyncio.sleep(0.01)
+
+        t = asyncio.create_task(ticker())
+        await process_one(con, did)
+        stamps.append(time.monotonic())  # closes the last gap
+        done.set()
+        await t
+        return max(b - a for a, b in zip(stamps, stamps[1:]))
+
+    longest_stall = asyncio.run(main())
+    assert con.execute("select status from documents where id=?", (did,)).fetchone()[0] == "indexed"
+    assert longest_stall < 0.3, longest_stall  # a 0.5 s write on the loop would stall it for 0.5 s
+
+
+def test_worker_retries_when_connecting_fails(con, lola, fake_models, monkeypatch):
+    from kapiling import db
+
+    did = enqueue(con, lola, FIXTURE_IMG, "fbs.jpg", "image/jpeg", TITLE, "lab")
+    calls = []
+
+    def flaky():
+        calls.append(1)
+        if len(calls) == 1:
+            raise sqlite3.OperationalError("unable to open database file")
+        return db.connect()
+
+    monkeypatch.setattr(ingest, "_connect", flaky)
+
+    async def main():
+        task = asyncio.create_task(ingest.run_pending(poll=0.01, backoff=0.01))
+        for _ in range(500):
+            await asyncio.sleep(0.02)
+            if con.execute("select status from documents where id=?", (did,)).fetchone()[0] == "indexed":
+                break
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    asyncio.run(main())
+    assert len(calls) >= 2
+    assert con.execute("select status from documents where id=?", (did,)).fetchone()[0] == "indexed"
+
+
+def test_failure_while_failing_does_not_leave_reading(con, lola, failing_vision, monkeypatch):
+    def broken(*a):
+        raise sqlite3.OperationalError("database is locked")
+
+    monkeypatch.setattr(index, "delete_document", broken)
+    did = _ingest(con, lola)
+    doc = con.execute("select status, error from documents where id=?", (did,)).fetchone()
+    assert (doc["status"], doc["error"]) == ("failed", "internal")
+
+
+def test_worker_resets_reading_after_an_error(con, lola, fake_models, monkeypatch):
+    """If marking a document failed itself fails, the worker reconnects and requeues it instead of leaving it."""
+    did = enqueue(con, lola, FIXTURE_IMG, "fbs.jpg", "image/jpeg", TITLE, "lab")
+    boom = [True]
+    real_fail, real_ingest = ingest._fail, ingest._ingest
+
+    async def ingest_once_broken(c, doc):
+        if boom[0]:
+            raise RuntimeError("first attempt fails")
+        return await real_ingest(c, doc)
+
+    def fail_once_broken(*a):
+        if boom[0]:
+            boom[0] = False
+            raise sqlite3.OperationalError("disk I/O error")
+        return real_fail(*a)
+
+    monkeypatch.setattr(ingest, "_ingest", ingest_once_broken)
+    monkeypatch.setattr(ingest, "_fail", fail_once_broken)
+
+    async def main():
+        task = asyncio.create_task(ingest.run_pending(con, poll=0.01, backoff=0.01))
+        for _ in range(500):
+            await asyncio.sleep(0.02)
+            if con.execute("select status from documents where id=?", (did,)).fetchone()[0] == "indexed":
+                break
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    asyncio.run(main())
+    assert con.execute("select status from documents where id=?", (did,)).fetchone()[0] == "indexed"
+
+
+def test_pdf_pipeline_loads_docling_models_from_the_artifacts_path(monkeypatch, tmp_path):
+    import dataclasses
+
+    from kapiling import config
+
+    monkeypatch.setattr(config, "settings", dataclasses.replace(config.settings, docling_artifacts=tmp_path))
+    ingest._pdf_converter.cache_clear()
+    try:
+        from docling.datamodel.base_models import InputFormat
+
+        opts = ingest._pdf_converter().format_to_options[InputFormat.PDF].pipeline_options
+        assert opts.artifacts_path == tmp_path and opts.do_ocr is False
+    finally:
+        ingest._pdf_converter.cache_clear()

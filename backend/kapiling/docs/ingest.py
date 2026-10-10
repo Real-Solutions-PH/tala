@@ -81,7 +81,10 @@ def _pdf_converter():
 
     # Docling's OCR is off: its auto engine (RapidOCR) downloads models from the network on first use, and a
     # PDF without a text layer is read page by page by the vision model instead (see _ingest).
-    opts = PdfPipelineOptions(do_ocr=False)
+    art = config.settings.docling_artifacts
+    if not art.is_dir():
+        log.warning("no Docling models at %s (run scripts/fetch_models.sh); falling back to the HF cache", art)
+    opts = PdfPipelineOptions(do_ocr=False, artifacts_path=art if art.is_dir() else None)
     return DocumentConverter(allowed_formats=[InputFormat.PDF],
                              format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=opts)})
 
@@ -189,34 +192,17 @@ def _error_code(e: Exception) -> str:
     return "internal"
 
 
-async def _ingest(con: sqlite3.Connection, doc: sqlite3.Row) -> None:
-    path = store.path(doc["file_path"])
-    is_image = doc["mime"].startswith("image/")
-    if is_image:
-        md = await vision.transcribe(await asyncio.to_thread(path.read_bytes), doc["mime"])
-        parts = [(await asyncio.to_thread(_from_markdown, md), 1)]
-    elif await asyncio.to_thread(store.pdf_has_text, path):
-        dl, md = await asyncio.to_thread(_from_pdf, path)
-        parts = [(dl, None)]
-    else:  # a scanned PDF: the vision model reads each page, as it does photos
-        pages_md, parts = [], []
-        for n in range(1, doc["pages"] + 1):
-            page_md = await vision.transcribe(await asyncio.to_thread(store.render_pdf_page, path, n), "image/png")
-            pages_md.append(page_md)
-            parts.append((await asyncio.to_thread(_from_markdown, page_md), n))
-        md = "\n\n".join(pages_md)
-    meta = await vision.extract(md)
+def _load(con: sqlite3.Connection, document_id: int) -> sqlite3.Row | None:
+    doc = con.execute("select * from documents where id=?", (document_id,)).fetchone()
+    if doc is not None:
+        con.execute("update documents set status='reading', error=null where id=?", (document_id,))
+        con.commit()
+    return doc
 
-    # Fill what the user did not give: a stem title, kind 'other', no date, no facility.
-    title = meta["title"] if meta["title"] and doc["title"] == PurePath(doc["file_path"]).stem else doc["title"]
-    kind = meta["kind"] if meta["kind"] and doc["kind"] == "other" else doc["kind"]
-    date = doc["date"] or meta["date"]
-    facility = doc["facility"] or meta["facility"]
 
-    docs = await asyncio.to_thread(_chunk, parts, title)
-    vectors = await embed_texts([embed_text(title, d.metadata["headings"], d.page_content) for d in docs])
-
-    # Everything lands in one transaction: chunks + FTS + vectors, proposed observations and the document row.
+def _write(con: sqlite3.Connection, doc: sqlite3.Row, docs: list[Document], vectors: list[list[float]], meta: dict,
+           md: str, title: str, kind: str, date: str | None, facility: str | None) -> None:
+    """One transaction: chunks + FTS + vectors, proposed observations and the document row."""
     con.execute("begin")
     try:
         index.write_chunks(con, doc["id"], doc["profile_id"], docs, vectors)
@@ -238,50 +224,118 @@ async def _ingest(con: sqlite3.Connection, doc: sqlite3.Row) -> None:
         raise
 
 
+def _fail(con: sqlite3.Connection, document_id: int, code: str) -> None:
+    """Mark failed and unsearchable. If removing the index rows fails too, still mark the document failed."""
+    if con.in_transaction:
+        con.rollback()
+    try:
+        index.delete_document(con, document_id)
+    except Exception:
+        log.exception("document %s: could not clear its index rows", document_id)
+        if con.in_transaction:
+            con.rollback()
+        code = "internal"
+    con.execute("update documents set status='failed', error=? where id=?", (code, document_id))
+    con.commit()
+
+
+def _requeue(con: sqlite3.Connection, document_id: int) -> None:
+    if con.in_transaction:
+        con.rollback()
+    con.execute("update documents set status='queued' where id=?", (document_id,))
+    con.commit()
+
+
+async def _ingest(con: sqlite3.Connection, doc: sqlite3.Row) -> None:
+    path = store.path(doc["file_path"])
+    is_image = doc["mime"].startswith("image/")
+    if is_image:
+        md = await vision.transcribe(await asyncio.to_thread(path.read_bytes), doc["mime"])
+        parts = [(await asyncio.to_thread(_from_markdown, md), 1)]
+    elif await asyncio.to_thread(store.pdf_has_text, path):
+        dl, md = await asyncio.to_thread(_from_pdf, path)
+        parts = [(dl, None)]
+    else:  # a scanned PDF: the vision model reads each page, as it does photos
+        pages_md, parts = [], []
+        for n in range(1, min(doc["pages"], store.MAX_PDF_PAGES) + 1):
+            page_md = await vision.transcribe(await asyncio.to_thread(store.render_pdf_page, path, n), "image/png")
+            pages_md.append(page_md)
+            parts.append((await asyncio.to_thread(_from_markdown, page_md), n))
+        md = "\n\n".join(pages_md)
+    meta = await vision.extract(md)
+
+    # Fill what the user did not give: a stem title, kind 'other', no date, no facility.
+    title = meta["title"] if meta["title"] and doc["title"] == PurePath(doc["file_path"]).stem else doc["title"]
+    kind = meta["kind"] if meta["kind"] and doc["kind"] == "other" else doc["kind"]
+    date = doc["date"] or meta["date"]
+    facility = doc["facility"] or meta["facility"]
+
+    docs = await asyncio.to_thread(_chunk, parts, title)
+    vectors = await embed_texts([embed_text(title, d.metadata["headings"], d.page_content) for d in docs])
+    await asyncio.to_thread(_write, con, doc, docs, vectors, meta, md, title, kind, date, facility)
+
+
 async def process_one(con: sqlite3.Connection, document_id: int) -> None:
-    """Read, chunk, embed and index one document; ends 'indexed' or 'failed' with an error code."""
-    doc = con.execute("select * from documents where id=?", (document_id,)).fetchone()
+    """Read, chunk, embed and index one document; ends 'indexed' or 'failed' with an error code.
+    Every database call runs in a worker thread, so a busy database never stalls the event loop (chat streams)."""
+    doc = await asyncio.to_thread(_load, con, document_id)
     if doc is None:
         return
-    con.execute("update documents set status='reading', error=null where id=?", (document_id,))
-    con.commit()
     try:
         await _ingest(con, doc)
     except BaseException as e:
-        if con.in_transaction:
-            con.rollback()
-        if not isinstance(e, Exception):  # CancelledError: requeue so the next start picks it up, then propagate
-            con.execute("update documents set status='queued' where id=?", (document_id,))
-            con.commit()
+        if not isinstance(e, Exception):
+            # CancelledError (shutdown): requeue so the next start picks it up, then propagate. Done inline: a
+            # cancelled task must not await again. One quick UPDATE.
+            _requeue(con, document_id)
             raise
         code = _error_code(e)
         log.warning("document %s failed: %s (%s)", document_id, code, type(e).__name__)
-        index.delete_document(con, document_id)  # a failed document is not searchable
-        con.execute("update documents set status='failed', error=? where id=?", (code, document_id))
-        con.commit()
+        await asyncio.to_thread(_fail, con, document_id, code)
 
 
 def _connect() -> sqlite3.Connection:
     return db.connect()
 
 
-async def run_pending(con: sqlite3.Connection | None = None, poll: float = 2.0) -> None:
-    """Detached worker loop with its own connection (G-C-015): oldest queued document first, one at a time."""
-    own = con is None
-    con = _connect() if own else con
-    try:
-        con.execute("update documents set status='queued' where status='reading'")  # interrupted by a restart
-        con.commit()
-        while True:
-            try:
-                row = con.execute("select id from documents where status='queued' order by created, id limit 1").fetchone()
-                if row is None:
+def _reset(con: sqlite3.Connection) -> None:
+    con.execute("update documents set status='queued' where status='reading'")  # interrupted mid-way
+    con.commit()
+
+
+def _next(con: sqlite3.Connection) -> int | None:
+    row = con.execute("select id from documents where status='queued' order by created, id limit 1").fetchone()
+    return row[0] if row else None
+
+
+async def run_pending(con: sqlite3.Connection | None = None, poll: float = 2.0, backoff: float = 2.0,
+                      max_backoff: float = 60.0) -> None:
+    """Detached worker loop with its own connection (G-C-015): oldest queued document first, one at a time.
+
+    Any error outside a document's own failure handling (connecting, the startup reset, a failure while marking a
+    document failed) is logged; the loop backs off, reconnects and resets 'reading' documents to 'queued', so
+    nothing is left stuck in 'reading' and the worker never dies silently."""
+    delay = backoff
+    while True:
+        own = con is None
+        c = None
+        try:
+            c = await asyncio.to_thread(_connect) if own else con
+            await asyncio.to_thread(_reset, c)
+            delay = backoff
+            while True:
+                did = await asyncio.to_thread(_next, c)
+                if did is None:
                     await asyncio.sleep(poll)
                     continue
-                await process_one(con, row[0])
-            except Exception:
-                log.exception("ingest worker error")
-                await asyncio.sleep(poll)
-    finally:
-        if own:
-            con.close()
+                await process_one(c, did)
+        except Exception:
+            log.exception("ingest worker error; retrying in %.0f s", delay)
+            if own and c is not None:
+                await asyncio.to_thread(c.close)
+            await asyncio.sleep(delay)
+            delay = min(delay * 2, max_backoff)
+        except BaseException:
+            if own and c is not None:
+                c.close()
+            raise

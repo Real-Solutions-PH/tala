@@ -22,4 +22,11 @@ fetch_gguf gpustack/bge-reranker-v2-m3-GGUF bge-reranker-v2-m3-Q8_0.gguf
 # Text-to-speech voices (Tagalog and English).
 "$HF" download facebook/mms-tts-tgl
 "$HF" download facebook/mms-tts-eng
+# Docling's PDF pipeline: exactly the layout (heron) and TableFormer models it uses (OCR is off), into
+# $MODELS/docling, which the app loads as Docling's artifacts_path (DOCLING_ARTIFACTS; run.sh exports it).
+if [ -d "$MODELS/docling/docling-project--docling-layout-heron" ] && [ -d "$MODELS/docling/docling-project--docling-models" ]; then
+  echo "have docling models"
+else
+  (cd "$(dirname "$0")/../backend" && uv run docling-tools models download layout tableformer -o "$MODELS/docling")
+fi
 echo "Models ready."

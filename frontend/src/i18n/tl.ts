@@ -217,6 +217,7 @@ export const tl: Catalogue = {
     notFound: 'Hindi po namin ito mahanap.',
     fileTooBig: 'Masyadong malaki ang file. Pumili po ng mas maliit sa 20 MB.',
     fileType: 'Pumili po ng litrato o PDF.',
+    tooManyPages: 'Masyadong maraming pahina ang PDF. Pumili po ng may 30 pahina o mas kaunti.',
     micDenied: 'Hindi magamit ng Kapiling ang mikropono. Payagan po ito, o mag-type na lang.',
     cameraDenied: 'Hindi magamit ng Kapiling ang camera. Payagan po ito, o pumili na lang ng litrato.',
     locked: 'Naka-lock po ang Kapiling. Buksan po muna ito.',

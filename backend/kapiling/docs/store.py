@@ -7,6 +7,9 @@ from pathlib import Path, PurePath
 
 from kapiling import config
 
+MAX_PDF_PAGES = 30             # uploads with more pages are refused (413)
+MAX_RENDER_PIXELS = 4_000_000  # a rendered page never exceeds about 4 megapixels, whatever its MediaBox says
+
 EXT = {"image/jpeg": ".jpg", "image/png": ".png", "application/pdf": ".pdf"}
 
 
@@ -71,6 +74,12 @@ def pdf_has_text(p: Path) -> bool:
         pdf.close()
 
 
+def render_scale(width_pt: float, height_pt: float, scale: float = 2.0) -> float:
+    """The requested scale (1.0 = 72 dpi), lowered so the page stays under MAX_RENDER_PIXELS."""
+    area = max(width_pt, 1.0) * max(height_pt, 1.0)
+    return min(scale, (MAX_RENDER_PIXELS / area) ** 0.5)
+
+
 def render_pdf_page(p: Path, n: int, scale: float = 2.0) -> bytes:
     """PNG of 1-based page n; raises IndexError if out of range."""
     import io
@@ -81,7 +90,9 @@ def render_pdf_page(p: Path, n: int, scale: float = 2.0) -> bytes:
     try:
         if not 1 <= n <= len(pdf):
             raise IndexError(n)
-        img = pdf[n - 1].render(scale=scale).to_pil()
+        page = pdf[n - 1]
+        w, h = page.get_size()
+        img = page.render(scale=render_scale(w, h, scale)).to_pil()
         buf = io.BytesIO()
         img.save(buf, "PNG")
         return buf.getvalue()

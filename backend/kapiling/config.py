@@ -14,6 +14,8 @@ class Settings:
     pair_key: str = os.getenv("KAPILING_KEY", "")
     demo: bool = os.getenv("KAPILING_DEMO", "0") == "1"
     worker: bool = os.getenv("KAPILING_WORKER", "1") == "1"   # the ingestion worker; tests set 0
+    # Docling's PDF models (layout, TableFormer), fetched by scripts/fetch_models.sh; loaded from here, never the network.
+    docling_artifacts: Path = Path(os.getenv("DOCLING_ARTIFACTS", Path.home() / "models" / "docling"))
     embed_tokenizer: str = os.getenv("EMBED_TOKENIZER", "Qwen/Qwen3-Embedding-0.6B")
 
     @property

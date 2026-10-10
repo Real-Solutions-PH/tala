@@ -4,6 +4,7 @@ from datetime import date as _date
 from pathlib import Path
 from typing import Annotated
 
+import pillow_heif
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 from PIL import Image
@@ -21,12 +22,7 @@ Unlocked = Annotated[Actor, Depends(require_unlocked)]
 
 MAX_UPLOAD = 20 * 1024 * 1024
 KEPT = {"JPEG": "image/jpeg", "PNG": "image/png"}   # other Pillow formats (WEBP, HEIF if pillow-heif) become JPEG
-try:  # HEIC only when pillow-heif happens to be installed
-    import pillow_heif
-
-    pillow_heif.register_heif_opener()
-except ImportError:
-    pass
+pillow_heif.register_heif_opener()  # once, at import: HEIC photos from phones open in Pillow
 
 LIST_COLS = "id, title, kind, date, facility, mime, pages, status, error, created"
 
@@ -38,9 +34,11 @@ def _read_upload(up: UploadFile) -> tuple[bytes, str]:
         raise HTTPException(413, "errors.fileTooBig")
     if data.startswith(b"%PDF-"):
         try:
-            store.pdf_pages(data)
+            pages = store.pdf_pages(data)
         except ValueError:
             raise HTTPException(415, "errors.fileType") from None
+        if pages > store.MAX_PDF_PAGES:
+            raise HTTPException(413, "errors.tooManyPages")
         return data, PDF
     try:
         with Image.open(io.BytesIO(data)) as img:
@@ -89,7 +87,8 @@ def get_document(doc_id: int, con: Con, actor: Unlocked):
     d = _doc_or_404(con, doc_id, actor)
     body = {k: d[k] for k in LIST_COLS.split(", ")} | {"transcript_md": d["transcript_md"]}
     body["file_url"] = f"/api/documents/{doc_id}/file"
-    body["page_urls"] = [f"/api/documents/{doc_id}/page/{n}.png" for n in range(1, d["pages"] + 1)]
+    pages = min(d["pages"], store.MAX_PDF_PAGES)  # bounded even for a row written before the upload cap
+    body["page_urls"] = [f"/api/documents/{doc_id}/page/{n}.png" for n in range(1, pages + 1)]
     body["observations"] = [dict(o) for o in con.execute(
         "select * from observations where document_id=? order by id", (doc_id,))]
     log_access(con, d["profile_id"], actor, "view_document", f"document:{doc_id}")
@@ -114,7 +113,7 @@ def document_file(doc_id: int, con: Con, actor: Unlocked):
 @router.get("/documents/{doc_id}/page/{n}.png")
 def document_page(doc_id: int, n: int, con: Con, actor: Unlocked):
     d = _doc_or_404(con, doc_id, actor)
-    if not 1 <= n <= d["pages"]:
+    if not 1 <= n <= min(d["pages"], store.MAX_PDF_PAGES):
         raise HTTPException(404, "errors.notFound")
     p = _file(d)
     log_access(con, d["profile_id"], actor, "view_document", f"document:{doc_id}:page:{n}")
@@ -159,6 +158,7 @@ def confirm_observations(doc_id: int, body: Confirm, con: Con, actor: Unlocked):
                             (*changes.values(), oid))
         con.executemany("update observations set status='confirmed' where id=?", [(i,) for i in body.ids])
         con.commit()
+        log_access(con, d["profile_id"], actor, "confirm_observations", f"document:{doc_id}")
     except BaseException:
         con.rollback()
         raise
