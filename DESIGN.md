@@ -32,7 +32,7 @@ remembers for you, so you never have to recite your history from memory or carry
 | Element | Decision |
 |---|---|
 | Mark | Two circles: a large one (the person) and a smaller one leaning in from the upper right (the companion). Their overlap is a small Araw Gold lens, the shared memory. Flat, two colours, no strokes, on a 24×24 grid (`frontend/src/brand/geometry.ts`), legible at 16 px. |
-| Usap | In talk mode the large circle becomes the character: two calm eye dots, no mouth. States are a small scale or opacity change (listening, thinking, speaking); while listening, two solid signal rings breathe around it (`.mark-rings`). All stop under reduced motion. |
+| Usap | The prototype's listening ring: 72 ticks around a blue gradient circle with the state's icon (mic, thinking, speaker). Ticks breathe while listening and turn amber (thinking) or green (speaking). All stop under reduced motion. |
 | App icon | White mark with the gold lens on a Kapiling Blue square. 180 (apple-touch, full bleed), 192 and 512 (rounded), a maskable 512 with 20% padding, and `favicon.svg`. Regenerate with `bun scripts/icons.ts`. |
 | Voice | Warm, plain, respectful. "Heto po ang PhilHealth card ninyo." It speaks as a helper, never as a doctor. It says *litrato*, *record*, *itago*, never "AI", "data" or "upload". |
 
@@ -116,7 +116,7 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `Badge` | Tone ok, warn, danger, info: tone-coloured word (plus icon) on its soft tint. Never colour alone. |
 | `Chip` | 48 px borderless pill on white with the hairline shadow. Quick actions carry an icon. Selected (`selected`) is the dark `--dock` pill with white text, matching the bottom menu. |
 | `Sheet` | Bottom sheet on the native modal `<dialog>`: focus trapped, Escape and the labelled Close button dismiss it. |
-| `Toast` | `ToastProvider` + `useToast()`. Polite live region, auto-dismiss after 4 s, sits above the bottom menu. Every user action reports its outcome. |
+| `Toast` | `ToastProvider` + `useToast()`. The prototype's dark pill: ink background, the message, and an optional Undo (`toast(msg, tone, undo)`; Mark as taken uses it). Polite live region, auto-dismiss after 4 s, sits above the dock. |
 | `Skeleton` | Block on `--surface-2` with a shimmer that stops under reduced motion. Every fetching view has one. |
 | `EmptyState` | Icon, title, body, and the next action as a large button. |
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
@@ -152,6 +152,8 @@ States: every fetching view has a skeleton, an empty state with a next action, a
 | Gamot | Date and "pindutin ang gamot kapag nainom na", refill banner, rows grouped Umaga / Tanghali / Gabi |
 | Kausap | Greeting, starter cards with soft-blue icons, gradient user bubbles, white answer cards, pill composer |
 | Settings | Wika, Laki ng sulat, Tema (four swatches), then the existing sections |
+| Scan | Dark camera screen: page frame, round white shutter (the phone's camera), "Pumili ng litrato o PDF"; then "Binabasa sa phone na ito" steps; then the document with the values to confirm |
+| Usap | A ring of 72 ticks around a blue mic circle, the state word, bubbles for what was said and the answer; listen-in shows the red consultation bar |
 
 ## Process
 
