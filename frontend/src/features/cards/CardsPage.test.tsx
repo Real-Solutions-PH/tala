@@ -43,13 +43,12 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('CardsPage', () => {
-  test('lists cards as thumbnails with labels, and an expiry badge only within 60 days', async () => {
+  test('lists cards as the prototype gradient cards with labels, and an expiry badge only within 60 days', async () => {
     mockApi(() => json(CARDS))
     renderAt('/cards')
-    expect(await screen.findByText('HMO (CareFirst)')).toBeTruthy()
-    expect(screen.getByText('PhilHealth')).toBeTruthy()
-    const imgs = document.querySelectorAll('img.wallet__thumb')
-    expect(imgs).toHaveLength(3)
+    expect(await screen.findByRole('link', { name: 'HMO (CareFirst)' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'PhilHealth' })).toBeTruthy()
+    expect(document.querySelectorAll('.wcard')).toHaveLength(3)
     expect(document.querySelectorAll('.wallet__item .badge')).toHaveLength(1)
   })
 

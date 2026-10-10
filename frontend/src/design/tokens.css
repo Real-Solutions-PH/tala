@@ -37,6 +37,12 @@
   --dock-icon: #7D879C;   /* inactive dock icons, 5.1:1 on --dock */
   --dock-active: #FFFFFF; /* the current tab's icon */
   --dock-dot: #5B9BFF;    /* the dot under the current tab, 5.9:1 on --dock */
+  --card-a: #155EEF;      /* wallet cards (prototype): PhilHealth */
+  --card-b: #2E6BF0;      /* HMO */
+  --card-c: #1849A9;      /* Senior, PWD, national ID */
+  --card-d: #344054;      /* vaccination, other */
+  --card-ink: #FFFFFF;
+  --card-shade: #000000;  /* mixed 30% into each card for its gradient */
   --viewer-bg: #000000;   /* full-screen card viewer */
   --on-viewer: #FFFFFF;
 
@@ -114,6 +120,10 @@
   }
 }
 :root[data-skin="navy"] {
+  --card-a: #2457A8;
+  --card-b: #2E68BF;
+  --card-c: #1F6C86;
+  --card-d: #3A4E72;
   color-scheme: dark;
   --bg: #0A1322;
   --grad-top: #15294D;
@@ -143,6 +153,10 @@
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
 }
 :root[data-skin="mint"] {
+  --card-a: #0E7564;
+  --card-b: #16827E;
+  --card-c: #2B6C8A;
+  --card-d: #3C5C54;
   color-scheme: light;
   --bg: #F1F8F6;
   --grad-top: #CDEDE6;
@@ -172,6 +186,10 @@
   --shadow: 0 1px 2px rgb(16 35 31 / 0.05), 0 8px 24px -12px rgb(16 35 31 / 0.16);
 }
 :root[data-skin="contrast"] {
+  --card-a: #003DA8;
+  --card-b: #00307F;
+  --card-c: #004F5E;
+  --card-d: #262626;
   color-scheme: light;
   --bg: #FFFFFF;
   --grad-top: #FFFFFF;

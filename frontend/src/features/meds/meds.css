@@ -1,46 +1,26 @@
-/* Medicines page. Colours come only from tokens.css. */
-.meds__section { display: grid; gap: var(--s-3); }
-.meds__section + .meds__section { margin-top: var(--s-4); }
-.meds__h2 { letter-spacing: -0.01em; }
-.meds__period { display: grid; gap: var(--s-2); }
-.meds__h3 { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
-.meds__h3 { font-size: var(--fs-body); color: var(--muted); font-weight: 600; }
-.meds__h3 svg { flex: none; width: 1.2em; height: 1.2em; color: var(--muted); }
-.meds__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+/* Medicines, a copy of the prototype's (.slot, .med, .tick). Colours come only from tokens.css. */
+.slot { display: grid; gap: 8px; }
+.slot h3 { display: flex; align-items: center; gap: 8px; font-size: var(--fs-body); font-weight: 600; color: var(--muted); }
+.slot h3 svg { width: 18px; height: 18px; flex: none; }
+.meds__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .meds__skeleton { display: grid; gap: var(--s-3); }
 
-/* A dose, after the prototype: the whole white row is the button; a round tick fills green when taken. */
 .dose__row {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-3); width: 100%;
-  min-height: 76px; padding: var(--s-3) var(--s-4); border: 0; border-radius: var(--radius-card);
-  background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font: inherit; text-align: left; cursor: pointer;
-  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  display: grid; grid-template-columns: 38px 1fr auto; gap: 13px; align-items: center; width: 100%; min-height: 67px;
+  padding: 14px 16px; border: 0; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow);
+  color: var(--ink); font: inherit; text-align: left; cursor: pointer;
 }
-.dose__row:active { transform: scale(0.98); }
-.dose__tick {
-  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
-  border: 2px solid var(--border); color: var(--on-primary);
-}
-.dose__tick svg { width: 22px; height: 22px; }
-.dose__info { min-width: 0; display: grid; gap: 2px; }
-.dose__name { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-body); line-height: 1.3; overflow-wrap: anywhere; }
-.dose__strength { font-weight: 500; white-space: nowrap; }
+.dose__row:active { transform: scale(0.99); }
+.dose__tick { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); color: transparent; }
+.dose__tick svg { width: 18px; height: 18px; }
+.dose__info { min-width: 0; display: grid; }
+.dose__name { font-weight: 600; overflow-wrap: anywhere; }
+.dose__strength { font-weight: 600; }
 .dose__meta { font-size: var(--fs-sm); color: var(--muted); }
-.dose__chip { padding: 2px var(--s-3); border-radius: var(--radius-pill); background: var(--primary-soft); color: var(--primary); font-size: var(--fs-sm); font-weight: 500; text-align: center; max-width: 7.5em; }
-.dose--taken .dose__row { background: var(--accent-soft); box-shadow: none; }
-.dose--taken .dose__tick { background: var(--accent); border-color: var(--accent); color: var(--accent-soft); }
+.dose--taken .dose__row { background: var(--accent-soft); }
+.dose--taken .dose__tick { background: var(--accent); border-color: var(--accent); color: var(--surface); }
 .dose--taken .dose__name { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--ink) 40%, transparent); }
-.dose--taken .dose__chip { background: var(--surface); color: var(--accent); }
 
-/* Refill soon: an amber banner at the top, icon and words. */
-.refill { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); border-radius: var(--radius-card); background: var(--warn-soft); color: var(--ink); }
-.refill svg { flex: none; width: 24px; height: 24px; color: var(--warn); }
-.meds__hint { margin-top: calc(var(--s-3) * -1); font-size: var(--fs-sm); }
-
-.medcard {
-  display: grid; gap: var(--s-1); justify-items: start; padding: var(--s-4);
-  background: var(--surface); border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow);
-}
-.medcard__k { font-weight: 500; }
-.medcard__line { display: flex; align-items: flex-start; gap: var(--s-2); }
-.medcard__line svg { flex: none; width: 1.2em; height: 1.2em; margin-top: 0.15em; color: var(--primary); }
+/* Refill this week: an amber panel with an alert icon. */
+.refill { display: flex; align-items: center; gap: 11px; background: var(--warn-soft); box-shadow: none; }
+.refill svg { flex: none; width: 22px; height: 22px; color: var(--warn); }

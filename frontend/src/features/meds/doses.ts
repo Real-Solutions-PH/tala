@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 import { keys } from '../../api/queries'
-import type { Med, MedsDay } from '../../api/types'
+import type { MedsDay } from '../../api/types'
 import { useToast } from '../../components/Toast'
 import { formatDate, useT, type Lang } from '../../i18n'
 import { errorKey } from '../lock/errorKey'
@@ -24,19 +24,6 @@ export function periodOf(slot: string): Period {
   const h = Number(slot.split(':')[0])
   if (!Number.isFinite(h)) return 'morning'
   return h < 11 ? 'morning' : h < 16 ? 'noon' : 'night'
-}
-
-/** The backend sends `schedule` as JSON text (a raw DB column), while the plan says string[]: accept both. */
-export function scheduleOf(m: Med): string[] {
-  const v: unknown = m.schedule
-  if (Array.isArray(v)) return v.map(String)
-  if (typeof v === 'string') {
-    try {
-      const parsed: unknown = JSON.parse(v)
-      return Array.isArray(parsed) ? parsed.map(String) : []
-    } catch { return v ? [v] : [] }
-  }
-  return []
 }
 
 export function slotTime(slot: string, lang: Lang): string {

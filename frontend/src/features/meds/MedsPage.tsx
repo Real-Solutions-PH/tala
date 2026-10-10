@@ -2,31 +2,23 @@
 // that turns into the "Nainom na" status (tap again to undo),
 // refill warnings, and the full list with purpose and prescriber.
 import { useMemo, useState } from 'react'
-import { localDate, periodOf, REFILL_AT, scheduleOf, slotTime, useToggleDose, type Dose, type Period } from './doses'
-import { Check, PackageOpen, Pill, Stethoscope, Sun, Sunrise, Moon, type LucideIcon } from 'lucide-react'
+import { Check, CloudSun, Moon, Pill, Sun, TriangleAlert, type LucideIcon } from 'lucide-react'
 import { useMeds } from '../../api/queries'
 import type { Med } from '../../api/types'
-import { Badge } from '../../components/Badge'
-import { DisplayTitle } from '../../components/DisplayTitle'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Key } from '../../i18n'
 import { errorKey } from '../lock/errorKey'
 import { useLock } from '../lock/useLock'
+import { localDate, periodOf, REFILL_AT, slotTime, useToggleDose, type Dose, type Period } from './doses'
 import './meds.css'
 
 const PERIODS: { id: Period; label: Key; icon: LucideIcon }[] = [
-  { id: 'morning', label: 'meds.morning', icon: Sunrise },
-  { id: 'noon', label: 'meds.noon', icon: Sun },
+  { id: 'morning', label: 'meds.morning', icon: Sun },
+  { id: 'noon', label: 'meds.noon', icon: CloudSun },
   { id: 'night', label: 'meds.night', icon: Moon },
 ]
-function RefillBadge({ med }: { med: Med | undefined }) {
-  const t = useT()
-  if (med?.supply_left == null || med.supply_left > REFILL_AT) return null
-  return <Badge tone="warn" icon={PackageOpen}>{t('meds.refillSoon', { n: med.supply_left })}</Badge>
-}
-
 /** One dose, after the prototype: the whole row is the button. A round tick, the name and time, a status chip. */
 function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; onToggle: (d: Dose) => void }) {
   const t = useT()
@@ -44,10 +36,10 @@ function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; on
           <span className="dose__meta tabular">
             {taken && dose.taken_at
               ? t('meds.takenAt', { time: formatDate(dose.taken_at, lang, { hour: 'numeric', minute: '2-digit' }) })
-              : slotTime(dose.slot, lang)}
+              : [slotTime(dose.slot, lang), med?.purpose].filter(Boolean).join(' · ')}
           </span>
         </span>
-        <span className="dose__chip" aria-hidden="true">{t(taken ? 'meds.taken' : 'meds.due')}</span>
+        <span className={`chip-s dose__chip ${taken ? 'c-ok' : 'c-blue'}`} aria-hidden="true">{t(taken ? 'meds.takenChip' : 'meds.due')}</span>
       </button>
     </li>
   )
@@ -81,46 +73,27 @@ export function MedsPage() {
 
   return (
     <div className="page meds">
-      <DisplayTitle>{t('meds.title')}</DisplayTitle>
+      <div className="greet">
+        <h1 className="h">{t('meds.todayTitle')}</h1>
+        <p className="sub">{t('meds.subHint', { date: formatDate(now, lang, { weekday: 'long', month: 'long', day: 'numeric' }) })}</p>
+      </div>
       {meds.isPending ? <MedsSkeleton />
         : meds.isError ? <ErrorState message={errorKey(meds.error)} onRetry={() => { meds.refetch() }} />
         : meds.data.meds.length === 0 ? <EmptyState icon={Pill} title={t('meds.emptyTitle')} body={t('meds.emptyBody')} />
         : (
           <>
-            <p className="muted meds__hint">{formatDate(now, lang, { weekday: 'long', month: 'long', day: 'numeric' })} · {t('meds.tapHint')}</p>
             {meds.data.meds.filter(m => m.supply_left != null && m.supply_left <= REFILL_AT).map(m => (
-              <p key={m.id} className="refill" role="note"><PackageOpen aria-hidden="true" strokeWidth={2} />
-                <span>{t('meds.refillBanner', { name: [m.name, m.strength].filter(Boolean).join(' '), n: m.supply_left ?? 0 })}</span></p>
+              <div key={m.id} className="panel refill" role="note"><TriangleAlert aria-hidden="true" strokeWidth={2} />
+                <p>{t('meds.refillBanner', { name: [m.name, m.strength].filter(Boolean).join(' '), n: m.supply_left ?? 0 })}</p></div>
             ))}
-            <section className="meds__section" aria-labelledby="meds-today">
-              <h2 id="meds-today" className="meds__h2">{t('meds.todayHeading')}</h2>
-              {PERIODS.filter(p => groups[p.id].length > 0).map(({ id, label, icon: Icon }) => (
-                <section key={id} className="meds__period" aria-labelledby={`period-${id}`}>
-                  <h3 id={`period-${id}`} className="meds__h3"><Icon aria-hidden="true" strokeWidth={2} /><span>{t(label)}</span></h3>
-                  <ul className="meds__list">
-                    {groups[id].map(d => <DoseRow key={`${d.med_id}-${d.slot}`} dose={d} med={byId.get(d.med_id)} onToggle={onToggle} />)}
-                  </ul>
-                </section>
-              ))}
-            </section>
-
-            <section className="meds__section" aria-labelledby="meds-all">
-              <h2 id="meds-all" className="meds__h2">{t('meds.allMeds')}</h2>
-              <ul className="meds__list">
-                {meds.data.meds.map(m => (
-                  <li key={m.id} className="medcard">
-                    <p className="dose__name">{m.name}{m.strength && <span className="dose__strength"> {m.strength}</span>}</p>
-                    {m.purpose && <p><span className="medcard__k">{t('meds.purpose')}:</span> {m.purpose}</p>}
-                    {m.prescriber && (
-                      <p className="medcard__line"><Stethoscope aria-hidden="true" strokeWidth={2} />
-                        <span><span className="medcard__k">{t('meds.prescriber')}:</span> {m.prescriber}</span></p>
-                    )}
-                    {scheduleOf(m).length > 0 && <p className="tabular">{t('meds.times', { times: scheduleOf(m).map(x => slotTime(x, lang)).join(', ') })}</p>}
-                    <RefillBadge med={m} />
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {PERIODS.filter(p => groups[p.id].length > 0).map(({ id, label, icon: Icon }) => (
+              <section key={id} className="slot" aria-labelledby={`period-${id}`}>
+                <h3 id={`period-${id}`}><Icon aria-hidden="true" strokeWidth={2} /><span>{t(label)}</span></h3>
+                <ul className="meds__list">
+                  {groups[id].map(d => <DoseRow key={`${d.med_id}-${d.slot}`} dose={d} med={byId.get(d.med_id)} onToggle={onToggle} />)}
+                </ul>
+              </section>
+            ))}
           </>
         )}
     </div>

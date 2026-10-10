@@ -58,8 +58,8 @@ describe('MedsPage', () => {
   test('groups today by Umaga, Tanghali, Gabi : untaken doses offer "Markahang nainom", taken ones show "Nainom na"', async () => {
     mockApi()
     renderAt('/meds')
-    expect(await screen.findByRole('heading', { name: 'Ngayong araw' })).toBeTruthy()
-    const umaga = screen.getByRole('region', { name: 'Umaga' })
+    expect(await screen.findByRole('heading', { level: 1, name: 'Mga gamot ngayon' })).toBeTruthy()
+    const umaga = await screen.findByRole('region', { name: 'Umaga' })
     expect(within(umaga).getAllByTestId('dose')).toHaveLength(2)
     const gabi = screen.getByRole('region', { name: 'Gabi' })
     expect(within(gabi).getAllByTestId('dose')).toHaveLength(2)
@@ -99,21 +99,10 @@ describe('MedsPage', () => {
     expect(btn.querySelector('.dose__chip')?.textContent).toBe('Inumin')
   })
 
-  test('shows a refill badge when supply_left <= 7, and lists all medicines with purpose and prescriber', async () => {
+  test('shows a refill panel when supply_left <= 7', async () => {
     mockApi()
     renderAt('/meds')
-    expect((await screen.findAllByText('Bumili na po: 5 na lang ang natitira')).length).toBeGreaterThan(0)
-    const all = screen.getByRole('region', { name: 'Lahat ng gamot' })
-    expect(within(all).getAllByText(/Blood pressure/).length).toBe(2)
-    expect(within(all).getAllByText(/Dr\. Jose Reyes/).length).toBe(3)
-  })
-
-  test('accepts schedule as JSON text, which is how the backend sends it today', async () => {
-    const asText = { ...DAY, meds: DAY.meds.map(m => ({ ...m, schedule: JSON.stringify(m.schedule) })) }
-    mockApi({ '/api/profiles/1/meds': () => json(asText) })
-    renderAt('/meds')
-    const all = await screen.findByRole('region', { name: 'Lahat ng gamot' })
-    expect(within(all).getAllByText(/^Oras: /)).toHaveLength(3)
+    expect((await screen.findAllByText(/5 tableta na lang\. Bumili na ngayong linggo\./)).length).toBe(1)
   })
 
   test('shows a skeleton while pending, not the empty state', async () => {
