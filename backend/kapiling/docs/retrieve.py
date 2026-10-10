@@ -17,7 +17,8 @@ from kapiling import config
 from kapiling.docs import index, ingest
 
 CANDIDATES = 24
-RERANK_FLOOR = 0.0   # placeholder: set from eval/run_eval.py output in Task 19; record the measured run next to it
+# provisional, from one live pair (relevant -0.31, unrelated -6.57); Task 19 calibrates
+RERANK_FLOOR = -3.0
 RRF_K = 60
 RERANK_TIMEOUT = 30.0
 QUERY_INSTRUCT = "Instruct: Given a question about a person's health records, retrieve the passages that answer it\nQuery: "
