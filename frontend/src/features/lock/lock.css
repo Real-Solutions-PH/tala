@@ -4,7 +4,8 @@
   display: flex; flex-direction: column; align-items: stretch; gap: var(--s-4);
 }
 .lock__sos {
-  display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+  /* A compact red pill at the top right: always there, no longer a full-width bar. */
+  align-self: flex-end; display: flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
   background: var(--danger-fill); color: var(--on-danger); text-decoration: none;
   font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); line-height: 1.2;
@@ -13,33 +14,37 @@
 .lock__sos svg { flex: none; width: 1.3em; height: 1.3em; }
 .lock__sos:hover { filter: brightness(0.95); }
 .lock__sos:active:not(:disabled) { transform: scale(0.97); }
-button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); }
+button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); }
 .lock__sos:disabled { opacity: 0.6; cursor: not-allowed; }
-.lock__title { font-size: var(--fs-2xl); letter-spacing: -0.03em; text-align: center; }
+.lock__mark { align-self: center; margin-top: var(--s-2); }
+.lock__title { font-size: calc(36px * var(--text-scale)); font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; text-align: center; }
+.lock__title strong { font-weight: 600; }
 .lock__title svg { display: inline-block; width: 0.9em; height: 0.9em; margin-right: var(--s-2); vertical-align: -0.1em; color: var(--primary); }
 
 .lock__profiles { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-3); }
 .lock-avatar {
-  display: flex; flex-direction: column; align-items: center; gap: var(--s-1);
-  min-width: 96px; max-width: 10em; min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
-  border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+  min-width: 96px; max-width: 10em; min-height: var(--tap-lg); padding: var(--s-1);
+  border: 0; border-radius: var(--radius-card); background: transparent; color: var(--ink);
   font: inherit; font-weight: 500; line-height: 1.25; text-align: center; cursor: pointer;
   transition: transform var(--dur) var(--ease);
 }
 .lock-avatar:active { transform: scale(0.97); }
-.lock-avatar[aria-checked='true'] { border-color: var(--primary); background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }
-.lock-avatar__img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.lock-avatar__img { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; background: var(--surface-2); box-shadow: var(--shadow); }
 .lock-avatar__img--initial {
   display: grid; place-items: center; background: var(--primary-soft); color: var(--primary);
   font-family: var(--font-head); font-size: var(--fs-xl);
 }
+/* The chosen person: the header's blue ring. */
+.lock-avatar[aria-checked='true'] .lock-avatar__img { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary-fill); }
+.lock-avatar[aria-checked='true'] .lock-avatar__name { color: var(--primary); }
 .lock-avatar__name { overflow-wrap: anywhere; }
 
-.lock__prompt { text-align: center; font-weight: 500; }
+.lock__prompt { text-align: center; font-weight: 400; color: var(--muted); }
 
 .pin-dots { display: flex; justify-content: center; gap: var(--s-3); padding: var(--s-1) 0; }
-.pin-dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--ink); background: transparent; }
-.pin-dot--on { background: var(--ink); }
+.pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; transition: background-color var(--dur) var(--ease); }
+.pin-dot--on { background: var(--primary-fill); border-color: var(--primary-fill); }
 .pin-dots--shake { animation: pin-shake 360ms var(--ease); }
 @keyframes pin-shake {
   20%, 60% { transform: translateX(-10px); }
@@ -58,7 +63,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
   /* Round keys, like a phone keypad: 76px circles at normal text size, never under 64px. */
   width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-xl); font-variant-numeric: tabular-nums;
+  font: inherit; font-family: var(--font-head); font-weight: 400; font-size: calc(30px * var(--text-scale)); font-variant-numeric: tabular-nums;
   cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .pinpad__key:active:not(:disabled) { transform: scale(0.96); background: var(--surface-2); }
