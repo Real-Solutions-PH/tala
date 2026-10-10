@@ -216,3 +216,55 @@ def validate(o: dict, written: set[float]) -> dict | None:
     return {"code": code, "label": label, "value": value, "value_text": value_text, "unit": _text(o.get("unit")),
             "ref_low": _ref(o.get("ref_low"), written), "ref_high": _ref(o.get("ref_high"), written),
             "date": iso_date(o.get("date")), "facility": _text(o.get("facility"))}
+
+
+# ---------------------------------------------------------------- Task 17: reading a form's fields
+
+FORM_FIELD_TYPES = ["text", "date", "checkbox", "choice"]
+MAX_FORM_FIELDS = 60  # bounds a repetition loop under the grammar
+FORM_FIELDS_PROMPT = (
+    "This is a photo of a blank form to be filled in. List every field the person filling it in must answer, in "
+    "reading order (top to bottom, left to right), once each. label: the field's label exactly as printed. "
+    "type: 'checkbox' for a yes/no tick box or question, 'choice' for pick-one options (list them in options, "
+    "exactly as printed), 'date' for a date, otherwise 'text'. options is empty unless type is 'choice'. "
+    "Skip headings, instructions, signatures and the parts for clinic staff only. Do not fill anything in."
+)
+FORM_FIELDS_SCHEMA = {
+    "type": "object",
+    "properties": {"fields": {"type": "array", "maxItems": MAX_FORM_FIELDS, "items": {
+        "type": "object",
+        "properties": {"label": {"type": "string"}, "type": {"type": "string", "enum": FORM_FIELD_TYPES},
+                       "options": {"type": "array", "items": {"type": "string"}}},
+        "required": ["label", "type", "options"],
+    }}},
+    "required": ["fields"],
+}
+
+
+async def read_form_fields(image_bytes: bytes, mime: str) -> list[dict]:
+    """The form's fields in reading order: [{label, type, options}]. Malformed model output gives no fields."""
+    data_url = f"data:{mime};base64,{base64.b64encode(image_bytes).decode()}"
+    content = await _chat({
+        "messages": [{"role": "user", "content": [
+            {"type": "image_url", "image_url": {"url": data_url}},
+            {"type": "text", "text": FORM_FIELDS_PROMPT},
+        ]}],
+        "response_format": {"type": "json_schema", "json_schema": {"name": "form_fields", "schema": FORM_FIELDS_SCHEMA}},
+        "max_tokens": 4096,
+    })
+    try:
+        raw = json.loads(content)
+    except json.JSONDecodeError:
+        return []
+    items = raw.get("fields") if isinstance(raw, dict) else None
+    out, seen = [], set()
+    for f in items if isinstance(items, list) else []:
+        label = _text(f.get("label")) if isinstance(f, dict) else None
+        if not label or label.casefold() in seen:  # one entry per label: answers are matched back by label
+            continue
+        seen.add(label.casefold())
+        kind = f.get("type") if f.get("type") in FORM_FIELD_TYPES else "text"
+        raw_opts = f.get("options") if isinstance(f.get("options"), list) else []
+        opts = [o for o in (_text(x) for x in raw_opts) if o]
+        out.append({"label": label, "type": kind, "options": opts if kind == "choice" else []})
+    return out[:MAX_FORM_FIELDS]
