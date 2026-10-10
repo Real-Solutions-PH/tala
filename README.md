@@ -22,7 +22,7 @@ Screenshots (fictional demo data, in `docs/screenshots/`):
 [profile](docs/screenshots/profile.png) ·
 [design components](docs/screenshots/design-components.png)
 
-> **Name note.** The product is Kapiling, but the repository and folder are still called `tala` (the earlier store assistant this was built from). Renaming the GitHub repository is the owner's call and has not been done.
+> **Name note.** The repository is Real-Solutions-PH/Kapiling. Some internal folder names still say `tala`, the earlier store assistant this was built from.
 
 > **Current state.** The chat screen, push-to-talk button and hands-free Usap mode are not merged into the web app yet: the Chat tab is a placeholder. The server side of chat and voice is merged and tested. See the status column below.
 
