@@ -7,13 +7,13 @@
   display: flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
   background: var(--danger-fill); color: var(--on-danger); text-decoration: none;
-  font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); line-height: 1.2;
+  font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); line-height: 1.2;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .lock__sos svg { flex: none; width: 1.3em; height: 1.3em; }
 .lock__sos:hover { filter: brightness(0.95); }
 .lock__sos:active:not(:disabled) { transform: scale(0.97); }
-button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
+button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); }
 .lock__sos:disabled { opacity: 0.6; cursor: not-allowed; }
 .lock__title { font-size: var(--fs-2xl); letter-spacing: -0.03em; text-align: center; }
 .lock__title svg { display: inline-block; width: 0.9em; height: 0.9em; margin-right: var(--s-2); vertical-align: -0.1em; color: var(--primary); }
@@ -23,7 +23,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
   display: flex; flex-direction: column; align-items: center; gap: var(--s-1);
   min-width: 96px; max-width: 10em; min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
   border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink);
-  font: inherit; font-weight: 700; line-height: 1.25; text-align: center; cursor: pointer;
+  font: inherit; font-weight: 500; line-height: 1.25; text-align: center; cursor: pointer;
   transition: transform var(--dur) var(--ease);
 }
 .lock-avatar:active { transform: scale(0.97); }
@@ -35,7 +35,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
 }
 .lock-avatar__name { overflow-wrap: anywhere; }
 
-.lock__prompt { text-align: center; font-weight: 700; }
+.lock__prompt { text-align: center; font-weight: 500; }
 
 .pin-dots { display: flex; justify-content: center; gap: var(--s-3); padding: var(--s-1) 0; }
 .pin-dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--ink); background: transparent; }
@@ -48,7 +48,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
 @media (prefers-reduced-motion: reduce) { .pin-dots--shake { animation: none; } }
 
 .lock__status { min-height: calc(var(--fs-body) * 1.55); text-align: center; }
-.lock__msg { font-weight: 700; color: var(--ink); }
+.lock__msg { font-weight: 500; color: var(--ink); }
 .lock__msg--error { color: var(--danger); }
 .lock__countdown { font-variant-numeric: tabular-nums; }
 
@@ -58,7 +58,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
   /* Round keys, like a phone keypad: 76px circles at normal text size, never under 64px. */
   width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-xl); font-variant-numeric: tabular-nums;
+  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-xl); font-variant-numeric: tabular-nums;
   cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .pinpad__key:active:not(:disabled) { transform: scale(0.96); background: var(--surface-2); }

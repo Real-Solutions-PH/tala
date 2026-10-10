@@ -149,6 +149,17 @@ States: every fetching view has a skeleton, an empty state with a next action, a
 - Fixed safety text (disclaimer, refusals, emergency labels) comes from the catalogue, never from the model.
 - Avoid with users: AI, model, data, upload, sync, cloud.
 
+## Screens after the reference
+
+| Screen | From the reference |
+|---|---|
+| Talaan | Blue panel (name pill, 2 x 2 tiles); conditions and allergies as white cards with a grey-circle icon and small grey label |
+| Gamot | Top card: value, grey chip, inner grey panel of dose bars and the next time |
+| Lab result | "Your **Test** Result": round back button, display title, capsule bars (latest dark, value on top), full-width blue pill |
+| Card, lock, emergency, documents | Same type weights (400 / 500), round back buttons, white cards |
+
+Feature styles use weight 500 for emphasis (600 on the emergency card, read at a glance).
+
 ## Process
 
 UI/UX Pro Max (`ui-ux-pro-max`) is the QA checklist: accessibility, touch, tap delay (`touch-action: manipulation`), press scale, staggered entrance (40 ms, transform and opacity only, off under reduced motion), one primary CTA per screen. Where the reference and the checklist disagree (icon-only nav), the reference wins and the trade is written down here.

@@ -8,10 +8,10 @@
 @font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 400; font-display: swap;
   src: url('/fonts/atkinson-hyperlegible-next-latin-ext-400-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
-@font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 700; font-display: swap;
+@font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 600; font-display: swap;
   src: url('/fonts/atkinson-hyperlegible-next-latin-700-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
-@font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 700; font-display: swap;
+@font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 600; font-display: swap;
   src: url('/fonts/atkinson-hyperlegible-next-latin-ext-700-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
 @font-face { font-family: 'Figtree'; font-style: normal; font-weight: 400; font-display: swap;
@@ -26,10 +26,10 @@
 @font-face { font-family: 'Figtree'; font-style: normal; font-weight: 600; font-display: swap;
   src: url('/fonts/figtree-latin-ext-600-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
-@font-face { font-family: 'Figtree'; font-style: normal; font-weight: 700; font-display: swap;
+@font-face { font-family: 'Figtree'; font-style: normal; font-weight: 600; font-display: swap;
   src: url('/fonts/figtree-latin-700-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
-@font-face { font-family: 'Figtree'; font-style: normal; font-weight: 700; font-display: swap;
+@font-face { font-family: 'Figtree'; font-style: normal; font-weight: 600; font-display: swap;
   src: url('/fonts/figtree-latin-ext-700-normal.woff2') format('woff2');
   unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
 
@@ -58,7 +58,7 @@ p { margin: 0; }
 
 /* Display: the big mixed-weight screen title ("Mga gamot **ngayon**"). Regular words, one bold word. */
 .display { font-family: var(--font-head); font-weight: 400; font-size: calc(40px * var(--text-scale)); line-height: 1.08; letter-spacing: -0.03em; }
-.display strong, .display b { font-weight: 700; }
+.display strong, .display b { font-weight: 600; }
 
 .num, time, data, td, .tabular { font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
@@ -121,8 +121,8 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   display: flex; flex-direction: column; gap: var(--s-3);
 }
 .hero h2, .hero h3 { color: var(--on-strong); }
-.hero__meta { color: var(--on-strong-muted); font-size: var(--fs-sm); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-.hero__value { font-family: var(--font-head); font-weight: 700; font-size: calc(48px * var(--text-scale)); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.hero__meta { color: var(--on-strong-muted); font-size: var(--fs-sm); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.hero__value { font-family: var(--font-head); font-weight: 600; font-size: calc(48px * var(--text-scale)); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .hero .btn--secondary { background: var(--on-strong); border-color: var(--on-strong); color: var(--primary-fill); }
 .hero .icon-disc { background: var(--on-strong); color: var(--primary-fill); }
 .hero--center { align-items: center; text-align: center; padding: var(--s-6) var(--s-5); gap: var(--s-4); }
@@ -146,7 +146,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .list__row > svg:last-child { width: 22px; height: 22px; flex: none; color: var(--muted); }
 
 /* Quiet section label above a group of cards. */
-.eyebrow { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.eyebrow { font-size: var(--fs-sm); font-weight: 600; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 
 /* ---- Bento grid: two equal columns of cards under the hero ---- */
 .bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
@@ -170,7 +170,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .badge {
   display: inline-flex; align-items: center; gap: var(--s-1);
   padding: 2px var(--s-3); border-radius: var(--radius-pill);
-  font-size: var(--fs-sm); font-weight: 700; line-height: 1.6; white-space: nowrap;
+  font-size: var(--fs-sm); font-weight: 600; line-height: 1.6; white-space: nowrap;
 }
 .badge svg { width: 1em; height: 1em; flex: none; }
 .badge--ok { background: var(--accent-soft); color: var(--accent); }
@@ -260,7 +260,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   max-width: 560px; width: 100%; padding: var(--s-3) var(--s-4);
   background: var(--ink); color: var(--bg);
   border-radius: var(--radius-btn); box-shadow: var(--shadow);
-  font-weight: 700; pointer-events: auto;
+  font-weight: 600; pointer-events: auto;
   animation: toast-in var(--dur) var(--ease);
 }
 .toast svg { flex: none; width: 1.3em; height: 1.3em; }
@@ -299,7 +299,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .navitem {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   min-height: var(--tap-lg); padding: var(--s-2) var(--s-1);
-  color: var(--muted); text-decoration: none; font-weight: 700; font-size: var(--fs-sm);
+  color: var(--muted); text-decoration: none; font-weight: 600; font-size: var(--fs-sm);
 }
 .navitem svg { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); }
 .navitem[aria-current='page'] { color: var(--primary); }
@@ -329,7 +329,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .topbar__profile {
   flex: 1 1 auto; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-2);
   padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1); border: 0; border-radius: var(--radius-btn);
-  background: transparent; color: var(--ink); font: inherit; font-weight: 700; text-align: left; cursor: pointer;
+  background: transparent; color: var(--ink); font: inherit; font-weight: 600; text-align: left; cursor: pointer;
 }
 .topbar__profile:active { background: var(--surface-2); }
 /* The Emergency control: 64px tall, red, icon above the word (DESIGN.md: emergency is colour + icon + word). */
@@ -337,7 +337,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   min-height: var(--tap-lg); min-width: var(--tap-lg); padding: var(--s-1) var(--s-3);
   border-radius: var(--radius-btn); text-decoration: none;
-  font-family: var(--font-head); font-weight: 700; line-height: 1.15; text-align: center;
+  font-family: var(--font-head); font-weight: 600; line-height: 1.15; text-align: center;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 /* Header, after the reference: avatar on the left, light round Settings and red round Emergency on the right. */
@@ -352,7 +352,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 
 .avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
 .topbar .avatar { background: var(--primary-fill); box-shadow: 0 0 0 3px var(--primary-fill); }
-.avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 700; }
+.avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 600; }
 
 .bottomnav {
   /* Floating round buttons, after the reference: no bar, white circles, the current tab a bigger blue one. */
@@ -394,13 +394,13 @@ strong, b { font-weight: 600; }
 .standalone__back { justify-self: start; margin-left: calc(-1 * var(--s-3)); padding-inline: var(--s-3); text-decoration: none; }
 .emergency__title { display: flex; align-items: center; gap: var(--s-2); color: var(--danger); }
 .emergency__title svg { flex: none; width: 1em; height: 1em; }
-.emergency__name { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
+.emergency__name { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-lg); }
 
 .profile-list { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-2); }
 .profile-list__item {
   width: 100%; display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
   border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink);
-  font: inherit; font-weight: 700; text-align: left; cursor: pointer;
+  font: inherit; font-weight: 600; text-align: left; cursor: pointer;
 }
 .profile-list__item[aria-current='true'] { border-color: var(--primary); background: var(--primary-soft); }
 .profile-list__item svg { margin-left: auto; color: var(--primary); }

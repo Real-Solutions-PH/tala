@@ -46,7 +46,7 @@
   display: grid; gap: var(--s-1); justify-items: start; padding: var(--s-4);
   background: var(--surface); border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow);
 }
-.medcard__k { font-weight: 700; }
+.medcard__k { font-weight: 500; }
 .medcard__line { display: flex; align-items: flex-start; gap: var(--s-2); }
 .medcard__line svg { flex: none; width: 1.2em; height: 1.2em; margin-top: 0.15em; color: var(--primary); }
 

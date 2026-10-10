@@ -117,9 +117,9 @@ export function EmergencyPage() {
   return (
     <main className="standalone ecard">
       <header className="ecard__band">
-        <Link to={profileId != null ? '/chat' : '/lock'} className="ecard__back">
-          <ArrowLeft aria-hidden="true" strokeWidth={2.25} />
-          <span>{t('common.back')}</span>
+        <Link to={profileId != null ? '/chat' : '/lock'} className="ecard__back" title={t('common.back')}>
+          <ArrowLeft aria-hidden="true" />
+          <span className="sr-only">{t('common.back')}</span>
         </Link>
         <h1 className="ecard__title"><Siren aria-hidden="true" strokeWidth={2.25} /><span>{t('emergency.title')}</span></h1>
         {card.isPending ? (

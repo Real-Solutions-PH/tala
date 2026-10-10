@@ -105,14 +105,14 @@ export function HealthSummary() {
       <h2 id="summary-title">{t('records.summary')}</h2>
 
       <div className="summary__group">
-        <h3>{t('records.conditions')}</h3>
+        <h3 className="summary__label"><span className="icon-disc" aria-hidden="true"><HeartPulse /></span>{t('records.conditions')}</h3>
         {conditions.length
           ? <ul className="summary__list">{conditions.map(c => <li key={c.id}>{c.name}</li>)}</ul>
           : <p className="muted">{t('records.noConditions')}</p>}
       </div>
 
       <div className="summary__group">
-        <h3>{t('records.allergies')}</h3>
+        <h3 className="summary__label"><span className="icon-disc summary__label-icon--danger" aria-hidden="true"><TriangleAlert /></span>{t('records.allergies')}</h3>
         {s.allergies.length
           ? <ul className="summary__badges">{s.allergies.map(a => (
               <li key={a.id}><Badge tone="danger" icon={TriangleAlert}>{a.substance}{a.reaction ? ` · ${a.reaction}` : ''}</Badge></li>

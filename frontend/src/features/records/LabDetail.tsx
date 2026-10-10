@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { ArrowLeft, ChartLine, FlaskConical, Info, Table } from 'lucide-react'
 import {
-  CartesianGrid, LabelList, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Bar, BarChart, CartesianGrid, Cell, LabelList, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
 import { useObservations } from '../../api/queries'
 import type { Observation } from '../../api/types'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
+import { DisplayTitle } from '../../components/DisplayTitle'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
@@ -95,7 +96,7 @@ function Chart({ points, name, lang }: { points: Observation[]; name: string; la
   return (
     <figure className="lab-chart" role="img" aria-label={chartSummary(points, name, lang)}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 28, right: 44, bottom: 8, left: 4 }} accessibilityLayer={false}>
+        <BarChart data={data} margin={{ top: 28, right: 12, bottom: 8, left: 4 }} accessibilityLayer={false} barCategoryGap="30%">
           <CartesianGrid vertical={false} />
           {(lo != null || hi != null) && <ReferenceArea y1={lo ?? domain[0]} y2={hi ?? domain[1]} ifOverflow="hidden" />}
           <XAxis dataKey="date" tickFormatter={tick} interval="preserveStartEnd" minTickGap={24} tickLine={false} tickMargin={8} />
@@ -103,13 +104,15 @@ function Chart({ points, name, lang }: { points: Observation[]; name: string; la
             label={{ value: last.unit ?? '', angle: -90, position: 'insideLeft', offset: 10, className: 'lab-chart__unit' }} />
           <Tooltip labelFormatter={d => formatDate(String(d), lang)} formatter={v => [`${num(Number(v), lang)} ${last.unit ?? ''}`, name]}
             isAnimationActive={false} />
-          <Line type="linear" dataKey="value" strokeWidth={2} dot={{ r: 5 }} activeDot={{ r: 7 }} isAnimationActive={false}>
-            <LabelList dataKey="value" content={(p: { x?: number | string; y?: number | string; index?: number; value?: unknown }) =>
+          {/* Capsule bars, after the reference's Blood Pressure card; the latest reading is the highlighted one. */}
+          <Bar dataKey="value" barSize={10} radius={[999, 999, 999, 999]} isAnimationActive={false}>
+            {data.map((_, i) => <Cell key={i} className={i === data.length - 1 ? 'lab-chart__bar is-last' : 'lab-chart__bar'} />)}
+            <LabelList dataKey="value" content={(p: { x?: number | string; y?: number | string; width?: number | string; index?: number; value?: unknown }) =>
               p.index === data.length - 1
-                ? <text x={Number(p.x)} y={Number(p.y) - 14} textAnchor="middle" className="lab-chart__last">{num(Number(p.value), lang)}</text>
+                ? <text x={Number(p.x) + Number(p.width ?? 0) / 2} y={Number(p.y) - 12} textAnchor="middle" className="lab-chart__last">{num(Number(p.value), lang)}</text>
                 : null} />
-          </Line>
-        </LineChart>
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </figure>
   )
@@ -138,8 +141,8 @@ export function LabDetail() {
 
   return (
     <div className="page lab">
-      <Link to="/records" className="btn btn--ghost back-link"><ArrowLeft aria-hidden="true" strokeWidth={2} /><span>{t('records.title')}</span></Link>
-      <h1>{name === code && !label ? t('records.labs') : name}</h1>
+      <Link to="/records" className="back-link" title={t('records.title')}><ArrowLeft aria-hidden="true" /><span className="sr-only">{t('records.title')}</span></Link>
+      <DisplayTitle>{name === code && !label ? t('records.labs') : name}</DisplayTitle>
       {label && label !== name && <p className="muted">{label}</p>}
 
       {q.isPending
@@ -155,7 +158,7 @@ export function LabDetail() {
                   {rangeLine}
                   {unitNotice}
                   {asTable ? <LabTable points={points} lang={lang} /> : <Chart points={points} name={name} lang={lang} />}
-                  <Button variant="secondary" block icon={asTable ? ChartLine : Table} onClick={() => setAsTable(v => !v)}>
+                  <Button size="lg" block icon={asTable ? ChartLine : Table} onClick={() => setAsTable(v => !v)}>
                     {asTable ? t('records.viewChart') : t('records.viewTable')}
                   </Button>
                 </Card>
