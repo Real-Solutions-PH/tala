@@ -483,6 +483,7 @@ strong, b { font-weight: 600; }
 .c-bad { background: var(--danger-soft); color: var(--danger); }
 .c-blue { background: var(--primary-soft); color: var(--primary); }
 .btn--ink { background: var(--ink); color: var(--surface); text-decoration: none; }
+.btn--ink:hover:not(:disabled) { filter: brightness(1.15); }
 /* Segmented control: one grey pill, the chosen part white. */
 .seg { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface-2); }
 .seg button { flex: 1; min-height: 38px; padding: 8px 10px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--muted); font: inherit; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; }

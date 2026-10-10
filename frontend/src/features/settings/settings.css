@@ -1,12 +1,14 @@
 /* Settings and Profile (Task 15). Tokens only. */
 
-.settings-section { display: grid; gap: var(--s-3); min-width: 0; }
-.settings-section__head { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-lg); }
+.settings-section { display: grid; gap: 10px; min-width: 0; }
+.settings-section__head { font-size: calc(16.8px * var(--text-scale)) !important; font-weight: 600; }
+.settings-section__panel { display: grid; gap: 12px; }
+.rows { padding: 3px 16px; }
+.rows .seg { flex: none; }
+.rows .seg button { padding-inline: 12px; }
 /* Long words ("representative") must wrap at 150% instead of pushing the page sideways. */
 .settings-section__head span, .settings-section > .btn > span, .page > .btn > span, .choice { min-width: 0; overflow-wrap: anywhere; }
 .page > .btn { min-width: 0; }
-/* Section icon in a grey circle, as on the reference's cards. */
-.settings-section__head svg { flex: none; width: 44px; height: 44px; padding: 11px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); color: var(--ink); }
 .settings-section__hint { color: var(--muted); }
 .settings-note {
   display: flex; gap: var(--s-2); align-items: flex-start; color: var(--muted);
@@ -99,12 +101,11 @@ select.field__input { appearance: auto; }
 
 .skeleton-stack { display: grid; gap: var(--s-3); }
 
-/* Theme picker (prototype): four buttons, each a two-colour swatch over its name; the chosen one outlined in blue. */
-.skins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); }
+/* Theme picker (prototype .skins): four tiles, a two-colour swatch over the name; the chosen one outlined blue. */
+.skins { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .skin {
-  display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
-  border: 2px solid var(--border); border-radius: var(--radius-btn); background: var(--surface); color: var(--ink);
-  font: inherit; font-weight: 600; text-align: left; cursor: pointer;
+  display: grid; justify-items: center; gap: 6px; padding: 9px 5px; border: 2px solid var(--border); border-radius: var(--radius-btn);
+  background: var(--surface); color: var(--ink); font: inherit; font-size: var(--fs-xs); font-weight: 700; line-height: 1.2; text-align: center; cursor: pointer;
 }
-.skin[aria-pressed='true'] { border-color: var(--primary-fill); background: var(--primary-soft); color: var(--primary); }
-.skin__sw { flex: none; display: grid; grid-template-columns: 1fr 1fr; width: 36px; height: 36px; border-radius: var(--radius-sm); overflow: hidden; box-shadow: inset 0 0 0 1px var(--border); }
+.skin[aria-pressed='true'] { border-color: var(--primary-fill); background: var(--primary-soft); }
+.skin__sw { display: grid; grid-template-columns: 1fr 1fr; width: 35px; height: 35px; border-radius: var(--radius-sm); overflow: hidden; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15); }

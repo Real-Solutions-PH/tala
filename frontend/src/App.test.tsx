@@ -52,7 +52,7 @@ describe('routing and the lock', () => {
     mockApi()
     const router = renderAt('/emergency/1')
     expect(await screen.findByRole('heading', { name: 'Emergency card' })).toBeTruthy()
-    expect(await screen.findByText('Remedios Santos Dela Cruz')).toBeTruthy()
+    expect(await screen.findByText(/Remedios Santos Dela Cruz/)).toBeTruthy()
     expect(router.state.location.pathname).toBe('/emergency/1')
   })
 

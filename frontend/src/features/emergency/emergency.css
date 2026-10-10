@@ -1,109 +1,29 @@
-/* Emergency card. Ink on surface and on-danger on danger only: no muted text (read at full brightness).
-   Layout after the reference: a red band holding who it is and two white fact tiles, then white cards below. */
+/* Emergency card, a copy of the prototype's overlay (.ov-top, .eheader, .kv, .tags, .contact, .qrwrap).
+   Colours come only from tokens.css. */
 .ecard { background: var(--bg); }
-.ecard__band {
-  background: var(--danger-fill); color: var(--on-danger);
-  padding: var(--s-3) var(--s-4) var(--s-5); border-radius: 0 0 var(--radius-sheet) var(--radius-sheet);
-  display: grid; gap: var(--s-3);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--danger-fill) 30%, transparent);
-}
-.ecard__band > * { width: 100%; max-width: 640px; margin-inline: auto; }
+.ov-top { display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; }
+.ov-top h1 { flex: 1; font-size: var(--fs-lg); font-weight: 600; }
+.ov-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px calc(20px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
 
-.ecard__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
-.ecard__back, .ecard__qrbtn {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
-  min-height: var(--tap-lg); border: 0; border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--on-danger) 18%, transparent); color: var(--on-danger);
-  font: inherit; font-weight: 500; text-decoration: none; cursor: pointer;
-  transition: transform var(--dur) var(--ease);
-}
-.ecard__back { width: var(--tap-lg); }
-.ecard__qrbtn { padding: 0 var(--s-5); }
-.ecard__back svg, .ecard__qrbtn svg { flex: none; width: 24px; height: 24px; }
-.ecard__back:active, .ecard__qrbtn:active { transform: scale(0.96); }
-.ecard__back:focus-visible, .ecard__qrbtn:focus-visible { outline-color: var(--on-danger); }
+.eheader { display: grid; gap: 5px; padding: 16px; border-radius: var(--radius-card); background: var(--danger-fill); color: var(--on-danger); }
+.eheader .mono { font-family: ui-monospace, Menlo, monospace; font-size: var(--fs-xs); letter-spacing: 0.02em; opacity: 0.85; }
+.eheader .bt { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.eheader .bt b { font-size: calc(48px * var(--text-scale)); line-height: 1; font-weight: 700; }
 
-.ecard__title {
-  display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-2);
-  color: var(--on-danger); font-size: var(--fs-body); font-weight: 500; letter-spacing: 0.02em;
-}
-.ecard__title svg { flex: none; width: 1.2em; height: 1.2em; }
-.ecard__who { display: flex; align-items: center; gap: var(--s-4); }
-.ecard__photo {
-  flex: none; width: 72px; height: 72px; border-radius: var(--radius-btn); object-fit: cover;
-  background: var(--surface); box-shadow: 0 0 0 3px color-mix(in srgb, var(--on-danger) 40%, transparent);
-}
-.ecard__photo--none { display: grid; place-items: center; color: var(--danger); }
-.ecard__photo--none svg { width: 40px; height: 40px; }
-.ecard__name { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-2xl); line-height: var(--lh-head); overflow-wrap: anywhere; }
-.ecard__age { font-size: var(--fs-body); }
+.kv { display: grid; gap: 6px; }
+.kv h2 { font-family: ui-monospace, Menlo, monospace; font-size: var(--fs-xs); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags > span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); font-weight: 700; font-size: calc(14.7px * var(--text-scale)); }
+.tags > span small { font-weight: 500; }
+.tags > span svg { width: 15px; height: 15px; flex: none; }
+.tags.al > span { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
 
-/* Blood type and PhilHealth: white tiles on the band, like the results tiles on Talaan. */
-.ecard__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s-3); margin: var(--s-1) auto 0; }
-.ecard__fact {
-  background: var(--surface); color: var(--ink); border-radius: var(--radius-card); padding: var(--s-4);
-  display: grid; gap: var(--s-1); box-shadow: 0 8px 20px color-mix(in srgb, var(--dock) 20%, transparent);
-}
-.ecard__fact dt { display: flex; align-items: flex-start; line-height: 1.3; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink); }
-.ecard__fact dt svg { flex: none; width: 1.2em; height: 1.2em; color: var(--danger); }
-.ecard__fact dd { margin: 0; align-self: end; }
-.ecard__fact .ecard__big { font-size: var(--fs-xl); white-space: nowrap; }
-.ecard__big { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-2xl); line-height: 1.1; }
+.contacts { padding: 3px 16px; }
+.contact { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--border); }
+.contact:first-child { border-top: 0; }
+.ph { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-family: ui-monospace, Menlo, monospace; font-size: calc(14.4px * var(--text-scale)); color: var(--primary); text-decoration: none; white-space: nowrap; }
+.ph svg { width: 16px; height: 16px; }
 
-.ecard__content { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-5) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); }
-.ecard__rows { display: grid; gap: var(--s-3); }
-.ecard__row {
-  background: var(--surface); color: var(--ink); border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow);
-  padding: var(--s-4) var(--s-5) var(--s-5); display: grid; gap: var(--s-3);
-}
-/* Allergies are the one card a nurse must not miss: a red-tinted ground and a red edge. */
-.ecard__row--alert { background: var(--danger-soft); box-shadow: inset 0 0 0 2px var(--danger-fill), var(--shadow); }
-.ecard__label { display: flex; align-items: center; gap: var(--s-3); font-size: var(--fs-body); font-weight: 500; color: var(--ink); }
-.ecard__icon {
-  flex: none; display: grid; place-items: center; width: 40px; height: 40px;
-  border-radius: var(--radius-sm); background: var(--danger-soft); color: var(--danger);
-}
-.ecard__row--alert .ecard__icon { background: var(--danger-fill); color: var(--on-danger); }
-.ecard__icon svg { width: 22px; height: 22px; }
-.ecard__value { font-size: var(--fs-lg); color: var(--ink); line-height: 1.4; }
-.ecard__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
-/* Conditions and medicines: hairline-divided rows instead of bullets. */
-.ecard__bullets { gap: 0; }
-.ecard__bullets li {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2);
-  padding: var(--s-3) 0; border-top: 1px solid var(--border);
-}
-.ecard__bullets li:first-child { border-top: 0; padding-top: 0; }
-.ecard__bullets li:last-child { padding-bottom: 0; }
-.ecard__sched { display: flex; flex-wrap: wrap; gap: var(--s-1); }
-.ecard__time {
-  padding: 2px var(--s-3); border-radius: var(--radius-pill); background: var(--surface-2);
-  font-size: var(--fs-sm); font-variant-numeric: tabular-nums;
-}
-
-.ecard__allergy { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
-.ecard__allergy-badge {
-  display: inline-flex; align-items: center; gap: var(--s-2); max-width: 100%;
-  padding: var(--s-1) var(--s-4); border-radius: var(--radius-pill);
-  background: var(--danger-fill); color: var(--on-danger); font-weight: 500;
-}
-.ecard__allergy-badge svg { flex: none; width: 1.1em; height: 1.1em; }
-.ecard__allergy-badge strong { font-weight: 600; overflow-wrap: anywhere; }
-.ecard__reaction { font-size: var(--fs-body); }
-
-.ecard__contact { display: grid; gap: var(--s-1); }
-.ecard__list .ecard__contact + .ecard__contact { padding-top: var(--s-3); border-top: 1px solid var(--border); }
-.ecard__call {
-  display: flex; align-items: center; justify-content: center; gap: var(--s-2); margin-top: var(--s-2);
-  min-height: var(--tap-lg); padding: var(--s-2) var(--s-5); border-radius: var(--radius-pill);
-  background: var(--primary-fill); color: var(--on-primary); text-decoration: none;
-  font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); line-height: 1.2; text-align: center;
-  transition: transform var(--dur) var(--ease);
-}
-.ecard__call svg { flex: none; width: 1.2em; height: 1.2em; }
-.ecard__call:active { transform: scale(0.97); }
-
-.ecard__qrbox { display: grid; justify-items: center; gap: var(--s-3); padding-bottom: var(--s-3); }
-/* The QR stays black on white so any camera reads it. */
-.ecard__qr { width: min(100%, 300px); aspect-ratio: 1; background: var(--on-viewer); padding: var(--s-2); border-radius: var(--radius-sm); }
-.ecard__qrhint { text-align: center; font-weight: 500; color: var(--ink); }
+.qrwrap { display: grid; justify-items: center; gap: 6px; padding: 16px; border-radius: var(--radius-card); background: var(--surface); border: 1px solid var(--border); }
+.ecard__qr { width: 152px; height: 152px; image-rendering: pixelated; }
+.qrwrap span { font-size: var(--fs-xs); color: var(--muted); }

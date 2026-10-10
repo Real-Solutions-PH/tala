@@ -1,16 +1,18 @@
 // Building blocks shared by Settings and Profile: a titled card section, a labelled field, a form error.
 import { useId, type ReactNode } from 'react'
 import { CircleAlert, type LucideIcon } from 'lucide-react'
-import { Card } from '../../components/Card'
 
-export function Section({ icon: Icon, title, hint, children }: { icon: LucideIcon; title: string; hint?: string; children: ReactNode }) {
+/** A section as in the prototype's settings sheet: a plain title over one white panel. `icon` is kept for callers. */
+export function Section({ title, hint, children }: { icon?: LucideIcon; title: string; hint?: string; children: ReactNode }) {
   const id = useId()
   return (
-    <Card as="section" className="settings-section" aria-labelledby={id}>
-      <h2 id={id} className="settings-section__head"><Icon aria-hidden="true" strokeWidth={2} /><span>{title}</span></h2>
-      {hint && <p className="settings-section__hint">{hint}</p>}
-      {children}
-    </Card>
+    <section className="sec settings-section" aria-labelledby={id}>
+      <h2 id={id} className="settings-section__head">{title}</h2>
+      <div className="panel settings-section__panel">
+        {hint && <p className="settings-section__hint">{hint}</p>}
+        {children}
+      </div>
+    </section>
   )
 }
 
