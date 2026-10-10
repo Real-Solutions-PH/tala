@@ -1,3 +1,3 @@
 /* BiometricUnlock (Task 15). Tokens only. */
 .biometric-unlock { display: grid; gap: var(--s-2); }
-.biometric-unlock__error { color: var(--danger); font-weight: 700; }
+.biometric-unlock__error { color: var(--danger); font-weight: 500; }

@@ -9,6 +9,7 @@ import { keys, useCards } from '../../api/queries'
 import type { WalletCard } from '../../api/types'
 import { Badge } from '../../components/Badge'
 import { Button } from '../../components/Button'
+import { DisplayTitle } from '../../components/DisplayTitle'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorState } from '../../components/ErrorState'
 import { Sheet } from '../../components/Sheet'
@@ -151,7 +152,7 @@ export function CardsPage() {
 
   return (
     <div className="page">
-      <h1>{t('cards.title')}</h1>
+      <DisplayTitle>{t('cards.title')}</DisplayTitle>
       {cards.isPending ? (
         <ul className="wallet" aria-busy="true">
           {[0, 1].map(i => (
@@ -179,7 +180,7 @@ export function CardsPage() {
               </li>
             ))}
           </ul>
-          <Button size="lg" variant="secondary" block icon={Plus} onClick={() => setAdding(true)}>{t('cards.addCard')}</Button>
+          <Button size="lg" block icon={Plus} className="btn--cta" onClick={() => setAdding(true)}>{t('cards.addCard')}</Button>
         </>
       )}
       <AddCardSheet open={adding} onClose={() => setAdding(false)} />
@@ -200,7 +201,7 @@ export function CardDetailPage() {
   if (card) return <CardViewer card={card} onClose={close} />
   return (
     <div className="page">
-      <h1>{t('cards.title')}</h1>
+      <DisplayTitle>{t('cards.title')}</DisplayTitle>
       {cards.isPending ? <Skeleton className="wallet__thumb" height="auto" radius={20} />
         : cards.isError ? <ErrorState message={errorKey(cards.error)} onRetry={() => { cards.refetch() }} />
         : <EmptyState icon={WalletCards} title={t('errors.notFound')} body={t('cards.emptyPhoto')}

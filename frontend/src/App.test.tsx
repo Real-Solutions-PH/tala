@@ -116,7 +116,7 @@ describe('shell', () => {
     // 64 px tall and red: the shared control rule sets the height, the sos rule the colour.
     const css = readFileSync('src/design/base.css', 'utf8')
     expect(css.match(/\n\.topbar__sos, \.topbar__iconlink\s*\{([^}]*)\}/)?.[1]).toMatch(/min-height:\s*var\(--tap-lg\)/)
-    expect(css.match(/\n\.topbar__sos\s*\{([^}]*)\}/)?.[1]).toMatch(/background:\s*var\(--danger\)/)
+    expect(css.match(/\n\.topbar__sos\s*\{([^}]*)\}/)?.[1]).toMatch(/background:\s*var\(--danger(-fill)?\)/)
     expect(sos.getAttribute('href')).toBe('/emergency/1')
     expect(within(header).getByRole('link', { name: /Settings/ })).toBeTruthy()
   })

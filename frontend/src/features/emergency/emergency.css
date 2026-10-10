@@ -1,18 +1,18 @@
 /* Emergency card. Ink on surface and on-danger on danger only: no muted text (read at full brightness). */
 .ecard { background: var(--bg); }
 .ecard__band {
-  background: var(--danger); color: var(--on-danger);
-  padding: var(--s-2) var(--s-4) var(--s-5);
+  background: var(--danger-fill); color: var(--on-danger);
+  padding: var(--s-2) var(--s-4) var(--s-5); border-radius: 0 0 var(--radius-card) var(--radius-card);
   display: grid; gap: var(--s-2);
 }
 .ecard__band > * { width: 100%; max-width: 640px; margin-inline: auto; }
+.ecard__band > .ecard__back { width: var(--tap-lg); margin-inline: max(0px, calc((100% - 640px) / 2)) auto; }
 .ecard__back {
-  justify-self: start; display: inline-flex; align-items: center; gap: var(--s-2); width: auto;
-  min-height: var(--tap); padding: var(--s-1) var(--s-3); margin-left: calc(-1 * var(--s-3));
-  border-radius: var(--radius-btn); color: var(--on-danger); text-decoration: none;
-  font-family: var(--font-head); font-weight: 700;
+  /* Round back button, after the reference, as a light disc on the red band. */
+  justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg);
+  border-radius: 50%; background: color-mix(in srgb, var(--on-danger) 18%, transparent); color: var(--on-danger);
 }
-.ecard__back svg { width: 1.25em; height: 1.25em; }
+.ecard__back svg { width: 26px; height: 26px; }
 .ecard__back:focus-visible { outline-color: var(--on-danger); }
 .ecard__title { display: flex; align-items: center; gap: var(--s-2); color: var(--on-danger); font-size: var(--fs-xl); }
 .ecard__title svg { flex: none; width: 1em; height: 1em; }
@@ -23,19 +23,19 @@
 }
 .ecard__photo--none { display: grid; place-items: center; color: var(--danger); }
 .ecard__photo--none svg { width: 48px; height: 48px; }
-.ecard__name { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-xl); line-height: var(--lh-head); overflow-wrap: anywhere; }
-.ecard__age { font-weight: 700; font-size: var(--fs-lg); }
+.ecard__name { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-xl); line-height: var(--lh-head); overflow-wrap: anywhere; }
+.ecard__age { font-weight: 600; font-size: var(--fs-lg); }
 
 .ecard__content { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); }
 .ecard__rows { display: grid; gap: var(--s-3); }
 .ecard__row {
-  background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: var(--radius-card);
-  padding: var(--s-4); display: grid; gap: var(--s-2);
+  background: var(--surface); color: var(--ink); border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow);
+  padding: var(--s-5); display: grid; gap: var(--s-2);
 }
-.ecard__label { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-body); font-weight: 700; color: var(--ink); }
+.ecard__label { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-body); font-weight: 600; color: var(--ink); }
 .ecard__label svg { flex: none; width: 1.3em; height: 1.3em; color: var(--danger); }
 .ecard__value { font-size: var(--fs-lg); color: var(--ink); line-height: 1.4; }
-.ecard__big { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-2xl); line-height: 1.1; }
+.ecard__big { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-2xl); line-height: 1.1; }
 .ecard__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
 .ecard__bullets { gap: var(--s-1); }
 .ecard__bullets li { padding-left: 1em; text-indent: -1em; }
@@ -46,7 +46,7 @@
 .ecard__allergy-badge {
   display: inline-flex; align-items: center; gap: var(--s-2); max-width: 100%;
   padding: var(--s-1) var(--s-3); border-radius: var(--radius-pill);
-  background: var(--danger); color: var(--on-danger); font-weight: 700;
+  background: var(--danger-fill); color: var(--on-danger); font-weight: 600;
 }
 .ecard__allergy-badge svg { flex: none; width: 1.1em; height: 1.1em; }
 .ecard__allergy-badge strong { overflow-wrap: anywhere; }
@@ -55,9 +55,9 @@
 .ecard__contact { display: grid; gap: var(--s-1); }
 .ecard__call {
   display: flex; align-items: center; justify-content: center; gap: var(--s-2); margin-top: var(--s-2);
-  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-btn);
-  background: var(--primary); color: var(--on-primary); text-decoration: none;
-  font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); line-height: 1.2; text-align: center;
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
+  background: var(--primary-fill); color: var(--on-primary); text-decoration: none;
+  font-family: var(--font-head); font-weight: 600; font-size: var(--fs-lg); line-height: 1.2; text-align: center;
 }
 .ecard__call svg { flex: none; width: 1.2em; height: 1.2em; }
 .ecard__call:active { transform: scale(0.97); }
@@ -65,4 +65,4 @@
 .ecard__qrbox { display: grid; justify-items: center; gap: var(--s-3); padding-bottom: var(--s-3); }
 /* The QR stays black on white in both themes so any camera reads it. */
 .ecard__qr { width: min(100%, 300px); aspect-ratio: 1; background: var(--on-viewer); padding: var(--s-2); border-radius: var(--s-2); }
-.ecard__qrhint { text-align: center; font-weight: 700; color: var(--ink); }
+.ecard__qrhint { text-align: center; font-weight: 600; color: var(--ink); }

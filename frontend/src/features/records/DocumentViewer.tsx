@@ -94,7 +94,7 @@ export function DocumentViewer() {
 
   return (
     <div className="page document">
-      <Link to="/records" className="btn btn--ghost back-link"><ArrowLeft aria-hidden="true" strokeWidth={2} /><span>{t('records.title')}</span></Link>
+      <Link to="/records" className="back-link" title={t('records.title')}><ArrowLeft aria-hidden="true" /><span className="sr-only">{t('records.title')}</span></Link>
       <h1 className="document__title">{doc?.title ?? t('records.documents')}</h1>
       {meta && <p className="muted">{meta}</p>}
 

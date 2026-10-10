@@ -3,35 +3,44 @@
    scripts/contrast.ts parses this file and fails the test run if any text pair drops below 4.5:1. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light; /* light only, like the reference: one look on every phone */
 
-  /* Colour: light (spec §10) */
-  --bg: #FBF8F3;          /* Papel, warm paper ground */
+  /* Colour: light. Option A palette: #0F62E6 blue, white, black, #E9F1FC ground, #DDE5EF surface-2. */
+  --bg: #E9F1FC;          /* Langit, pale blue ground */
   --surface: #FFFFFF;
-  --surface-2: #F3EEE6;   /* inputs, pressed secondary, skeleton base */
-  --border: #D6CFC4;
-  --ink: #1C1917;
-  --muted: #57534E;
-  --primary: #1F4E8C;     /* Kapiling Blue */
+  --surface-2: #DDE5EF;   /* inputs, pressed secondary, skeleton base */
+  --border: #DDE5EF;
+  --ink: #000000;         /* pure black ink */
+  --muted: #475467;
+  --primary: #0F62E6;     /* Kapiling Blue */
+  --primary-fill: #0F62E6; /* buttons, bars, selected tab, the mark: same blue in both themes */
   --on-primary: #FFFFFF;
-  --primary-soft: #E4ECF7;
+  --primary-soft: #E0ECFE;
+  --primary-strong: #0F62E6; /* the hero card ground */
+  --on-strong: #FFFFFF;
+  --on-strong-muted: #F0F5FF; /* secondary text on the hero card */
   --gold: #F2A900;        /* Araw Gold: fills only, never text */
-  --on-gold: #1C1917;     /* text on gold fills: ink in both themes */
-  --accent: #15803D;      /* taken, success */
+  --on-gold: #000000;     /* text on gold fills: ink in both themes */
+  --accent: #137336;      /* taken, success */
   --accent-soft: #EEF8F1;
-  --warn: #B45309;        /* refill soon, high */
+  --warn: #A34B07;        /* refill soon, high */
   --warn-soft: #FDF4E7;
   --danger: #B42318;      /* emergency, allergy */
+  --danger-fill: #B42318; /* Emergency button, both themes */
   --on-danger: #FFFFFF;
-  --danger-soft: #FBE7E5;
+  --danger-soft: #FCE8E6;
   --shimmer: #FFFFFF;
-  --scrim: rgb(28 25 23 / 0.5);
-  --viewer-bg: #000000;   /* full-screen card viewer, both themes */
+  --scrim: rgb(0 0 0 / 0.5);
+  --dock: #0E1424;        /* the dark bottom dock */
+  --dock-icon: #7D879C;   /* inactive dock icons, 5.1:1 on --dock */
+  --dock-active: #FFFFFF; /* the current tab's icon */
+  --dock-dot: #5B9BFF;    /* the dot under the current tab, 5.9:1 on --dock */
+  --viewer-bg: #000000;   /* full-screen card viewer */
   --on-viewer: #FFFFFF;
 
   /* Type */
-  --font-body: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  --font-head: 'Figtree', 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Figtree', system-ui, sans-serif; /* SF Pro everywhere, as in the reference */
+  --font-head: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Figtree', 'Atkinson Hyperlegible Next', system-ui, sans-serif; /* SF Pro on Apple devices, self-hosted Figtree elsewhere */
   --text-scale: 1;        /* 1 / 1.25 / 1.5, set on <html> from Settings */
   --fs-sm: calc(15px * var(--text-scale));
   --fs-body: calc(18px * var(--text-scale));
@@ -53,39 +62,15 @@
   /* Touch and shape */
   --tap: 48px;
   --tap-lg: 64px;
-  --radius-card: 20px;
-  --radius-btn: 14px;
+  --radius-card: 32px;
+  --radius-btn: 16px;
   --radius-pill: 999px;
   --focus: 3px solid var(--primary);
-  --shadow: 0 1px 2px rgb(28 25 23 / 0.06), 0 4px 16px rgb(28 25 23 / 0.06);
+  --shadow: 0 0 0 1px rgb(15 98 230 / 0.07), 0 1px 2px rgb(15 98 230 / 0.06), 0 12px 32px rgb(15 98 230 / 0.10); /* hairline edge + blue-tinted depth */
 
   /* Motion */
   --dur: 200ms;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14120F;
-    --surface: #1F1C18;
-    --surface-2: #2A2621;
-    --border: #3D3832;
-    --ink: #F5F1EA;
-    --muted: #B8B0A4;
-    --primary: #8CB4F0;
-    --on-primary: #14120F;
-    --primary-soft: #1E2A3C;
-    --gold: #F2A900;
-    --accent: #4ADE80;
-    --accent-soft: #17291D;
-    --warn: #FBBF24;
-    --warn-soft: #2E2412;
-    --danger: #F87171;
-    --on-danger: #14120F;
-    --danger-soft: #361B19;
-    --shimmer: #3D3832;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.3);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
