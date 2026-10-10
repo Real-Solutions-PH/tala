@@ -2,6 +2,8 @@
 
 **Your health, always by your side.** (*Laging kapiling ang kalusugan mo.*)
 
+Demo video (1 min): https://youtube.com/shorts/MdZJVnViX1A · Built for the AppBuildersPH Hackathon 2026 (Local AI) by Real Solutions PH.
+
 ## What it is
 
 Kapiling (ka-PI-ling, "by your side") is a personal health record that Filipino seniors talk to, in Tagalog or English, with every AI model running on their own device. It keeps profile, allergies, conditions, maintenance medicines, vaccines, ID and insurance cards, and photos and scans of old records, and it hands them over when a nurse or doctor asks. It is a companion, not a doctor: it never diagnoses, never advises on medicines, and every recommendation carries a fixed disclaimer.
