@@ -129,7 +129,7 @@ export function ChatPage() {
         )}
         {empty && (
           <div className="chat__empty">
-            <h1 className="chat__greeting">{t('chat.greeting', { name })}</h1>
+            <h1 className="chat__greeting">{boldName(t('chat.greeting', { name }), name)}</h1>
             <div className="chat__chips">
               {CHIPS.map(c => (
                 <button key={c.key} type="button" className="chat__chip"
@@ -149,4 +149,11 @@ export function ChatPage() {
         onDeleted={id => { if (id === cid) newChat() }} />
     </div>
   )
+}
+
+/** The reference's mixed-weight title: the greeting in regular weight, the person's name bold. */
+function boldName(text: string, name: string) {
+  const i = name ? text.indexOf(name) : -1
+  if (i < 0) return text
+  return <>{text.slice(0, i)}<strong>{name}</strong>{text.slice(i + name.length)}</>
 }

@@ -157,6 +157,8 @@ States: every fetching view has a skeleton, an empty state with a next action, a
 | Gamot | Top card: value, grey chip, inner grey panel of dose bars and the next time |
 | Lab result | "Your **Test** Result": round back button, display title, capsule bars (latest dark, value on top), full-width blue pill |
 | Card, lock, emergency, documents | Same type weights (400 / 500), round back buttons, white cards |
+| Kausap (chat) | Mixed-weight greeting with the name bold; starter chips as white cards with grey-circle icons; answer blocks and sources as borderless white cards and pills; the composer a floating white panel with round camera and voice buttons and a blue send pill |
+| Settings, Profile | Display title; each section a white card with a grey-circle icon; choices borderless white, the selected one blue; iOS-style toggles; inputs soft white fields |
 
 Feature styles use weight 500 for emphasis (600 on the emergency card, read at a glance).
 

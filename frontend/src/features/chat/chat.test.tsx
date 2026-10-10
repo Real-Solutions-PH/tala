@@ -56,7 +56,7 @@ describe('ChatPage', () => {
   test('empty chat greets by nickname with 4 quick chips', async () => {
     base()
     renderRoutes(routes, '/chat')
-    expect(await screen.findByText(/Magandang araw po, Lola Remy/)).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /Magandang araw po, Lola Remy/ })).toBeTruthy()
     for (const name of ['Ipakita ang PhilHealth', 'Mga gamot ko', 'Huling resulta', 'Sagutan ang form'])
       expect(screen.getByRole('button', { name })).toBeTruthy()
   })
