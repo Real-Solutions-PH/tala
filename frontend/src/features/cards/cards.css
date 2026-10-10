@@ -20,14 +20,14 @@
 .field { display: grid; gap: var(--s-1); }
 .field__label { font-weight: 500; }
 .field__input {
-  min-height: var(--tap); width: 100%; padding: var(--s-2) var(--s-3);
-  border: 2px solid var(--border); border-radius: var(--radius-btn);
-  background: var(--surface-2); color: var(--ink); font: inherit;
+  min-height: var(--tap); width: 100%; padding: var(--s-2) var(--s-4);
+  border: 2px solid transparent; border-radius: var(--radius-btn);
+  background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font: inherit;
 }
 .field__input:focus-visible { border-color: var(--primary); }
 .field__file {
   display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap-lg); padding: var(--s-2) var(--s-4);
-  border: 2px dashed var(--primary); border-radius: var(--radius-btn); background: var(--surface);
+  border: 0; border-radius: var(--radius-card); background: var(--primary-soft);
   color: var(--primary); font-family: var(--font-head); font-weight: 500; cursor: pointer; overflow-wrap: anywhere;
 }
 .field__file svg { flex: none; width: 1.4em; height: 1.4em; }
@@ -45,8 +45,8 @@
 .viewer__title { flex: 1; min-width: 0; color: var(--on-viewer); font-size: var(--fs-lg); overflow-wrap: anywhere; }
 .viewer__close, .viewer__side {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
-  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-btn);
-  border: 2px solid var(--on-viewer); background: transparent; color: var(--on-viewer);
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-5); border-radius: var(--radius-pill);
+  border: 2px solid transparent; background: color-mix(in srgb, var(--on-viewer) 16%, transparent); color: var(--on-viewer);
   font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-body); cursor: pointer;
 }
 .viewer__close svg { width: 1.3em; height: 1.3em; }

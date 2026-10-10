@@ -140,7 +140,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .doc-zoom__level { font-weight: 500; color: var(--muted); text-align: center; min-width: 3.5em; }
 .doc-page { margin: 0; display: grid; gap: var(--s-2); }
 .doc-page__scroll {
-  overflow: auto; max-height: 70dvh; border: 1px solid var(--border); border-radius: var(--radius-btn); background: var(--surface-2);
+  overflow: auto; max-height: 70dvh; border: 0; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow);
 }
 .doc-page__scroll img { display: block; max-width: none; height: auto; }
 .transcript {
@@ -157,10 +157,10 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .cite-mark { background: var(--gold); color: var(--on-gold); border-radius: 4px; padding: 0 2px; scroll-margin: var(--s-7); }
 
 /* ---- Review extraction ---- */
-.review { display: grid; gap: var(--s-3); border-color: var(--primary); border-width: 2px; }
+.review { display: grid; gap: var(--s-3); }
 .review__title { font-size: var(--fs-lg); }
 .review__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
-.review-row { display: grid; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--radius-btn); background: var(--bg); }
+.review-row { display: grid; gap: var(--s-2); padding: var(--s-4); border: 0; border-radius: 20px; background: var(--bg); }
 .review-row__label { font-weight: 500; }
 .review-row__value { font-size: var(--fs-lg); font-weight: 500; }
 .review-row__fields { display: grid; gap: var(--s-2); }
@@ -168,8 +168,8 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .review-row__actions .btn { padding-inline: var(--s-3); }
 .field { display: grid; gap: var(--s-1); font-weight: 500; font-size: var(--fs-sm); color: var(--muted); }
 .input {
-  min-height: var(--tap); padding: var(--s-2) var(--s-3); border: 2px solid var(--border); border-radius: var(--radius-btn);
-  background: var(--surface-2); color: var(--ink); font: inherit; font-size: var(--fs-body); font-weight: 400; width: 100%;
+  min-height: var(--tap); padding: var(--s-2) var(--s-4); border: 2px solid transparent; border-radius: var(--radius-btn);
+  background: var(--surface); color: var(--ink); font: inherit; font-size: var(--fs-body); font-weight: 400; width: 100%;
 }
 .input:focus-visible { outline: var(--focus); outline-offset: 2px; }
 .input[aria-invalid='true'] { border-color: var(--danger); }

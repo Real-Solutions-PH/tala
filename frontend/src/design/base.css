@@ -222,6 +222,8 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .state__title, .sheet__title { font-size: var(--fs-lg); }
 .state__body { color: var(--muted); max-width: 32ch; }
 .state .btn { margin-top: var(--s-2); }
+/* On a page the state sits in a white card, like every other block in the reference. */
+.page > .state { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); }
 
 /* ---- Disclaimer ---- */
 .disclaimer {
