@@ -9,7 +9,10 @@ Kapiling
 Kapiling ("by your side") is a personal health record that Filipino seniors talk to, in Tagalog or English, with every AI model running on their own device. It keeps their ID and insurance cards, maintenance medicines, lab results and old hospital records; reads photographed records with a local vision model; answers a nurse's or doctor's questions by voice; shows an emergency card without unlocking; and never diagnoses or gives medicine advice.
 
 ## Team members
-[fill in: official team name and member names exactly as listed on appbuildersph.com/hackathon]
+Team name: Real Solutions PH
+
+- Kairus Noah Tecson (https://github.com/SchadenKai)
+- Ervin Piol (https://github.com/ervinpiol)
 
 ## Public GitHub repository
 https://github.com/Real-Solutions-PH/tala  (must be public before 10:00)

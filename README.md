@@ -96,3 +96,10 @@ Settings are environment variables (`LLM_URL`, `EMBED_URL`, `RERANK_URL`, `WHISP
 - **Existing code reused:** parts of the earlier Tala store assistant (the local llama.cpp and whisper.cpp serving, `run.sh`, the streaming chat plumbing and the voice pipeline) were reused and reworked for Kapiling.
 - **AI development tools:** Claude Code.
 - **Not medical advice.** Kapiling stores and retrieves records. It does not diagnose or advise on medicines.
+
+## Team
+
+Real Solutions PH, AppBuildersPH Hackathon 2026:
+
+- Kairus Noah Tecson ([@SchadenKai](https://github.com/SchadenKai))
+- Ervin Piol ([@ervinpiol](https://github.com/ervinpiol))
