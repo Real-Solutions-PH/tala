@@ -82,6 +82,14 @@ describe('LockScreen', () => {
     expect(sos.getAttribute('href')).toBe('/emergency/2')
   })
 
+  test('with no profile to select, Emergency is a disabled button, not a link', async () => {
+    mockApi({ '/api/profiles': () => json([]) })
+    renderAt('/lock')
+    const sos = await screen.findByRole('button', { name: /Emergency/ })
+    expect((sos as HTMLButtonElement).disabled).toBe(true)
+    expect(screen.queryByRole('link', { name: /Emergency/ })).toBeNull()
+  })
+
   test('a wrong PIN shows the error, shakes the dots and clears the PIN', async () => {
     mockApi({ '/api/unlock': () => json({ detail: 'errors.wrongPin' }, 401) })
     const router = renderAt('/lock?profile=1')

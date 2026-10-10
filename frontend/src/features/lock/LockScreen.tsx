@@ -113,10 +113,17 @@ export function LockScreen() {
   return (
     <main className="standalone lock">
       <div className="lock__inner">
-        <Link to={selected != null ? `/emergency/${selected}` : '/lock'} className="lock__sos" aria-disabled={selected == null || undefined}>
-          <Siren aria-hidden="true" strokeWidth={2} />
-          <span>{t('emergency.button')}</span>
-        </Link>
+        {selected != null ? (
+          <Link to={`/emergency/${selected}`} className="lock__sos">
+            <Siren aria-hidden="true" strokeWidth={2} />
+            <span>{t('emergency.button')}</span>
+          </Link>
+        ) : (
+          <button type="button" className="lock__sos" disabled>
+            <Siren aria-hidden="true" strokeWidth={2} />
+            <span>{t('emergency.button')}</span>
+          </button>
+        )}
 
         <h1 className="lock__title"><Lock aria-hidden="true" strokeWidth={2} /><span>{t('lock.title')}</span></h1>
 

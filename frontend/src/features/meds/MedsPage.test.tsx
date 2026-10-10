@@ -55,7 +55,7 @@ beforeEach(() => { localStorage.clear(); localStorage.setItem(PROFILE_KEY, '1') 
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
 describe('MedsPage', () => {
-  test('groups today by Umaga, Tanghali, Gabi with a "Nainom na" button per dose', async () => {
+  test('groups today by Umaga, Tanghali, Gabi : untaken doses offer "Markahang nainom", taken ones show "Nainom na"', async () => {
     mockApi()
     renderAt('/meds')
     expect(await screen.findByRole('heading', { name: 'Ngayong araw' })).toBeTruthy()
@@ -65,17 +65,21 @@ describe('MedsPage', () => {
     expect(within(gabi).getAllByTestId('dose')).toHaveLength(2)
     expect(screen.queryByRole('region', { name: 'Tanghali' })).toBeNull()
     const metforminAm = within(umaga).getAllByTestId('dose').find(r => r.textContent?.includes('Metformin'))!
-    expect(within(metforminAm).getByRole('button', { name: /Nainom na/ }).getAttribute('aria-pressed')).toBe('true')
+    expect(within(metforminAm).getByRole('button', { name: /^Nainom na/ }).getAttribute('aria-pressed')).toBe('true')
+    const losartan = within(umaga).getAllByTestId('dose').find(r => r.textContent?.includes('Losartan'))!
+    expect(within(losartan).getByRole('button', { name: /^Markahang nainom/ }).getAttribute('aria-pressed')).toBe('false')
+    expect(within(losartan).queryByRole('button', { name: /^Nainom na/ })).toBeNull()
   })
 
   test('marking a med taken calls POST and shows the success toast', async () => {
     let answer!: (r: Response) => void
     const f = mockApi({ '/api/profiles/1/meds/1/taken': () => new Promise<Response>(r => { answer = r }) })
     renderAt('/meds')
-    const btn = within(await losartanRow()).getByRole('button', { name: /Nainom na/ })
+    const btn = within(await losartanRow()).getByRole('button', { name: /^Markahang nainom/ })
     expect(btn.getAttribute('aria-pressed')).toBe('false')
     await userEvent.click(btn)
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('true')) // optimistic: before the server answers
+    expect(btn.textContent).toBe('Nainom na') // the action became the status
     expect(screen.queryByText('Nainom na po ang Losartan.')).toBeNull()
     answer(new Response(null, { status: 204 }))
     const post = f.mock.calls.find(c => String(c[0]) === '/api/profiles/1/meds/1/taken')!
@@ -88,10 +92,11 @@ describe('MedsPage', () => {
   test('on failure the toggle reverts and the error toast shows', async () => {
     mockApi({ '/api/profiles/1/meds/1/taken': () => json({ detail: 'x' }, 500) })
     renderAt('/meds')
-    const btn = within(await losartanRow()).getByRole('button', { name: /Nainom na/ })
+    const btn = within(await losartanRow()).getByRole('button', { name: /^Markahang nainom/ })
     await userEvent.click(btn)
     expect(await screen.findByText('Hindi po natuloy. Pakisubukan ulit.')).toBeTruthy()
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('false'))
+    expect(btn.textContent).toBe('Markahang nainom')
   })
 
   test('shows a refill badge when supply_left <= 7, and lists all medicines with purpose and prescriber', async () => {

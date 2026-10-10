@@ -61,6 +61,12 @@ describe('EmergencyPage', () => {
     expect(screen.getByText('•••• 0000')).toBeTruthy()
   })
 
+  test('Back goes to the lock screen when nobody is unlocked', async () => {
+    mockApi(() => json(CARD))
+    renderAt('/emergency/1')
+    expect((await screen.findByRole('link', { name: /Bumalik/ })).getAttribute('href')).toBe('/lock')
+  })
+
   test('Show QR opens a sheet with the QR image', async () => {
     mockApi(() => json(CARD))
     renderAt('/emergency/1')

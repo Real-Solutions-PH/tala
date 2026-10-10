@@ -61,6 +61,8 @@ describe('CardsPage', () => {
     expect(await screen.findByRole('dialog')).toBeTruthy()
     await userEvent.click(screen.getByRole('button', { name: 'Isara' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/cards'))
+    // Focus returns to the thumbnail that opened the viewer.
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('link', { name: /PhilHealth/ })))
   })
 
   test('empty state says there are no cards yet and offers to add one', async () => {

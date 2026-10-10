@@ -1,4 +1,5 @@
-// Medicines: today's doses grouped Umaga / Tanghali / Gabi with an optimistic "Nainom na" toggle,
+// Medicines: today's doses grouped Umaga / Tanghali / Gabi with an optimistic "Markahang nainom" action
+// that turns into the "Nainom na" status (tap again to undo),
 // refill warnings, and the full list with purpose and prescriber.
 import { useMemo } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -84,7 +85,7 @@ function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; on
       </div>
       <button type="button" className="dose__check" aria-pressed={taken} aria-describedby={id} onClick={() => onToggle(dose)}>
         <span className="dose__box" aria-hidden="true">{taken && <Check strokeWidth={3} />}</span>
-        <span>{t('meds.taken')}</span>
+        <span>{t(taken ? 'meds.taken' : 'meds.markTaken')}</span>
       </button>
     </li>
   )

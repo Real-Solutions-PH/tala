@@ -12,7 +12,9 @@
 }
 .lock__sos svg { flex: none; width: 1.3em; height: 1.3em; }
 .lock__sos:hover { filter: brightness(0.95); }
-.lock__sos:active { transform: scale(0.97); }
+.lock__sos:active:not(:disabled) { transform: scale(0.97); }
+button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
+.lock__sos:disabled { opacity: 0.6; cursor: not-allowed; }
 .lock__title { font-size: var(--fs-xl); text-align: center; }
 .lock__title svg { display: inline-block; width: 0.9em; height: 0.9em; margin-right: var(--s-2); vertical-align: -0.1em; color: var(--primary); }
 

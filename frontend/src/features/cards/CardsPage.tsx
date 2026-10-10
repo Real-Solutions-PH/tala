@@ -1,7 +1,7 @@
 // ID wallet: cards as large 16:10 thumbnails, an expiry badge when a card runs out within 60 days,
 // a full-screen viewer at /cards/:id, and an Add card sheet (POST multipart front and back).
-import { useCallback, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CalendarClock, Camera, Plus, WalletCards } from 'lucide-react'
 import { api } from '../../api/client'
@@ -139,6 +139,15 @@ export function CardsPage() {
   const cards = useCards(profileId)
   const [adding, setAdding] = useState(false)
   const [now] = useState(() => Date.now())
+  const location = useLocation()
+  const listRef = useRef<HTMLUListElement>(null)
+  // Back from the viewer: return focus to the thumbnail that opened it.
+  const returnTo = (location.state as { focusCard?: number } | null)?.focusCard
+  const hasCards = (cards.data?.length ?? 0) > 0
+  useEffect(() => {
+    if (returnTo == null || !hasCards) return
+    listRef.current?.querySelector<HTMLElement>(`[data-card-id="${returnTo}"]`)?.focus()
+  }, [returnTo, hasCards])
 
   return (
     <div className="page">
@@ -159,10 +168,10 @@ export function CardsPage() {
           action={{ label: t('cards.addCard'), icon: Camera, onClick: () => setAdding(true) }} />
       ) : (
         <>
-          <ul className="wallet">
+          <ul className="wallet" ref={listRef}>
             {cards.data.map(c => (
               <li key={c.id} className="wallet__item">
-                <Link to={`/cards/${c.id}`} className="wallet__link">
+                <Link to={`/cards/${c.id}`} className="wallet__link" data-card-id={c.id}>
                   <Thumb src={c.front_url} />
                   <span className="wallet__label">{c.label}</span>
                 </Link>
@@ -186,7 +195,7 @@ export function CardDetailPage() {
   const { profileId } = useLock()
   const cards = useCards(profileId)
   const card = cards.data?.find(c => c.id === Number(id))
-  const close = useCallback(() => navigate('/cards'), [navigate])
+  const close = useCallback(() => navigate('/cards', { state: { focusCard: Number(id) } }), [navigate, id])
 
   if (card) return <CardViewer card={card} onClose={close} />
   return (

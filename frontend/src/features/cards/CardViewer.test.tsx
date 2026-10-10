@@ -38,6 +38,18 @@ describe('CardViewer', () => {
     expect(onClose).toHaveBeenCalledTimes(2)
   })
 
+  test('traps focus: Close is focused on open, Tab from the last control wraps to Close, Shift+Tab wraps back', async () => {
+    renderViewer()
+    const close = screen.getByRole('button', { name: 'Isara' })
+    expect(document.activeElement).toBe(close)
+    const back = screen.getByRole('button', { name: 'Likod' })
+    back.focus()
+    await userEvent.tab()
+    expect(document.activeElement).toBe(close)
+    await userEvent.tab({ shift: true })
+    expect(document.activeElement).toBe(back)
+  })
+
   test('hides the side toggle when there is no back photo', () => {
     renderViewer({ ...CARD, back_url: null })
     expect(screen.queryByRole('button', { name: 'Likod' })).toBeNull()

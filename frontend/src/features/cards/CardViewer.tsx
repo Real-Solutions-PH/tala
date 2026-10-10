@@ -90,11 +90,22 @@ export function CardViewer({ card, onClose }: { card: WalletCard; onClose: () =>
   const t = useT()
   const [side, setSide] = useState<Side>('front')
   const closeRef = useRef<HTMLButtonElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
   useWakeLock()
 
   useEffect(() => {
     closeRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); onClose() } }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return }
+      if (e.key !== 'Tab' || !rootRef.current) return
+      // Focus trap: Tab cycles through the viewer's own controls, never the page behind it.
+      const items = [...rootRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')]
+      if (items.length === 0) return
+      const first = items[0], last = items[items.length - 1]
+      const inside = rootRef.current.contains(document.activeElement)
+      if (e.shiftKey && (document.activeElement === first || !inside)) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && (document.activeElement === last || !inside)) { e.preventDefault(); first.focus() }
+    }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
@@ -103,7 +114,7 @@ export function CardViewer({ card, onClose }: { card: WalletCard; onClose: () =>
   const sideLabel = t(side === 'front' ? 'cards.front' : 'cards.back')
 
   return (
-    <div className="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
+    <div ref={rootRef} className="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
       <div className="viewer__bar">
         <h1 id="viewer-title" className="viewer__title">{card.label}</h1>
         <button ref={closeRef} type="button" className="viewer__close" onClick={onClose}>

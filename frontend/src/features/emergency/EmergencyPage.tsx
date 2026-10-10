@@ -11,6 +11,7 @@ import { Sheet } from '../../components/Sheet'
 import { Skeleton } from '../../components/Skeleton'
 import { useT } from '../../i18n'
 import { errorKey } from '../lock/errorKey'
+import { useLock } from '../lock/useLock'
 import './emergency.css'
 
 /** "Ana Dela Cruz" → "Ana", for the "Tawagan si Ana" button. */
@@ -110,12 +111,13 @@ export function EmergencyPage() {
   const id = Number(pid) || null
   const card = useEmergency(id)
   const [qrOpen, setQrOpen] = useState(false)
+  const { profileId } = useLock() // a responder without a session goes back to the lock screen
   const data = card.data
 
   return (
     <main className="standalone ecard">
       <header className="ecard__band">
-        <Link to="/chat" className="ecard__back">
+        <Link to={profileId != null ? '/chat' : '/lock'} className="ecard__back">
           <ArrowLeft aria-hidden="true" strokeWidth={2.25} />
           <span>{t('common.back')}</span>
         </Link>
