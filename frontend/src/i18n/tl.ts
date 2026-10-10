@@ -392,7 +392,7 @@ export const tl: Catalogue = {
     pinProgress: '{n} sa 6 na numero ang nailagay',
     checking: 'Tinitingnan po…',
     tryAgainIn: 'Puwede pong subukan ulit pagkalipas ng {n} segundo.',
-    emergencyNoUnlock: 'Emergency card · hindi kailangang i-unlock',
+    emergencyNoUnlock: 'Emergency card · walang unlock',
     faceId: 'Gamitin ang Face ID',
   },
   settings: {

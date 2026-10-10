@@ -48,7 +48,7 @@ function WCard({ c, holder, dob }: { c: WalletCard; holder: string; dob: string 
   const t = useT()
   return (
     <span className="wcard" style={{ '--wc': CARD_BG[c.kind] } as React.CSSProperties}>
-      <span className="wcard__t"><b>{c.label}</b><span>{t(`cards.${c.kind}` as Key)}</span></span>
+      <span className="wcard__t"><b>{c.label}</b>{!c.label.startsWith(t(`cards.${c.kind}` as Key)) && <span>{t(`cards.${c.kind}` as Key)}</span>}</span>
       <span className="wcard__num tabular">{c.number_masked ?? ''}</span>
       <span className="wcard__nm"><span>{holder.toUpperCase()}</span>{dob && <span>{t('cards.dob', { date: dob })}</span>}</span>
     </span>

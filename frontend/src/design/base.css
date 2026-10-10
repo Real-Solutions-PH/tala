@@ -372,6 +372,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .hello { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
 .hello .av { box-shadow: 0 0 0 3px var(--surface); font-size: var(--fs-body); }
 .hello__text { display: grid; min-width: 0; }
+.hello__text b, .hello__text span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hello__text b { font-size: calc(16.3px * var(--text-scale)); font-weight: 600; }
 .hello__text span { font-size: var(--fs-sm); color: var(--muted); }
 .trust {

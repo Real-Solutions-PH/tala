@@ -46,7 +46,7 @@ Technical claims belong only on the laptop's demo panel and in the README.
 
 ## Principles
 
-1. **Big and plain.** Body text is 18 px, nothing below 15 px, line height 1.55. Targets are at least 48 px, 64 px for main actions, with 8 px between them. A text-size setting scales everything (100 / 125 / 150%).
+1. **A carbon copy of the prototype.** `Kapiling-App-Prototype.html` (v5) is the source of truth for layout, type and colour: body 16 px, small 14 px, captions 12 px, titles 20 px, line height 1.5. Targets are at least 44 px. The text-size setting (100 / 125 / 150%) scales everything for anyone who needs it larger.
 2. **Two taps to anything the hospital asks for.** PhilHealth or HMO card, medicine list, allergies, blood type, latest labs, emergency contact: at most two taps or one spoken sentence.
 3. **Label everything.** Every icon sits next to a word. An icon alone is never the only cue.
 4. **One plane.** Header, content, bottom menu, stacked. Nothing floats over content except a toast, and the toast sits above the menu, never on it.
@@ -86,9 +86,9 @@ dark text on their light-blue buttons.
 
 One typeface, as in the prototype: **Urbanist**, self-hosted (`public/fonts`, works offline), 400 / 500 / 600 / 700.
 
-- The prototype's scale is 20 / 16 / 14 / 12 px; Kapiling keeps its **15 px floor** for Lola and Lolo: body 18 px,
-  small text 15 px, section titles 20 px, screen titles 26 px, one weight (600) per title.
-- Icons are Lucide at a 1.75 stroke (2 in the dock and buttons).
+- The prototype's scale: 20 px titles and section titles, 16 px body, 14 px secondary lines, 12 px chips, tab labels and captions (`--fs-lg` / `--fs-body` / `--fs-sm` / `--fs-xs`), all times `--text-scale`.
+- One weight per title (600). Numbers in tiles 20 px 600.
+- Icons are Lucide at a 2 stroke, 20 to 22 px.
 
 ## Shape, space and motion
 
@@ -110,7 +110,7 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | Hero card (`.hero`) | One per screen, one idea, one action. On Kausap it is Usap (`.hero--center`): the talking mark in a white `.orb` with white signal rings, one question, one white Magsalita pill. |
 | Meter (`.meter`) | One capsule per dose, filled `--primary-fill` when taken (white on the hero). |
 | List card (`.list`) | One white card of quiet rows: icon disc, title, small grey line, chevron or status badge; hairlines between rows. |
-| Screens | Tahanan: headline (doses taken), next-medicine card, Ask Kapiling pill, PhilHealth / Talaan / Emergency quick actions, latest results, privacy line and the Pribado sheet. Talaan: dashed add-a-result tile, vitals, history. Gamot: refill banner, whole-row doses. Card: the wallet. Kausap: chat. |
+| Screens | As `Kapiling-App-Prototype.html`: Lock, Home, Records (name line, scan tile, FBS trend chart/table, tagged timeline), Wallet (gradient cards from card data, bright viewer), Medicines (refill panel, slot rows), Ask (consultation bar, bubbles, suggestion pills), Settings (segmented rows, theme tiles, Lock now), the emergency card overlay. |
 | Bars (`.bars`) | Capsule bar chart for a reading over time: 14 px round-ended bars in `--primary`, dates under each, latest value labelled. |
 | Icon disc (`.icon-disc`) | 48 px rounded-square (14 px radius) icon holder, always beside or above a word. Circles are kept for the avatar, Emergency and the CTA end icon only. |
 | `Badge` | Tone ok, warn, danger, info: tone-coloured word (plus icon) on its soft tint. Never colour alone. |
@@ -122,8 +122,8 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue on a soft amber card; its icon sits in a white rounded square. No coloured side bar. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | The prototype's dock: a white pill of four tabs (Tahanan, Talaan, Card, Gamot; icon over a word) and, beside it, the round blue Kausap button with its word underneath. The current tab is an outlined soft-blue pill. A shell row, never fixed over content. |
-| Header | Tahanan: the person's round avatar and "Magandang araw po, <name>" (opens the profile switcher), and a white Settings circle. Every other screen: a title bar with a round back button (tabs go to Tahanan, deeper screens go back one step), the screen name centred, and the avatar. Emergency is on Tahanan's quick actions and the lock screen. |
+| Bottom menu | The prototype's dock: a white pill of four tabs (Home / Records / Wallet / Medicines; Tahanan / Rekord / Pitaka / Gamot) with 12 px words, the current one an outlined soft-blue pill; beside it a 62 px round blue gradient mic for Ask, with no word (its name is the accessible label). |
+| Header | Home: initials avatar, "Hi, <name>" and the time-of-day greeting (opens "Whose record?"), the green Private pill (the trust sheet) and a round Settings button. Elsewhere: a 44 px round chevron back, the centred screen name (Ask shows "Kapiling") and the initials avatar. |
 | `BackLink` | 64 px light round arrow button above the display title on every screen opened from the header (Settings, Profile) or one tap deeper. Goes to the previous screen, or a fixed fallback when opened directly. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
 | Metric tile | White card: tinted circle icon and chevron, the name, the value with its unit, a worded range badge and trend, the date. Two across at 375 px, one column at 125% text. |
@@ -155,4 +155,4 @@ States: every fetching view has a skeleton, an empty state with a next action, a
 
 ## Process
 
-UI/UX Pro Max (`ui-ux-pro-max`) is the QA checklist: accessibility, touch, tap delay (`touch-action: manipulation`), press scale, staggered entrance (40 ms, transform and opacity only, off under reduced motion), one primary CTA per screen. Where the prototype and the checklist disagree, the 15 px floor and "label everything" win: the dock keeps its words.
+UI/UX Pro Max (`ui-ux-pro-max`) is the QA checklist: accessibility, touch, tap delay (`touch-action: manipulation`), press scale, staggered entrance (40 ms, transform and opacity only, off under reduced motion), one primary CTA per screen. Where the prototype and the checklist disagree, the prototype wins (the user asked for a carbon copy); the trades are the 12 px tab labels and the word-less mic.

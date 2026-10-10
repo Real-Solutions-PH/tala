@@ -77,7 +77,8 @@
 .wcard__t b { font-size: calc(18.4px * var(--text-scale)); font-weight: 600; }
 .wcard__t span { font-size: var(--fs-xs); opacity: 0.85; text-align: right; }
 .wcard__num { font-family: ui-monospace, Menlo, monospace; font-size: calc(16.8px * var(--text-scale)); letter-spacing: 0.06em; }
-.wcard__nm { display: flex; justify-content: space-between; gap: 8px; font-size: calc(13.6px * var(--text-scale)); opacity: 0.9; }
+.wcard__nm { display: flex; justify-content: space-between; gap: 8px; font-size: calc(13.6px * var(--text-scale)); opacity: 0.9; white-space: nowrap; }
+.wcard__nm span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 /* Bright viewer (prototype .ov.bright): white, a round close button, the card, the brightness note. */
 .viewer--bright { background: var(--surface); color: var(--ink); }
