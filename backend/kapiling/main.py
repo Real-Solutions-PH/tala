@@ -15,6 +15,7 @@ from kapiling.auth.routes import router as auth_router
 from kapiling.docs.ingest import run_pending
 from kapiling.docs.routes import router as docs_router
 from kapiling.records.routes import router as records_router
+from kapiling.voice import tts
 
 STATIC_DIR = config.ROOT / "static"
 COOKIE = "kapiling_k"
@@ -87,7 +88,7 @@ async def health() -> dict[str, bool]:
             "rerank": await probe(client, f"{s.rerank_url}/health"),
             # whisper-server has no /health: any 2xx/4xx answer means it is up.
             "whisper": await probe(client, f"{s.whisper_url}/", any_response=True),
-            "tts": False,  # wired in Task 9
+            "tts": tts.is_loaded() or tts.models_cached(),
         }
 
 
