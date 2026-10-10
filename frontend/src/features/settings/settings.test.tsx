@@ -159,6 +159,32 @@ describe('settings', () => {
     })
   })
 
+  test('turning on biometric unlock asks for the PIN first and warns that any saved fingerprint opens it', async () => {
+    vi.stubGlobal('PublicKeyCredential', { isUserVerifyingPlatformAuthenticatorAvailable: async () => true })
+    mockApi({ 'POST /api/webauthn/register/options': () => json({ detail: 'settings.wrongCurrentPin' }, 403) })
+    renderAt('/settings')
+    expect(await screen.findByText('Kahit sinong fingerprint na naka-save sa telepono ay makakapagbukas.')).toBeTruthy()
+    await userEvent.click(screen.getByRole('button', { name: 'Buksan' }))
+    expect(calls.some(c => c.path === '/api/webauthn/register/options')).toBe(false) // nothing before the PIN
+    const dialog = screen.getByRole('dialog', { name: 'Fingerprint o mukha' })
+    await userEvent.type(within(dialog).getByLabelText('Kasalukuyang PIN'), '000000')
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Buksan' }))
+    await waitFor(() => expect(calls).toContainEqual({ method: 'POST', path: '/api/webauthn/register/options', body: { pin: '000000' } }))
+    expect((await within(dialog).findByRole('alert')).textContent).toMatch(/Mali po ang kasalukuyang PIN/)
+  })
+
+  test('a throttled PIN change says to wait', async () => {
+    mockApi({ 'PUT /api/profiles/1/pin': () => json({ detail: 'errors.tooManyAttempts' }, 429) })
+    renderAt('/settings')
+    await userEvent.click(await screen.findByRole('button', { name: /Palitan ang PIN/ }))
+    const dialog = screen.getByRole('dialog', { name: 'Palitan ang PIN' })
+    await userEvent.type(within(dialog).getByLabelText('Kasalukuyang PIN'), '123456')
+    await userEvent.type(within(dialog).getByLabelText('Bagong 6-digit na PIN'), '654321')
+    await userEvent.type(within(dialog).getByLabelText('I-type ulit ang bagong PIN'), '654321')
+    await userEvent.click(within(dialog).getByRole('button', { name: /Palitan ang PIN/ }))
+    expect((await within(dialog).findByRole('alert')).textContent).toMatch(/Maghintay po/)
+  })
+
   test('the access log lists who opened the records', async () => {
     mockApi()
     renderAt('/settings')

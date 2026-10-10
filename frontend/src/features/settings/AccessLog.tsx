@@ -9,7 +9,7 @@ import { useAccessLog, type AccessLogRow } from './api'
 
 const ACTIONS = new Set(['unlock', 'unlock_failed', 'view_summary', 'view_cards', 'view_access_log', 'add_representative',
   'remove_representative', 'change_pin', 'change_pin_failed', 'enrol_biometric', 'enrol_biometric_failed',
-  'remove_biometric', 'change_emergency_fields', 'denied'])
+  'remove_biometric', 'change_emergency_fields', 'denied', 'pin_clash'])
 
 /** The server stores UTC as 'YYYY-MM-DD HH:MM:SS'. */
 const when = (at: string) => new Date(at.includes('T') ? at : `${at.replace(' ', 'T')}Z`)

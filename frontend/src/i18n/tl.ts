@@ -252,6 +252,7 @@ export const tl: Catalogue = {
       remove_biometric: 'Pinatay ang fingerprint o mukha',
       change_emergency_fields: 'Binago ang emergency card',
       denied: 'Pinigilan sa pagbabagong para sa may-ari lang',
+      pin_clash: 'Sinubukan ang PIN na gamit na ng iba',
       other: 'May iba pang ginawa',
     },
     openProfile: 'Ang personal kong impormasyon',
@@ -259,6 +260,10 @@ export const tl: Catalogue = {
     about: 'Tungkol sa Kapiling',
     aboutBody: 'Tumatakbo ang Kapiling sa laptop na ito at sa phone na ito. Dito lang po nakatago ang mga record, litrato at boses ninyo. Walang ipinapadala sa internet, at gumagana ito kahit walang signal.',
     aboutListen: 'Dito rin po ginagawa ang pakikinig at pagsasalita, kaya nasa bahay lang ang sinasabi ninyo.',
+    biometricAnyFingerprint: 'Kahit sinong fingerprint na naka-save sa telepono ay makakapagbukas.',
+    biometricPinPrompt: 'I-type po ang PIN ninyo para buksan ang fingerprint o mukha.',
+    tooManyAttempts: 'Masyadong maraming maling subok. Maghintay po ng isang minuto, tapos subukan ulit.',
+    invalidLanguage: 'Pumili po ng English o Tagalog.',
   },
   profile: {
     title: 'Ang personal kong impormasyon',

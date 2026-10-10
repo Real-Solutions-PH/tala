@@ -50,9 +50,9 @@ function toJSON(cred: PublicKeyCredential): Record<string, unknown> {
   }
 }
 
-/** Owner, unlocked: create a platform credential and store it on the server. */
-export async function enrolBiometric(): Promise<void> {
-  const o = await api.send<CreationJSON>('POST', '/webauthn/register/options')
+/** Owner, unlocked, re-entering the PIN: create a platform credential and store it on the server. */
+export async function enrolBiometric(pin: string): Promise<void> {
+  const o = await api.send<CreationJSON>('POST', '/webauthn/register/options', { pin })
   const cred = await navigator.credentials.create({
     publicKey: {
       ...o, challenge: b64urlDecode(o.challenge), user: { ...o.user, id: b64urlDecode(o.user.id) },

@@ -40,3 +40,20 @@ def start_session(request: Request, response: Response, actor: Actor) -> None:
     lock.end_session(request.cookies.get(SESSION_COOKIE))
     response.set_cookie(SESSION_COOKIE, lock.new_session(actor), httponly=True, samesite="strict", path="/",
                         secure=request.url.scheme == "https")
+
+
+def require_current_pin(con: sqlite3.Connection, pid: int, actor: Actor, pin: str, failed_action: str) -> None:
+    """Re-verify the owner PIN for a sensitive change, throttled like unlock (429 while backed off)."""
+    try:
+        ok = lock.check_owner_pin(con, pid, pin)
+    except lock.BackedOff:
+        raise HTTPException(429, "errors.tooManyAttempts", headers={"Retry-After": str(int(lock.BACKOFF))}) from None
+    if not ok:
+        lock.log_access(con, pid, actor, failed_action)
+        raise HTTPException(403, "settings.wrongCurrentPin")
+
+
+def end_other_sessions(request: Request, pid: int) -> int:
+    """End every session of the profile except the caller's own (after a PIN change or biometric removal)."""
+    mine = request.cookies.get(SESSION_COOKIE)
+    return lock.end_sessions(pid, lambda token, _a: token != mine)

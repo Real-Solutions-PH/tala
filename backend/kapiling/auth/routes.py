@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from kapiling.auth import lock
-from kapiling.auth.deps import SESSION_COOKIE, Actor, require_owner, require_owner_of, require_unlocked, start_session
+from kapiling.auth.deps import (SESSION_COOKIE, Actor, end_other_sessions, require_current_pin, require_owner,
+                                require_owner_of, require_unlocked, start_session)
 from kapiling.db import get_con
 
 router = APIRouter(prefix="/api")
@@ -91,6 +92,7 @@ class RepBody(BaseModel):
 def add_representative(pid: int, body: RepBody, con: Con, actor: Unlocked):
     require_owner(con, actor, "add_representative")
     if _pin_in_use(con, pid, body.pin):
+        lock.log_access(con, pid, actor, "pin_clash", "add_representative")  # the PIN itself is never logged
         raise HTTPException(409, "settings.pinInUse")
     name = body.name.strip()
     cur = con.execute("insert into representatives (profile_id, name, relation, pin_hash) values (?,?,?,?)",
@@ -108,6 +110,8 @@ def remove_representative(pid: int, rid: int, con: Con, actor: Unlocked):
         raise HTTPException(404, "errors.notFound")
     con.execute("delete from representatives where id=?", (rid,))
     con.commit()
+    # Revocation: the removed representative's open sessions end now, not at their next idle timeout.
+    lock.end_sessions(pid, lambda _t, a: a.get("rep_id") == rid)
     lock.log_access(con, pid, actor, "remove_representative", row["name"])
 
 
@@ -117,14 +121,13 @@ class PinBody(BaseModel):
 
 
 @router.put("/profiles/{pid}/pin", status_code=204)
-def change_pin(pid: int, body: PinBody, con: Con, actor: Unlocked):
+def change_pin(pid: int, body: PinBody, request: Request, con: Con, actor: Unlocked):
     require_owner(con, actor, "change_pin")
-    row = con.execute("select pin_hash from owner_lock where profile_id=?", (pid,)).fetchone()
-    if row is None or not lock.verify_pin(body.current_pin, row["pin_hash"]):
-        lock.log_access(con, pid, actor, "change_pin_failed")
-        raise HTTPException(403, "settings.wrongCurrentPin")
+    require_current_pin(con, pid, actor, body.current_pin, "change_pin_failed")
     if _pin_in_use(con, pid, body.new_pin, include_owner=False):
+        lock.log_access(con, pid, actor, "pin_clash", "change_pin")
         raise HTTPException(409, "settings.pinInUse")
     con.execute("update owner_lock set pin_hash=? where profile_id=?", (lock.hash_pin(body.new_pin), pid))
     con.commit()
+    end_other_sessions(request, pid)  # anyone else holding the old PIN is signed out
     lock.log_access(con, pid, actor, "change_pin")

@@ -5,6 +5,7 @@ import secrets
 import sqlite3
 import threading
 import time
+from collections.abc import Callable
 from typing import TypedDict
 
 _N, _R, _P = 2**14, 8, 1
@@ -33,6 +34,7 @@ class Actor(TypedDict):
     profile_id: int
     name: str
     role: str  # 'owner' | 'representative'
+    rep_id: int | None  # representatives.id for a representative, None for the owner
 
 
 IDLE_TIMEOUT = 300.0      # seconds without an authorised request before a session dies
@@ -145,13 +147,39 @@ def check_pin(con: sqlite3.Connection, pid: int, pin: str) -> Actor | None:
     try:
         owner = con.execute("select pin_hash from owner_lock where profile_id=?", (pid,)).fetchone()
         if owner is not None and verify_pin(pin, owner["pin_hash"]):
-            actor = {"profile_id": pid, "name": profile["nickname"] or profile["full_name"], "role": "owner"}
+            actor = {"profile_id": pid, "name": profile["nickname"] or profile["full_name"], "role": "owner",
+                     "rep_id": None}
         else:
-            for rep in con.execute("select name, pin_hash from representatives where profile_id=? order by id", (pid,)):
+            for rep in con.execute("select id, name, pin_hash from representatives where profile_id=? order by id", (pid,)):
                 if verify_pin(pin, rep["pin_hash"]):
-                    actor = {"profile_id": pid, "name": rep["name"], "role": "representative"}
+                    actor = {"profile_id": pid, "name": rep["name"], "role": "representative", "rep_id": rep["id"]}
                     break
     finally:
         _end_attempt(pid, stamp, actor is not None)
     log_access(con, pid, actor or UNKNOWN, "unlock" if actor else "unlock_failed")
     return actor
+
+
+# --- revocation and re-verification (Task 15 security review) -------------------------------------------
+
+def end_sessions(profile_id: int, predicate: Callable[[str, Actor], bool]) -> int:
+    """End every live session of this profile for which predicate(token, actor) is true. Returns how many.
+    Used when a credential is revoked: a removed representative, a changed owner PIN, removed biometrics."""
+    with _mu:
+        doomed = [t for t, (a, _) in _sessions.items() if a["profile_id"] == profile_id and predicate(t, a)]
+        for t in doomed:
+            del _sessions[t]
+    return len(doomed)
+
+
+def check_owner_pin(con: sqlite3.Connection, pid: int, pin: str) -> bool:
+    """Re-verify the owner PIN for a sensitive change (PIN change, biometric enrolment), behind the same
+    per-profile attempt throttle as unlock. Raises BackedOff while blocked."""
+    stamp = _begin_attempt(pid)
+    ok = False
+    try:
+        row = con.execute("select pin_hash from owner_lock where profile_id=?", (pid,)).fetchone()
+        ok = row is not None and verify_pin(pin, row["pin_hash"])
+    finally:
+        _end_attempt(pid, stamp, ok)
+    return ok

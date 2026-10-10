@@ -250,6 +250,7 @@ export const en = {
       remove_biometric: 'Turned off fingerprint or face unlock',
       change_emergency_fields: 'Changed the emergency card',
       denied: 'Was stopped from an owner-only change',
+      pin_clash: 'Tried a PIN that someone already uses',
       other: 'Did something else',
     },
     openProfile: 'My personal information',
@@ -257,6 +258,10 @@ export const en = {
     about: 'About Kapiling',
     aboutBody: 'Kapiling runs on this laptop and this phone. Your records, photos and voice stay here. Nothing is sent over the internet, and it works even without signal.',
     aboutListen: 'Listening and speaking run here too, so what you say stays in this house.',
+    biometricAnyFingerprint: 'Any fingerprint or face saved on this phone can open it.',
+    biometricPinPrompt: 'Type your PIN to turn on fingerprint or face unlock.',
+    tooManyAttempts: 'Too many wrong tries. Please wait a minute, then try again.',
+    invalidLanguage: 'Please choose English or Tagalog.',
   },
   profile: {
     title: 'My personal information',

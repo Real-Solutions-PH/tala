@@ -19,7 +19,7 @@ from typing import Annotated, Any
 
 import webauthn as wa
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from webauthn.helpers.exceptions import InvalidAuthenticationResponse, InvalidRegistrationResponse
 from webauthn.helpers.structs import (
     AuthenticatorAttachment,
@@ -30,7 +30,7 @@ from webauthn.helpers.structs import (
 )
 
 from kapiling.auth import lock
-from kapiling.auth.deps import Actor, require_owner, require_unlocked, start_session
+from kapiling.auth.deps import Actor, end_other_sessions, require_current_pin, require_owner, require_unlocked, start_session
 from kapiling.db import get_con
 
 __all__ = ["InvalidAuthenticationResponse", "InvalidRegistrationResponse", "has_biometric", "router"]
@@ -143,7 +143,7 @@ def has_biometric(con: sqlite3.Connection, pid: int) -> bool:
 
 def _owner_actor(con: sqlite3.Connection, pid: int) -> Actor:
     p = con.execute("select nickname, full_name from profiles where id=?", (pid,)).fetchone()
-    return {"profile_id": pid, "name": p["nickname"] or p["full_name"], "role": "owner"}
+    return {"profile_id": pid, "name": p["nickname"] or p["full_name"], "role": "owner", "rep_id": None}
 
 
 def _platform_only(credential: dict) -> None:
@@ -154,10 +154,17 @@ def _platform_only(credential: dict) -> None:
 
 # --- registration (owner, unlocked) -----------------------------------------------------------------
 
+class RegisterOptionsBody(BaseModel):
+    pin: str = Field(min_length=1, max_length=64)
+
+
 @router.post("/register/options")
-def register_options(request: Request, con: Con, actor: Unlocked):
+def register_options(body: RegisterOptionsBody, request: Request, con: Con, actor: Unlocked):
+    """Enrolling adds a long-lived way back in, so the owner re-enters the PIN (throttled like unlock)."""
     require_owner(con, actor, "enrol_biometric")
     pid = actor["profile_id"]
+    _rp_id(request)  # refuse an IP host before spending a PIN attempt
+    require_current_pin(con, pid, actor, body.pin, "enrol_biometric_failed")
     rp_id = _rp_id(request)
     opts = wa.generate_registration_options(
         rp_id=rp_id, rp_name=RP_NAME, user_id=f"kapiling-{pid}".encode(), user_name=actor["name"],
@@ -196,9 +203,10 @@ def register_verify(body: RegisterBody, request: Request, con: Con, actor: Unloc
 
 
 @router.delete("/credentials", status_code=204)
-def remove_credentials(con: Con, actor: Unlocked):
+def remove_credentials(request: Request, con: Con, actor: Unlocked):
     require_owner(con, actor, "remove_biometric")
     _save(con, actor["profile_id"], [])
+    end_other_sessions(request, actor["profile_id"])  # sessions opened with the removed biometric end too
     lock.log_access(con, actor["profile_id"], actor, "remove_biometric")
 
 

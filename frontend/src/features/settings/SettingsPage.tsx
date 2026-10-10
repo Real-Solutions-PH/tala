@@ -284,12 +284,40 @@ function ChangePinForm({ profileId, onDone }: { profileId: number | null; onDone
   )
 }
 
+function EnrolBiometricForm({ onEnrol }: { onEnrol: (pin: string) => Promise<Key | null> }) {
+  const t = useT()
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState<Key | null>(null)
+  const [busy, setBusy] = useState(false)
+  const submit = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!SIX.test(pin)) return setError('settings.pinSixDigits')
+    setBusy(true)
+    setError(await onEnrol(pin))
+    setBusy(false)
+  }
+  return (
+    <form className="form" onSubmit={submit} noValidate>
+      <p>{t('settings.biometricPinPrompt')}</p>
+      <Field label={t('settings.currentPin')}>
+        {({ id }) => (
+          <input id={id} className="field__input tabular" type="password" inputMode="numeric" maxLength={6}
+            autoComplete="current-password" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} />
+        )}
+      </Field>
+      <FormError message={error && t(error)} />
+      <Button type="submit" size="lg" block icon={FingerprintPattern} loading={busy}>{t('settings.biometricTurnOn')}</Button>
+    </form>
+  )
+}
+
 function BiometricSetting({ profileId, enabled }: { profileId: number | null; enabled: boolean }) {
   const t = useT()
   const toast = useToast()
   const qc = useQueryClient()
   const [available, setAvailable] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [asking, setAsking] = useState(false)
   useEffect(() => {
     let live = true
     biometricAvailable().then(ok => { if (live) setAvailable(ok) })
@@ -297,13 +325,27 @@ function BiometricSetting({ profileId, enabled }: { profileId: number | null; en
   }, [])
   if (!available) return null // shown only where this device can do it
 
-  const change = async () => {
+  const refresh = () => Promise.all([qc.invalidateQueries({ queryKey: settingsKeys.settings(profileId) }), qc.invalidateQueries({ queryKey: keys.profiles })])
+
+  // Turning on needs the current PIN (the server re-checks it, throttled); returns an error key or null.
+  const enrol = async (pin: string): Promise<Key | null> => {
+    try {
+      await enrolBiometric(pin)
+      await refresh()
+      setAsking(false)
+      toast(t('settings.biometricEnabled'))
+      return null
+    } catch (e) {
+      return errorKey(e, 'settings.biometricFailed')
+    }
+  }
+
+  const turnOff = async () => {
     setBusy(true)
     try {
-      if (enabled) await api.send('DELETE', '/webauthn/credentials')
-      else await enrolBiometric()
-      await Promise.all([qc.invalidateQueries({ queryKey: settingsKeys.settings(profileId) }), qc.invalidateQueries({ queryKey: keys.profiles })])
-      toast(t(enabled ? 'settings.biometricDisabled' : 'settings.biometricEnabled'))
+      await api.send('DELETE', '/webauthn/credentials')
+      await refresh()
+      toast(t('settings.biometricDisabled'))
     } catch (e) {
       toast(t(errorKey(e, 'settings.biometricFailed')), 'error')
     } finally {
@@ -316,10 +358,15 @@ function BiometricSetting({ profileId, enabled }: { profileId: number | null; en
       <span className="item__text">
         <span className="item__name">{t('settings.biometric')}</span>
         <span className="item__sub">{t(enabled ? 'settings.biometricIsOn' : 'settings.biometricIsOff')} · {t('settings.biometricHint')}</span>
+        <span className="item__sub">{t('settings.biometricAnyFingerprint')}</span>
       </span>
-      <Button variant={enabled ? 'ghost' : 'primary'} icon={FingerprintPattern} loading={busy} onClick={change}>
+      <Button variant={enabled ? 'ghost' : 'primary'} icon={FingerprintPattern} loading={busy}
+        onClick={enabled ? turnOff : () => setAsking(true)}>
         {t(enabled ? 'settings.biometricTurnOff' : 'settings.biometricTurnOn')}
       </Button>
+      <Sheet open={asking} onClose={() => setAsking(false)} title={t('settings.biometric')}>
+        {asking && <EnrolBiometricForm onEnrol={enrol} />}
+      </Sheet>
     </div>
   )
 }

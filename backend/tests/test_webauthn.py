@@ -14,6 +14,7 @@ from kapiling.auth import webauthn as wa_mod
 from seed import persona
 
 LOCAL = {"host": "localhost:5173"}
+PIN_BODY = {"pin": persona.OWNER_PIN}
 
 
 def b64(b: bytes) -> str:
@@ -61,13 +62,13 @@ def login_options(client, pid, headers=LOCAL):
 
 @pytest.mark.parametrize("host", ["192.168.1.5", "192.168.1.5:8915", "[::1]:8915", "10.0.0.2"])
 def test_ip_host_is_refused(client, lola_unlocked, enrolled, host):
-    for r in (client.post("/api/webauthn/register/options", headers={"host": host}),
+    for r in (client.post("/api/webauthn/register/options", json=PIN_BODY, headers={"host": host}),
               login_options(client, lola_unlocked, {"host": host})):
         assert r.status_code == 400 and r.json()["detail"] == "lock.biometricNeedsDomain"
 
 
 def test_localhost_options_require_platform_and_user_verification(client, lola_unlocked):
-    r = client.post("/api/webauthn/register/options", headers=LOCAL)
+    r = client.post("/api/webauthn/register/options", json=PIN_BODY, headers=LOCAL)
     assert r.status_code == 200
     opts = r.json()
     assert opts["rp"]["id"] == "localhost"  # port stripped
@@ -77,7 +78,7 @@ def test_localhost_options_require_platform_and_user_verification(client, lola_u
 
 
 def test_domain_host_sets_rp_id(client, lola_unlocked):
-    r = client.post("/api/webauthn/register/options", headers={"host": "kapiling.example.ph"})
+    r = client.post("/api/webauthn/register/options", json=PIN_BODY, headers={"host": "kapiling.example.ph"})
     assert r.json()["rp"]["id"] == "kapiling.example.ph"
 
 
@@ -94,9 +95,9 @@ def test_login_options_need_an_enrolled_credential(client, lola, mika, enrolled)
 # --- owner only -------------------------------------------------------------------------------
 
 def test_enrolment_is_owner_only(client, con, lola):
-    assert client.post("/api/webauthn/register/options", headers=LOCAL).status_code == 401
+    assert client.post("/api/webauthn/register/options", json=PIN_BODY, headers=LOCAL).status_code == 401
     client.post("/api/unlock", json={"profile_id": lola, "pin": persona.REP_PIN})
-    for r in (client.post("/api/webauthn/register/options", headers=LOCAL),
+    for r in (client.post("/api/webauthn/register/options", json=PIN_BODY, headers=LOCAL),
               client.post("/api/webauthn/register/verify", json={"credential": {}}, headers=LOCAL),
               client.delete("/api/webauthn/credentials", headers=LOCAL)):
         assert r.status_code == 403 and r.json()["detail"] == "settings.ownerOnly"
@@ -105,7 +106,7 @@ def test_enrolment_is_owner_only(client, con, lola):
 # --- registration -------------------------------------------------------------------------------
 
 def test_register_stores_credential_and_is_logged(client, con, lola_unlocked, mock_verify):
-    chal = client.post("/api/webauthn/register/options", headers=LOCAL).json()["challenge"]
+    chal = client.post("/api/webauthn/register/options", json=PIN_BODY, headers=LOCAL).json()["challenge"]
     r = client.post("/api/webauthn/register/verify", json={"credential": fake_credential(chal, "create")}, headers=LOCAL)
     assert r.status_code == 204, r.text
     kind, kw = mock_verify.calls[0]
@@ -119,7 +120,7 @@ def test_register_stores_credential_and_is_logged(client, con, lola_unlocked, mo
 
 
 def test_register_refuses_a_roaming_authenticator(client, lola_unlocked, mock_verify):
-    chal = client.post("/api/webauthn/register/options", headers=LOCAL).json()["challenge"]
+    chal = client.post("/api/webauthn/register/options", json=PIN_BODY, headers=LOCAL).json()["challenge"]
     cred = fake_credential(chal, "create", attachment="cross-platform")
     assert client.post("/api/webauthn/register/verify", json={"credential": cred}, headers=LOCAL).status_code == 400
 
@@ -141,7 +142,7 @@ def test_login_verify_creates_a_session_like_pin_unlock(client, con, enrolled, m
     r = client.post("/api/webauthn/login/verify", json={"profile_id": enrolled, "credential": fake_credential(chal)},
                     headers=LOCAL)
     assert r.status_code == 204, r.text
-    assert made == [{"profile_id": enrolled, "name": "Lola Remy", "role": "owner"}]
+    assert made == [{"profile_id": enrolled, "name": "Lola Remy", "role": "owner", "rep_id": None}]
     sc = r.headers["set-cookie"].lower()
     assert "kapiling_s=" in sc and "httponly" in sc and "samesite=strict" in sc
     assert client.get(f"/api/profiles/{enrolled}/summary").status_code == 200
@@ -177,7 +178,7 @@ def test_challenge_expires_after_two_minutes(client, enrolled, mock_verify, monk
 
 
 def test_challenge_is_bound_to_its_profile_and_purpose(client, con, enrolled, mika, mock_verify, lola_unlocked):
-    reg = client.post("/api/webauthn/register/options", headers=LOCAL).json()["challenge"]
+    reg = client.post("/api/webauthn/register/options", json=PIN_BODY, headers=LOCAL).json()["challenge"]
     client.post("/api/lock")
     # a registration challenge cannot log in
     body = {"profile_id": enrolled, "credential": fake_credential(reg)}

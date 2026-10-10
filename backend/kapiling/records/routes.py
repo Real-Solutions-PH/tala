@@ -130,6 +130,8 @@ def get_profile(pid: int, con: Con, _a: Unlocked):
 def put_profile(pid: int, con: Con, _a: Unlocked, body: dict = Body(...)):
     _profile_or_404(con, pid)
     changes = {k: v for k, v in body.items() if k in PROFILE_FIELDS}
+    if "language" in changes and changes["language"] not in ("tl", "en"):
+        raise HTTPException(422, "settings.invalidLanguage")
     if changes:
         con.execute(f"update profiles set {', '.join(f'{k}=?' for k in changes)} where id=?", (*changes.values(), pid))
         con.commit()
