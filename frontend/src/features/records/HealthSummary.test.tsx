@@ -17,7 +17,8 @@ function summary(latest: Record<string, Observation>) {
     profile: { id: 1, nickname: 'Lola Remy', full_name: 'Remedios Santos Dela Cruz' },
     conditions: [{ id: 1, name: 'Type 2 diabetes', since: '2019', status: 'active', notes: null },
       { id: 2, name: 'Old sprain', since: '2001', status: 'resolved', notes: null }],
-    allergies: [{ id: 1, substance: 'Penicillin', reaction: 'Rash', severity: 'severe' }],
+    allergies: [{ id: 1, substance: 'Penicillin', reaction: 'Rash', severity: 'severe' },
+      { id: 2, substance: 'Shrimp', reaction: null, severity: 'mild' }],
     meds: [], contacts: [],
     latest,
   }
@@ -42,6 +43,40 @@ describe('HealthSummary', () => {
     const allergy = screen.getByText(/Penicillin/).closest('.badge')!
     expect(allergy.className).toContain('badge--danger')
     expect(allergy.querySelector('svg')).toBeTruthy()
+  })
+
+  test('the allergy tile names each substance with its reaction, not a count', async () => {
+    setup()
+    const heading = await screen.findByRole('heading', { name: 'Mga allergy' })
+    const tile = heading.closest('.stile') as HTMLElement
+    const items = within(tile).getAllByRole('listitem')
+    expect(items.map(li => li.querySelector('.badge')!.textContent)).toEqual(['Penicillin', 'Shrimp'])
+    expect(items[0].textContent).toContain('Rash')
+    expect(within(tile).queryByText('2')).toBeNull()
+  })
+
+  test('says so when no allergy is recorded', async () => {
+    mockFetch({
+      'GET /api/profiles/1/summary': () => json({ ...summary({}), allergies: [] }),
+      'GET /api/profiles/1/observations': () => json([]),
+    })
+    renderRoutes([{ path: '/records', element: <HealthSummary /> }], '/records')
+    expect(await screen.findByText('Walang naitalang allergy')).toBeTruthy()
+  })
+
+  test('each tile reads label first, then value, a worded status, the date, and links to the chart', async () => {
+    setup()
+    const fbs = await screen.findByRole('link', { name: /Blood sugar \(FBS\)/ })
+    expect(fbs.getAttribute('href')).toBe('/records/labs/fbs')
+    const label = within(fbs).getByText('Blood sugar (FBS)')
+    const value = within(fbs).getByText('132')
+    expect(label.compareDocumentPosition(value) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const badge = within(fbs).getByText('Mataas sa range').closest('.badge')!
+    expect(badge.className).toContain('badge--warn')
+    expect(badge.textContent!.trim().length).toBeGreaterThan(0)
+    expect(fbs.querySelector('.vtile__go')).toBeTruthy()
+    expect(within(fbs).getByText(/Hul 7, 2026/)).toBeTruthy()
+    expect(screen.getByRole('link', { name: /Presyon ng dugo \(BP\)/ }).getAttribute('href')).toBe('/records/labs/bp_systolic')
   })
 
   test('tiles show value, unit, date and the trend word for up, down and same', async () => {

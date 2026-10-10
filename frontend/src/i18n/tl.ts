@@ -273,6 +273,12 @@ export const tl: Catalogue = {
     otherUnits: 'Ilang resulta ay ibang unit at hindi isinama.',
     removed: 'Inalis na po ang resulta.',
     removeFailed: 'Hindi po naalis ang resulta. Pakisubukan ulit.',
+    summaryOf: 'Kalagayan ni {name}',
+    tileBpLong: 'Presyon ng dugo (BP)',
+    tileFbsLong: 'Blood sugar (FBS)',
+    tileHba1cLong: 'HbA1c',
+    allergiesTitle: 'Mga allergy',
+    noAllergiesRecorded: 'Walang naitalang allergy',
   },
   emergency: {
     button: 'Emergency',
