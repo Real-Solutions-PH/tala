@@ -8,7 +8,6 @@ from typing import Any
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from kapiling import config
 from kapiling.auth.routes import router as auth_router
@@ -96,5 +95,7 @@ from kapiling.chat.routes import router as chat_router  # noqa: E402  (Task 8)
 
 app.include_router(chat_router)
 
+from kapiling.spa import spa  # noqa: E402  (Task 11: deep links and reloads serve index.html)
+
 if STATIC_DIR.is_dir():
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+    app.mount("/", spa(STATIC_DIR), name="static")
