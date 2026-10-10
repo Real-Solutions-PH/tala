@@ -36,5 +36,5 @@ github.com/Real-Solutions-PH/Kapiling
 
 ## Video
 
-- Live recording of the real app: `docs/video/kapiling-demo.mp4` (61 s). Or record about 1 minute of the live app following `docs/demo-guide.md`, with the phone in airplane mode.
+- Live recording of the real app: `docs/video/kapiling-demo-v3.mp4` (59 s, latest design: emergency card, voice, chat answers and refusal, cards in chat, photo upload, Card, Gamot and Talaan). Or record about 1 minute of the live app following `docs/demo-guide.md`, with the phone in airplane mode.
 - Backup already made: `docs/video/kapiling-screens-backup.mp4` (34 s, screenshots of the real screens, no audio).
