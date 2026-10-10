@@ -1,4 +1,5 @@
 import io
+import json
 import mimetypes
 import sqlite3
 import uuid
@@ -8,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 from PIL import Image
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from kapiling import config
 from kapiling.auth.deps import Actor, require_owner_of, require_unlocked
@@ -68,9 +69,12 @@ NO_STORE = {"Cache-Control": "no-store"}
 
 @router.get("/profiles")
 def profiles(con: Con):
-    """Public: the lock screen's profile picker."""
+    """Public: the lock screen's profile picker. has_biometric shows the biometric button (Task 15)."""
+    from kapiling.auth.webauthn import has_biometric
+
     return [{"id": r["id"], "nickname": r["nickname"], "full_name": r["full_name"],
-             "photo_url": f"/api/profiles/{r['id']}/photo" if r["photo_path"] else None}
+             "photo_url": f"/api/profiles/{r['id']}/photo" if r["photo_path"] else None,
+             "has_biometric": has_biometric(con, r["id"])}
             for r in con.execute("select id, nickname, full_name, photo_path from profiles order by id")]
 
 
@@ -126,6 +130,8 @@ def get_profile(pid: int, con: Con, _a: Unlocked):
 def put_profile(pid: int, con: Con, _a: Unlocked, body: dict = Body(...)):
     _profile_or_404(con, pid)
     changes = {k: v for k, v in body.items() if k in PROFILE_FIELDS}
+    if "language" in changes and changes["language"] not in ("tl", "en"):
+        raise HTTPException(422, "settings.invalidLanguage")
     if changes:
         con.execute(f"update profiles set {', '.join(f'{k}=?' for k in changes)} where id=?", (*changes.values(), pid))
         con.commit()
@@ -256,3 +262,74 @@ def timeline(pid: int, con: Con, _a: Unlocked, kind: str | None = None):
 def observations(pid: int, con: Con, _a: Unlocked, code: str | None = None):
     _profile_or_404(con, pid)
     return [_row(o) for o in repo.observations(con, pid, code)]
+
+
+# --- Task 15: emergency card fields, family history and contacts -----------------------------------
+
+class EmergencyFieldsBody(BaseModel):
+    fields: list[str]
+
+
+@router.put("/profiles/{pid}/emergency-fields")
+def put_emergency_fields(pid: int, body: EmergencyFieldsBody, con: Con, actor: Unlocked):
+    from kapiling.records.summary import _DEFAULT_FIELDS
+
+    if not set(body.fields) <= set(_DEFAULT_FIELDS):
+        raise HTTPException(422, "Unknown emergency card field")
+    fields = [f for f in _DEFAULT_FIELDS if f in body.fields]
+    con.execute("insert into emergency_fields (profile_id, fields) values (?, ?) "
+                "on conflict(profile_id) do update set fields=excluded.fields", (pid, json.dumps(fields)))
+    con.commit()
+    log_access(con, pid, actor, "change_emergency_fields", ",".join(fields))
+    return {"fields": fields}
+
+
+class FamilyBody(BaseModel):
+    relation: str = Field(min_length=1, max_length=40)
+    condition: str = Field(min_length=1, max_length=120)
+
+
+@router.get("/profiles/{pid}/family-history")
+def family_history(pid: int, con: Con, _a: Unlocked):
+    return [_row(r) for r in con.execute(
+        "select id, relation, condition from family_history where profile_id=? order by id", (pid,))]
+
+
+@router.post("/profiles/{pid}/family-history", status_code=201)
+def add_family_history(pid: int, body: FamilyBody, con: Con, _a: Unlocked):
+    _profile_or_404(con, pid)
+    cur = con.execute("insert into family_history (profile_id, relation, condition) values (?,?,?)",
+                      (pid, body.relation.strip(), body.condition.strip()))
+    con.commit()
+    return _row(con.execute("select id, relation, condition from family_history where id=?", (cur.lastrowid,)).fetchone())
+
+
+@router.delete("/profiles/{pid}/family-history/{fid}", status_code=204)
+def delete_family_history(pid: int, fid: int, con: Con, _a: Unlocked):
+    if con.execute("delete from family_history where id=? and profile_id=?", (fid, pid)).rowcount == 0:
+        raise HTTPException(404, "errors.notFound")
+    con.commit()
+
+
+class ContactBody(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    relation: str | None = Field(default=None, max_length=40)
+    phone: str = Field(min_length=3, max_length=30)
+    is_emergency: bool = True
+
+
+@router.post("/profiles/{pid}/contacts", status_code=201)
+def add_contact(pid: int, body: ContactBody, con: Con, _a: Unlocked):
+    _profile_or_404(con, pid)
+    cur = con.execute("insert into contacts (profile_id, name, relation, phone, is_emergency) values (?,?,?,?,?)",
+                      (pid, body.name.strip(), (body.relation or "").strip() or None, body.phone.strip(),
+                       int(body.is_emergency)))
+    con.commit()
+    return _row(con.execute("select * from contacts where id=?", (cur.lastrowid,)).fetchone())
+
+
+@router.delete("/profiles/{pid}/contacts/{cid}", status_code=204)
+def delete_contact(pid: int, cid: int, con: Con, _a: Unlocked):
+    if con.execute("delete from contacts where id=? and profile_id=?", (cid, pid)).rowcount == 0:
+        raise HTTPException(404, "errors.notFound")
+    con.commit()

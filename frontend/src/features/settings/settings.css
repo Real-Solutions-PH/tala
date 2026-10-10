@@ -1,0 +1,99 @@
+/* Settings and Profile (Task 15). Tokens only. */
+
+.settings-section { display: grid; gap: var(--s-3); min-width: 0; }
+.settings-section__head { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-lg); }
+/* Long words ("representative") must wrap at 150% instead of pushing the page sideways. */
+.settings-section__head span, .settings-section > .btn > span, .page > .btn > span, .choice { min-width: 0; overflow-wrap: anywhere; }
+.page > .btn { min-width: 0; }
+.settings-section__head svg { flex: none; width: 1.3em; height: 1.3em; color: var(--primary); }
+.settings-section__hint { color: var(--muted); }
+.settings-note {
+  display: flex; gap: var(--s-2); align-items: flex-start; color: var(--muted);
+  background: var(--surface-2); border-radius: var(--radius-btn); padding: var(--s-3) var(--s-4);
+}
+.settings-note svg { flex: none; width: 1.2em; height: 1.2em; margin-top: 3px; }
+
+/* 64px choices. Language: two side by side, stacking when the text is large. Text size: one per row, each
+   showing its own size, so the choice is visible before it is made. */
+.choice-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7em), 1fr)); gap: var(--s-2); }
+.choice-row--stack { grid-template-columns: minmax(0, 1fr); }
+.choice-row--stack .choice { flex-direction: row; justify-content: space-between; gap: var(--s-3); text-align: left; padding-inline: var(--s-4); }
+.choice__sample { font-family: var(--font-body); font-weight: 400; line-height: 1.2; }
+.choice {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--border); border-radius: var(--radius-btn);
+  background: var(--surface); color: var(--ink);
+  font: inherit; font-family: var(--font-head); font-weight: 700; line-height: 1.2; cursor: pointer;
+  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.choice:active { transform: scale(0.97); }
+.choice[aria-pressed='true'] { border-color: var(--primary); background: var(--primary); color: var(--on-primary); }
+.text-preview { color: var(--muted); }
+
+/* Toggle rows: the whole row is the 48px+ target; the native checkbox has role="switch". */
+.toggle-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.toggle-list li + li { border-top: 1px solid var(--border); }
+.toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+  min-height: var(--tap-lg); padding: var(--s-2) 0; cursor: pointer; font-weight: 700;
+}
+.toggle input {
+  appearance: none; flex: none; position: relative; width: 60px; height: 36px; margin: 0;
+  border-radius: var(--radius-pill); background: var(--surface-2); border: 2px solid var(--muted); cursor: pointer;
+  transition: background-color var(--dur) var(--ease);
+}
+.toggle input::after {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--muted); transition: transform var(--dur) var(--ease);
+}
+.toggle input:checked { background: var(--primary); border-color: var(--primary); }
+.toggle input:checked::after { transform: translateX(24px); background: var(--on-primary); }
+.toggle input:focus-visible { outline: var(--focus); outline-offset: 3px; }
+.toggle__state { font-weight: 400; color: var(--muted); font-size: var(--fs-sm); margin-left: auto; }
+
+/* People and items with a trailing action. */
+.item-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.item {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2) var(--s-3);
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  border: 1px solid var(--border); border-radius: var(--radius-btn); background: var(--surface);
+}
+.item__text { flex: 1 1 8em; min-width: 0; display: grid; }
+.item__name { font-weight: 700; overflow-wrap: anywhere; }
+.item__sub { color: var(--muted); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.item .btn { flex: none; margin-left: auto; }
+
+.settings-actions { display: grid; gap: var(--s-2); }
+
+/* Forms: label above a 56px field. */
+.form { display: grid; gap: var(--s-4); }
+.field { display: grid; gap: var(--s-1); }
+.field__label { font-weight: 700; }
+.field__hint { color: var(--muted); font-size: var(--fs-sm); }
+.field__input {
+  width: 100%; min-height: 56px; padding: var(--s-3) var(--s-4);
+  border: 2px solid var(--border); border-radius: var(--radius-btn);
+  background: var(--surface-2); color: var(--ink); font: inherit;
+}
+.field__input:focus-visible { outline: var(--focus); outline-offset: 2px; border-color: var(--primary); }
+.field__input[aria-invalid='true'] { border-color: var(--danger); }
+select.field__input { appearance: auto; }
+.field__error, .form-error { color: var(--danger); font-weight: 700; display: flex; gap: var(--s-2); align-items: flex-start; }
+.form-error svg { flex: none; width: 1.2em; height: 1.2em; margin-top: 3px; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(9em, 1fr)); gap: var(--s-4); }
+
+/* Access log */
+.log-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.log-list li { display: grid; gap: 2px; padding: var(--s-3) 0; }
+.log-list li + li { border-top: 1px solid var(--border); }
+.log-list__who { font-weight: 700; overflow-wrap: anywhere; }
+.log-list__what { overflow-wrap: anywhere; }
+.log-list__when { color: var(--muted); font-size: var(--fs-sm); }
+
+.confirm { display: grid; gap: var(--s-4); }
+.confirm__actions { display: grid; gap: var(--s-2); }
+
+.about p + p { margin-top: var(--s-2); }
+
+.skeleton-stack { display: grid; gap: var(--s-3); }

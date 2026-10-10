@@ -30,6 +30,8 @@ type LockCtx = {
   lock: () => Promise<void>
   /** Forget the profile without calling the server (the session already ended, e.g. after a 401). */
   forget: () => void
+  /** The server already issued a session another way (biometric unlock): remember the profile. */
+  adopt: (profileId: number) => void
 }
 
 const Ctx = createContext<LockCtx | null>(null)
@@ -58,7 +60,12 @@ export function LockProvider({ children }: { children: ReactNode }) {
     try { await api.send('POST', '/lock') } finally { forget() }
   }, [forget])
 
-  const value = useMemo(() => ({ profileId, unlock, lock, forget }), [profileId, unlock, lock, forget])
+  const adopt = useCallback((pid: number) => {
+    qc.removeQueries({ predicate: q => q.queryKey[0] !== 'profiles' })
+    set(pid)
+  }, [qc, set])
+
+  const value = useMemo(() => ({ profileId, unlock, lock, forget, adopt }), [profileId, unlock, lock, forget, adopt])
   return createElement(Ctx.Provider, { value }, children)
 }
 
