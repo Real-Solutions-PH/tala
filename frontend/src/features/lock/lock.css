@@ -28,7 +28,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
 }
 .lock-avatar:active { transform: scale(0.97); }
 .lock-avatar[aria-checked='true'] { border-color: var(--primary); background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }
-.lock-avatar__img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.lock-avatar__img { width: 64px; height: 64px; border-radius: var(--radius-btn); object-fit: cover; background: var(--surface-2); }
 .lock-avatar__img--initial {
   display: grid; place-items: center; background: var(--primary-soft); color: var(--primary);
   font-family: var(--font-head); font-size: var(--fs-xl);
@@ -38,7 +38,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
 .lock__prompt { text-align: center; font-weight: 500; }
 
 .pin-dots { display: flex; justify-content: center; gap: var(--s-3); padding: var(--s-1) 0; }
-.pin-dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--ink); background: transparent; }
+.pin-dot { width: 22px; height: 22px; border-radius: var(--radius-btn); border: 3px solid var(--ink); background: transparent; }
 .pin-dot--on { background: var(--ink); }
 .pin-dots--shake { animation: pin-shake 360ms var(--ease); }
 @keyframes pin-shake {
@@ -56,7 +56,7 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
 .pinpad__key {
   display: flex; align-items: center; justify-content: center; gap: var(--s-1);
   /* Round keys, like a phone keypad: 76px circles at normal text size, never under 64px. */
-  width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
+  width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: var(--radius-btn);
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
   font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-xl); font-variant-numeric: tabular-nums;
   cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);

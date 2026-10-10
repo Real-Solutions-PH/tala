@@ -62,8 +62,11 @@
   /* Touch and shape */
   --tap: 48px;
   --tap-lg: 64px;
-  --radius-card: 32px;
-  --radius-btn: 16px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+  --radius-btn: 14px;
   --radius-pill: 999px;
   --focus: 3px solid var(--primary);
   --shadow: 0 0 0 1px rgb(15 98 230 / 0.07), 0 1px 2px rgb(15 98 230 / 0.06), 0 12px 32px rgb(15 98 230 / 0.10); /* hairline edge + blue-tinted depth */

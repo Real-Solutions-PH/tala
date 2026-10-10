@@ -76,7 +76,7 @@ p { margin: 0; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap); min-width: var(--tap); padding: var(--s-2) var(--s-5);
-  border: 2px solid transparent; border-radius: var(--radius-pill);
+  border: 2px solid transparent; border-radius: var(--radius-btn);
   font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-body); line-height: 1.2;
   text-align: center; cursor: pointer; user-select: none;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), filter var(--dur) var(--ease);
@@ -97,7 +97,7 @@ p { margin: 0; }
 .btn[aria-busy='true'] { opacity: 1; cursor: progress; }
 
 .spinner {
-  width: 1.1em; height: 1.1em; border-radius: 50%;
+  width: 1.1em; height: 1.1em; border-radius: var(--radius-btn);
   border: 3px solid currentColor; border-right-color: transparent;
   animation: spin 800ms linear infinite;
 }
@@ -128,7 +128,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .hero--center { align-items: center; text-align: center; padding: var(--s-6) var(--s-5); gap: var(--s-4); }
 
 /* The Usap orb: a white disc holding the talking mark. Rings turn white on the blue hero. */
-.orb { display: grid; place-items: center; width: 120px; height: 120px; margin: var(--s-6) 0 var(--s-5); border-radius: 50%; background: var(--on-strong); }
+.orb { display: grid; place-items: center; width: 120px; height: 120px; margin: var(--s-6) 0 var(--s-5); border-radius: var(--radius-btn); background: var(--on-strong); }
 .hero .mark-rings::before, .hero .mark-rings::after { border-color: var(--on-strong); }
 
 /* Segmented meter: one capsule per dose, filled when taken. */
@@ -154,7 +154,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 
 /* Round icon disc beside or above a word (never alone). */
 .icon-disc {
-  display: inline-grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); border-radius: 50%;
+  display: inline-grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); border-radius: var(--radius-btn);
   background: var(--surface); color: var(--ink);
 }
 .icon-disc svg { width: 24px; height: 24px; }
@@ -182,7 +182,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .chip {
   display: inline-flex; align-items: center; gap: var(--s-2);
   min-height: var(--tap); padding: var(--s-2) var(--s-4);
-  border: 2px solid transparent; border-radius: var(--radius-pill);
+  border: 2px solid transparent; border-radius: var(--radius-btn);
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
   font: inherit; font-weight: 500; cursor: pointer;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), color var(--dur) var(--ease);
@@ -198,7 +198,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 /* ---- Skeleton ---- */
 .skeleton {
   position: relative; overflow: hidden; display: block;
-  background: var(--surface-2); border-radius: var(--s-2);
+  background: var(--surface-2); border-radius: var(--radius-sm);
 }
 .skeleton::after {
   content: ''; position: absolute; inset: 0;
@@ -214,7 +214,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   gap: var(--s-3); padding: var(--s-6) var(--s-4);
 }
 .state__icon {
-  display: grid; place-items: center; width: 72px; height: 72px; border-radius: 22px;
+  display: grid; place-items: center; width: 72px; height: 72px; border-radius: var(--radius-card);
   background: var(--primary-soft); color: var(--primary);
 }
 .state__icon svg { width: 32px; height: 32px; }
@@ -232,13 +232,13 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   border: 0; border-radius: var(--radius-card); padding: var(--s-4);
 }
 /* The icon sits in its own white rounded square: no coloured side bar. */
-.disclaimer svg { flex: none; width: 40px; height: 40px; padding: 9px; border-radius: 12px; background: var(--surface); color: var(--warn); }
+.disclaimer svg { flex: none; width: 40px; height: 40px; padding: 9px; border-radius: var(--radius-sm); background: var(--surface); color: var(--warn); }
 
 /* ---- Sheet (bottom dialog) ---- */
 .sheet {
   border: 0; border-top: 1px solid var(--border); padding: 0; margin: auto auto 0; width: 100%; max-width: 640px; max-height: 90dvh;
   background: var(--surface); color: var(--ink);
-  border-radius: var(--radius-card) var(--radius-card) 0 0; box-shadow: var(--shadow);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0; box-shadow: var(--shadow);
 }
 .sheet::backdrop { background: var(--scrim); }
 .sheet[open] { animation: sheet-in var(--dur) var(--ease); }
@@ -280,7 +280,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 /* Signal rings around Usap while listening: solid strokes, no glow. */
 .mark-rings { position: relative; display: inline-grid; place-items: center; }
 .mark-rings::before, .mark-rings::after {
-  content: ''; position: absolute; inset: -12%; border-radius: 50%;
+  content: ''; position: absolute; inset: -12%; border-radius: var(--radius-btn);
   border: 2px solid var(--primary); opacity: 0.35;
 }
 .mark-rings::after { inset: -28%; opacity: 0.18; }
@@ -303,7 +303,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   min-height: var(--tap-lg); padding: var(--s-2) var(--s-1);
   color: var(--muted); text-decoration: none; font-weight: 600; font-size: var(--fs-sm);
 }
-.navitem svg { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); }
+.navitem svg { width: 48px; height: 48px; padding: 12px; border-radius: var(--radius-btn); background: var(--surface); box-shadow: var(--shadow); }
 .navitem[aria-current='page'] { color: var(--primary); }
 .navitem[aria-current='page'] svg { background: var(--primary-fill); color: var(--on-primary); }
 .navitem:active svg { background: var(--surface-2); }
@@ -343,7 +343,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 /* Header, after the reference: avatar on the left, light round Settings and red round Emergency on the right. */
-.topbar__sos, .topbar__iconlink { width: var(--tap-lg); height: var(--tap-lg); padding: 0; border-radius: 50%; flex: none; }
+.topbar__sos, .topbar__iconlink { width: var(--tap-lg); height: var(--tap-lg); padding: 0; border-radius: var(--radius-btn); flex: none; }
 .topbar__sos { background: var(--danger-fill); color: var(--on-danger); box-shadow: 0 8px 20px color-mix(in srgb, var(--danger-fill) 30%, transparent); }
 .topbar__sos svg, .topbar__iconlink svg { width: 26px; height: 26px; }
 .topbar__sos:hover { filter: brightness(0.95); }
@@ -352,7 +352,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 
 .topbar__iconlink:active { background: var(--surface-2); }
 
-.avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.avatar { flex: none; border-radius: var(--radius-btn); object-fit: cover; background: var(--surface-2); }
 .topbar .avatar { background: var(--primary-fill); box-shadow: 0 0 0 3px var(--primary-fill); }
 .avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 600; }
 
@@ -363,7 +363,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   background: transparent;
 }
 .bottomnav .navitem {
-  flex: none; width: var(--tap-lg); height: var(--tap-lg); min-height: 0; padding: 0; margin: 0; border-radius: 50%;
+  flex: none; width: var(--tap-lg); height: var(--tap-lg); min-height: 0; padding: 0; margin: 0; border-radius: var(--radius-btn);
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
