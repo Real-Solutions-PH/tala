@@ -7,13 +7,15 @@ import { ErrorState } from './components/ErrorState'
 import { TopBar } from './components/TopBar'
 import { useLock } from './features/lock/useLock'
 import {
-  ChatPage, DocumentPage, LabPage, ProfilePage,
-  RecordsPage, SettingsPage,
+  ChatPage, ProfilePage, SettingsPage,
 } from './pages/placeholders'
 import { CardDetailPage, CardsPage } from './features/cards/CardsPage'
 import { EmergencyPage } from './features/emergency/EmergencyPage'
 import { LockScreen } from './features/lock/LockScreen'
 import { MedsPage } from './features/meds/MedsPage'
+import { DocumentViewer } from './features/records/DocumentViewer'
+import { LabDetail } from './features/records/LabDetail'
+import { RecordsPage } from './features/records/RecordsPage'
 
 /** Router root: any 401 from the API forgets the profile and goes to /lock. */
 function Root() {
@@ -65,8 +67,8 @@ export const routes: RouteObject[] = [
           { path: '/cards/:id', element: <CardDetailPage /> },
           { path: '/meds', element: <MedsPage /> },
           { path: '/records', element: <RecordsPage /> },
-          { path: '/records/labs/:code', element: <LabPage /> },
-          { path: '/records/documents/:id', element: <DocumentPage /> },
+          { path: '/records/labs/:code', element: <LabDetail /> },
+          { path: '/records/documents/:id', element: <DocumentViewer /> },
           { path: '/settings', element: <SettingsPage /> },
           { path: '/profile', element: <ProfilePage /> },
         ],
