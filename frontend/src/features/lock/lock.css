@@ -30,7 +30,7 @@ button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font
   transition: transform var(--dur) var(--ease);
 }
 .lock-avatar:active { transform: scale(0.97); }
-.lock-avatar__img { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; background: var(--surface-2); box-shadow: var(--shadow); }
+.lock-avatar__img { width: 76px; height: 76px; border-radius: var(--radius-btn); object-fit: cover; background: var(--surface-2); box-shadow: var(--shadow); }
 .lock-avatar__img--initial {
   display: grid; place-items: center; background: var(--primary-soft); color: var(--primary);
   font-family: var(--font-head); font-size: var(--fs-xl);
@@ -43,7 +43,7 @@ button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font
 .lock__prompt { text-align: center; font-weight: 400; color: var(--muted); }
 
 .pin-dots { display: flex; justify-content: center; gap: var(--s-3); padding: var(--s-1) 0; }
-.pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; transition: background-color var(--dur) var(--ease); }
+.pin-dot { width: 18px; height: 18px; border-radius: var(--radius-btn); border: 2px solid var(--muted); background: transparent; transition: background-color var(--dur) var(--ease); }
 .pin-dot--on { background: var(--primary-fill); border-color: var(--primary-fill); }
 .pin-dots--shake { animation: pin-shake 360ms var(--ease); }
 @keyframes pin-shake {
@@ -61,7 +61,7 @@ button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font
 .pinpad__key {
   display: flex; align-items: center; justify-content: center; gap: var(--s-1);
   /* Round keys, like a phone keypad: 76px circles at normal text size, never under 64px. */
-  width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
+  width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: var(--radius-btn);
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
   font: inherit; font-family: var(--font-head); font-weight: 400; font-size: calc(30px * var(--text-scale)); font-variant-numeric: tabular-nums;
   cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
