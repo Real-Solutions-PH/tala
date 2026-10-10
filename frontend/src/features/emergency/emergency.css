@@ -44,9 +44,10 @@
   background: var(--surface); color: var(--ink); border-radius: var(--radius-card); padding: var(--s-4);
   display: grid; gap: var(--s-1); box-shadow: 0 8px 20px color-mix(in srgb, var(--dock) 20%, transparent);
 }
-.ecard__fact dt { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink); }
+.ecard__fact dt { display: flex; align-items: flex-start; line-height: 1.3; gap: var(--s-2); font-size: var(--fs-sm); color: var(--ink); }
 .ecard__fact dt svg { flex: none; width: 1.2em; height: 1.2em; color: var(--danger); }
-.ecard__fact dd { margin: 0; }
+.ecard__fact dd { margin: 0; align-self: end; }
+.ecard__fact .ecard__big { font-size: var(--fs-xl); white-space: nowrap; }
 .ecard__big { font-family: var(--font-head); font-weight: 600; font-size: var(--fs-2xl); line-height: 1.1; }
 
 .ecard__content { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-5) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); }
