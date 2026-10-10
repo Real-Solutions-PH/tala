@@ -69,3 +69,58 @@ def lola_unlocked(client, lola):
 @pytest.fixture
 def mika_unlocked(client, mika):
     return _unlock(client, mika)
+
+
+# --- Task 8: chat run seams -------------------------------------------------
+
+async def _echo_stream_run(ctx):
+    """The echo agent, pinned here so the run tests keep working after Task 12 replaces the real one."""
+    import uuid
+
+    from kapiling.chat import agui
+
+    yield agui.step_started("check_profile")
+    yield agui.step_finished("check_profile")
+    mid = uuid.uuid4().hex
+    yield agui.text_start(mid)
+    yield agui.text_delta(mid, ctx.user_text)
+    yield agui.text_end(mid)
+
+
+@pytest.fixture
+def echo_agent(monkeypatch):
+    from kapiling.chat import agent
+
+    monkeypatch.setattr(agent, "stream_run", _echo_stream_run)
+
+
+@pytest.fixture
+def slow_agent(monkeypatch):
+    """Streams 'Partial' then one '.' every 50 ms, 10 times (about half a second), then finishes."""
+    import asyncio
+    import uuid
+
+    from kapiling.chat import agent, agui
+
+    async def slow(ctx):
+        yield agui.step_started("search_records")
+        mid = uuid.uuid4().hex
+        yield agui.text_start(mid)
+        yield agui.text_delta(mid, "Partial")
+        for _ in range(10):
+            await asyncio.sleep(0.05)
+            yield agui.text_delta(mid, ".")
+        yield agui.text_end(mid)
+        yield agui.step_finished("search_records")
+
+    monkeypatch.setattr(agent, "stream_run", slow)
+
+
+@pytest.fixture
+def lola_conversation(con, lola):
+    from kapiling.chat import conversations
+
+    cid = conversations.create(con, lola, "Ano ang gamot ko?")
+    conversations.append(con, cid, "user", "Ano ang gamot ko?")
+    conversations.append(con, cid, "assistant", "Losartan po.")
+    return cid

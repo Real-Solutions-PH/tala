@@ -39,3 +39,48 @@ def test_mika_has_one_overdue_vaccine(con, mika):
     rows = con.execute("select * from vaccines where profile_id=? and date is null and next_due < date('now')", (mika,)).fetchall()
     assert len(rows) == 1
 
+
+def test_get_con_is_one_connection_per_request(con):
+    """R17: a shared connection let one request's commit/rollback interleave with another's."""
+    import sqlite3
+    from typing import Annotated
+
+    import pytest
+    from fastapi import Depends, FastAPI
+    from fastapi.testclient import TestClient
+
+    from kapiling.db import get_con
+
+    seen: list[sqlite3.Connection] = []
+    app = FastAPI()
+
+    @app.get("/w")
+    def write(c: Annotated[sqlite3.Connection, Depends(get_con)]):
+        seen.append(c)
+        c.execute("insert into access_log (profile_id, actor, action) values (1, 'a', 'kept')")
+        c.commit()
+
+    @app.get("/r")
+    def rollback(c: Annotated[sqlite3.Connection, Depends(get_con)]):
+        seen.append(c)
+        c.execute("insert into access_log (profile_id, actor, action) values (1, 'a', 'dropped')")
+        c.rollback()
+
+    with TestClient(app) as tc:
+        tc.get("/w")
+        tc.get("/r")
+        tc.get("/w")
+    assert len({id(c) for c in seen}) == 3
+    for c in seen:  # each one was closed when its request ended
+        with pytest.raises(sqlite3.ProgrammingError):
+            c.execute("select 1")
+    acts = [r[0] for r in con.execute("select action from access_log where actor='a'")]
+    assert acts == ["kept", "kept"]
+
+
+def test_connect_twice_does_not_rerun_migrations(con, monkeypatch):
+    from kapiling import db
+
+    monkeypatch.setattr(db, "MIGRATIONS", ["this is not sql"])  # would raise if executed again
+    db.connect().close()
+

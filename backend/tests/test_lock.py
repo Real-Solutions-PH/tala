@@ -242,6 +242,9 @@ HANDLER_CHECKED = {("GET", "/api/files/{card_id}/{side}"), ("GET", "/api/access-
                    ("GET", "/api/documents/{doc_id}"), ("GET", "/api/documents/{doc_id}/file"),
                    ("GET", "/api/documents/{doc_id}/page/{n}.png"),
                    ("POST", "/api/documents/{doc_id}/observations/confirm")}
+# Task 8: conversations are keyed by id, runs take profile_id as a form field (tested in test_agui/test_conversations).
+HANDLER_CHECKED |= {("GET", "/api/conversations/{cid}"), ("PATCH", "/api/conversations/{cid}"),
+                    ("DELETE", "/api/conversations/{cid}"), ("POST", "/api/runs"), ("POST", "/api/runs/{run_id}/cancel")}
 
 
 def test_every_route_is_public_or_locked():
