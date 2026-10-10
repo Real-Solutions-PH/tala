@@ -67,5 +67,6 @@ async def health() -> dict[str, bool]:
         }
 
 
+from kapiling.auth.webauthn import router as webauthn_router; app.include_router(webauthn_router)  # noqa: E402,E702
 if STATIC_DIR.is_dir():
     app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

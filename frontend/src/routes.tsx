@@ -7,9 +7,11 @@ import { ErrorState } from './components/ErrorState'
 import { TopBar } from './components/TopBar'
 import { useLock } from './features/lock/useLock'
 import {
-  CardDetailPage, CardsPage, ChatPage, DocumentPage, EmergencyPage, LabPage, LockPage, MedsPage, ProfilePage,
-  RecordsPage, SettingsPage,
+  CardDetailPage, CardsPage, ChatPage, DocumentPage, EmergencyPage, LabPage, LockPage, MedsPage,
+  RecordsPage,
 } from './pages/placeholders'
+import { ProfilePage } from './features/settings/ProfilePage'
+import { SettingsPage } from './features/settings/SettingsPage'
 
 /** Router root: any 401 from the API forgets the profile and goes to /lock. */
 function Root() {
