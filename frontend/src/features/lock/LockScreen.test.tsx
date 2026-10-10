@@ -152,5 +152,17 @@ describe('LockScreen', () => {
       await act(async () => {})
       expect(screen.queryByRole('button', { name: /Face ID|fingerprint/i })).toBeNull()
     })
+
+    test('the biometric button is disabled during a 429 lockout', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true, toFake: ['setInterval', 'clearInterval', 'Date'] })
+      mockApi({ '/api/profiles': () => json(withBio), '/api/unlock': () => json({ detail: 'errors.tooManyAttempts' }, 429, { 'retry-after': '60' }) })
+      platform(true)
+      renderAt('/lock?profile=1')
+      const bio = await screen.findByRole('button', { name: /Face ID|fingerprint/i }) as HTMLButtonElement
+      expect(bio.disabled).toBe(false)
+      for (const d of '999999') fireEvent.click(screen.getByRole('button', { name: d }))
+      await screen.findByText(/Masyado na pong maraming maling PIN/)
+      expect((screen.getByRole('button', { name: /Face ID|fingerprint/i }) as HTMLButtonElement).disabled).toBe(true)
+    })
   })
 })

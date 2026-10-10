@@ -6,9 +6,7 @@ import { BottomNav } from './components/BottomNav'
 import { ErrorState } from './components/ErrorState'
 import { TopBar } from './components/TopBar'
 import { useLock } from './features/lock/useLock'
-import {
-  ChatPage,
-} from './pages/placeholders'
+import { ChatPage } from './features/chat/ChatPage'
 import { CardDetailPage, CardsPage } from './features/cards/CardsPage'
 import { EmergencyPage } from './features/emergency/EmergencyPage'
 import { LockScreen } from './features/lock/LockScreen'
