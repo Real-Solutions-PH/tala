@@ -56,7 +56,11 @@ export function Timeline() {
       <h2 id="timeline-title">{t('records.timeline')}</h2>
       <div className="chip-row" role="group" aria-label={t('records.filterLabel')}>
         {FILTERS.map(f => (
-          <Chip key={f.label} selected={kind === f.kind} onClick={() => setKind(f.kind)}>{t(f.label)}</Chip>
+          <Chip key={f.label} selected={kind === f.kind} onClick={e => {
+            setKind(f.kind)
+            // The filter scrolls sideways: bring the chosen chip fully into view.
+            e.currentTarget.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
+          }}>{t(f.label)}</Chip>
         ))}
       </div>
       {q.isPending
