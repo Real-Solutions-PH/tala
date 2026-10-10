@@ -16,7 +16,7 @@
   --primary-fill: #0F62E6; /* buttons, bars, selected tab, the mark: same blue in both themes */
   --on-primary: #FFFFFF;
   --primary-soft: #E0ECFE;
-  --primary-strong: #0F62E6; /* the hero card ground */
+  --primary-strong: #0F4EB6; /* the results panel ground, a deeper blue so its brand-blue tiles stand out */
   --on-strong: #FFFFFF;
   --on-strong-muted: #F0F5FF; /* secondary text on the hero card */
   --gold: #F2A900;        /* Araw Gold: fills only, never text */
