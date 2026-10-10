@@ -38,3 +38,10 @@ github.com/Real-Solutions-PH/Kapiling
 
 - Live recording of the real app: `docs/video/kapiling-demo-v3.mp4` (59 s, latest design: emergency card, voice, chat answers and refusal, cards in chat, photo upload, Card, Gamot and Talaan). Or record about 1 minute of the live app following `docs/demo-guide.md`, with the phone in airplane mode.
 - Backup already made: `docs/video/kapiling-screens-backup.mp4` (34 s, screenshots of the real screens, no audio).
+
+## X version (273 of 280 characters; X counts the link as 23)
+
+Kapiling: a health record Lola can talk to in Tagalog. Shows her meds and PhilHealth card, reads lab photos, opens an emergency card without a PIN, and won't give medicine advice. All AI runs on the family laptop.
+
+github.com/Real-Solutions-PH/Kapiling
+@cognition @DevinAI #AppBuildersPH
