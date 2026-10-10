@@ -94,11 +94,12 @@ function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; on
   const id = `dose-${dose.med_id}-${dose.slot.replace(/\W/g, '')}`
   return (
     <li className={['dose', taken && 'dose--taken'].filter(Boolean).join(' ')} data-testid="dose">
+      <span className="icon-disc dose__icon" aria-hidden="true">{taken ? <Check strokeWidth={2.5} /> : <Pill strokeWidth={2} />}</span>
       <div className="dose__info" id={id}>
         <p className="dose__name">{name}{strength && <span className="dose__strength"> {strength}</span>}</p>
         <p className="dose__meta">
-          <span className="tabular">{slotTime(dose.slot, lang)}</span>
-          {taken && dose.taken_at && <span> · {t('meds.takenAt', { time: formatDate(dose.taken_at, lang, { hour: 'numeric', minute: '2-digit' }) })}</span>}
+          <span className="tabular dose__time">{slotTime(dose.slot, lang)}</span>
+          {taken && dose.taken_at && <span>{t('meds.takenAt', { time: formatDate(dose.taken_at, lang, { hour: 'numeric', minute: '2-digit' }) })}</span>}
         </p>
         <RefillBadge med={med} />
       </div>

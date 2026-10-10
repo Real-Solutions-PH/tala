@@ -43,6 +43,22 @@ const previous = (series: Observation[], latest: Observation) => {
   return before[before.length - 1]
 }
 
+/** Up to 12 past readings in the latest's unit as a thin line, the latest point marked. Decorative: the value and trend word carry the meaning. */
+function Spark({ series, latest }: { series: Observation[]; latest: Observation }) {
+  const vals = series.filter(o => sameUnitAs(o, latest) && typeof o.value === 'number').slice(-12).map(o => o.value as number)
+  if (vals.length < 2) return null
+  const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1
+  const pts = vals.map((v, i) => [(i / (vals.length - 1)) * 100, 26 - ((v - lo) / span) * 22] as const)
+  const [lx, ly] = pts[pts.length - 1]
+  return (
+    <svg className="spark" viewBox="-3 0 106 30" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points={pts.map(p => p.join(',')).join(' ')} vectorEffect="non-scaling-stroke" />
+      {/* A zero-length round-capped stroke: stays a true circle when the line stretches. */}
+      <line className="spark__dot" x1={lx} y1={ly} x2={lx} y2={ly} vectorEffect="non-scaling-stroke" />
+    </svg>
+  )
+}
+
 type TileProps = { name: Key; icon: LucideIcon; to: string; latest?: Observation; value?: string; series?: Observation[]; flag: 'high' | 'low' | null }
 
 function Tile({ name, icon: Icon, to, latest, value, series, flag }: TileProps) {
@@ -63,6 +79,7 @@ function Tile({ name, icon: Icon, to, latest, value, series, flag }: TileProps) 
         <span className="stat-tile__name">{t(name)}</span>
       </span>
       <span className="stat-tile__value"><span className="num">{value}</span> <span className="stat-tile__unit">{latest.unit}</span></span>
+      {series && <Spark series={series} latest={latest} />}
       <time className="stat-tile__date small muted" dateTime={latest.date}>{formatDate(latest.date, lang)}</time>
       {series && <TrendWord trend={trendBetween(previous(series, latest), latest)} />}
       <RangeBadge flag={flag} />

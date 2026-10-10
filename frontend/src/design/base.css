@@ -86,11 +86,12 @@ p { margin: 0; }
 .btn--cta { flex-direction: row-reverse; justify-content: space-between; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-6); text-align: left; }
 .btn--cta svg { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--on-primary); color: var(--primary-fill); }
 .btn--primary { background: var(--primary-fill); color: var(--on-primary); }
-.btn--secondary { background: var(--surface); color: var(--primary); border-color: var(--primary); }
+.btn--secondary { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .btn--danger { background: var(--danger-fill); color: var(--on-danger); }
 .btn--ghost { background: transparent; color: var(--primary); }
 .btn:hover:not(:disabled) { filter: brightness(0.95); }
-.btn--secondary:hover:not(:disabled), .btn--ghost:hover:not(:disabled) { background: var(--primary-soft); filter: none; }
+.btn--secondary:hover:not(:disabled) { background: color-mix(in srgb, var(--primary-soft) 80%, var(--primary-fill)); filter: none; }
+.btn--ghost:hover:not(:disabled) { background: var(--primary-soft); filter: none; }
 .btn:active:not(:disabled), .btn[aria-pressed='true'] { transform: scale(0.97); }
 .btn--secondary:active:not(:disabled), .btn--ghost:active:not(:disabled) { background: var(--surface-2); }
 .btn:disabled { cursor: not-allowed; opacity: 0.6; }
@@ -182,16 +183,17 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .chip {
   display: inline-flex; align-items: center; gap: var(--s-2);
   min-height: var(--tap); padding: var(--s-2) var(--s-4);
-  border: 2px solid var(--border); border-radius: var(--radius-pill);
-  background: var(--surface); color: var(--ink);
+  border: 2px solid transparent; border-radius: var(--radius-pill);
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
   font: inherit; font-weight: 700; cursor: pointer;
-  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .chip svg { width: 1.2em; height: 1.2em; flex: none; color: var(--primary); }
-.chip:hover { border-color: var(--primary); }
+.chip:hover { border-color: var(--primary-soft); }
 .chip:active { transform: scale(0.97); background: var(--surface-2); }
-.chip[aria-pressed='true'] { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
-.chip[aria-pressed='true'] svg { color: var(--on-gold); }
+/* Selected: the dark dock pill, like the bottom menu. */
+.chip[aria-pressed='true'] { background: var(--dock); border-color: var(--dock); color: var(--dock-active); box-shadow: none; }
+.chip[aria-pressed='true'] svg { color: var(--dock-active); }
 .chip-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 
 /* ---- Skeleton ---- */
@@ -213,10 +215,10 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   gap: var(--s-3); padding: var(--s-6) var(--s-4);
 }
 .state__icon {
-  display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%;
+  display: grid; place-items: center; width: 72px; height: 72px; border-radius: 22px;
   background: var(--primary-soft); color: var(--primary);
 }
-.state__icon svg { width: 36px; height: 36px; }
+.state__icon svg { width: 32px; height: 32px; }
 .state--error .state__icon { background: var(--danger-soft); color: var(--danger); }
 .state__title, .sheet__title { font-size: var(--fs-lg); }
 .state__body { color: var(--muted); max-width: 32ch; }
@@ -226,10 +228,10 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .disclaimer {
   display: flex; gap: var(--s-3); align-items: flex-start;
   background: var(--warn-soft); color: var(--ink);
-  border: 1px solid var(--border); border-left: 6px solid var(--warn);
-  border-radius: var(--radius-btn); padding: var(--s-3) var(--s-4);
+  border: 0; border-radius: var(--radius-card); padding: var(--s-4);
 }
-.disclaimer svg { flex: none; width: 1.4em; height: 1.4em; color: var(--warn); margin-top: 2px; }
+/* The icon sits in its own white rounded square: no coloured side bar. */
+.disclaimer svg { flex: none; width: 40px; height: 40px; padding: 9px; border-radius: 12px; background: var(--surface); color: var(--warn); }
 
 /* ---- Sheet (bottom dialog) ---- */
 .sheet {
@@ -414,3 +416,9 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .profile-list__item[aria-current='true'] { border-color: var(--primary); background: var(--primary-soft); }
 .profile-list__item svg { margin-left: auto; color: var(--primary); }
 .profile-list__name { flex: 1; min-width: 0; }
+
+/* ---- Micro-interactions: lift on hover where there is a mouse, press on tap everywhere. ---- */
+@media (hover: hover) {
+  .btn:hover:not(:disabled) { transform: translateY(-1px); }
+  button.card:hover, a.stat-tile:hover, .wallet__link:hover .wallet__thumb { transform: translateY(-2px); }
+}

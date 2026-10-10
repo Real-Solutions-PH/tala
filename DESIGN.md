@@ -52,7 +52,7 @@ Technical claims belong only on the laptop's demo panel and in the README.
 4. **One plane.** Header, content, bottom menu, stacked. Nothing floats over content except a toast, and the toast sits above the menu, never on it.
 5. **Colour plus icon plus word.** Allergies, emergency, high results and refills always carry an icon and a word as well as colour.
 6. **Tagalog first, polite.** Tagalog is the default language. Labels use everyday Tagalog with the English health words people already use, and *po*.
-7. **Gold is never text.** Araw Gold is a fill (the mark, the "today" highlight, a selected chip) and always carries dark ink text. The contrast script fails the build if any rule sets `color: var(--gold)`.
+7. **Gold is never text.** Araw Gold is a fill (the mark lens and the "today" highlight) and always carries dark ink text. The contrast script fails the build if any rule sets `color: var(--gold)`.
 8. **Show state, don't perform it.** Motion is 150 to 250 ms, ease-out, only for cause and effect. `prefers-reduced-motion` turns it off.
 
 ## Colour
@@ -72,7 +72,7 @@ read. Light only, like the reference: every phone shows the same pale-blue and w
 | `--on-primary` | `#FFFFFF` | 5.5 on primary | Text on primary |
 | `--primary-strong` | `#2D59F0` | | The hero card, once per screen |
 | `--on-strong` / `--on-strong-muted` | `#FFFFFF` / `#F0F5FF` | 5.5 / 5.1 on hero | Text on the hero |
-| `--gold` (Araw Gold) | `#F2A900` | **never text** (2.0:1 on white) | Fills: mark lens, today, selected chip |
+| `--gold` (Araw Gold) | `#F2A900` | **never text** (2.0:1 on white) | Fills: mark lens, today |
 | `--on-gold` | `#000000` | 10.5 on gold | Text on gold |
 | `--accent` | `#137336` | 5.2 / 5.9 | Taken, success |
 | `--warn` | `#A34B07` | 5.2 / 5.9 | Refill soon, high |
@@ -112,7 +112,7 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 
 | Component | Rule |
 |---|---|
-| `Button` | Variants primary, secondary, danger, ghost. `md` ≥ 48 px, `lg` ≥ 64 px. Optional Lucide icon beside the word. Pressed state scales to 0.97. `loading` shows a spinner, disables the button and sets `aria-busy`. |
+| `Button` | Variants primary (blue fill), secondary (tinted: soft blue fill, blue text, no outline), danger, ghost. Lifts 1 px on hover where there is a mouse. `md` ≥ 48 px, `lg` ≥ 64 px. Optional Lucide icon beside the word. Pressed state scales to 0.97. `loading` shows a spinner, disables the button and sets `aria-busy`. |
 | `Card` | White surface, no border, 32 px radius, one blue-tinted shadow. `flat` drops the shadow. |
 | Hero card (`.hero`) | One per screen, one idea, one action. On Kausap it is Usap (`.hero--center`): the talking mark in a white `.orb` with white signal rings, one question, one white Magsalita pill. |
 | Meter (`.meter`) | One capsule per dose, filled `--primary-fill` when taken (white on the hero). |
@@ -121,20 +121,20 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | Bars (`.bars`) | Capsule bar chart for a reading over time: 14 px round-ended bars in `--primary`, dates under each, latest value labelled. |
 | Icon disc (`.icon-disc`) | 48 px rounded-square (14 px radius) icon holder, always beside or above a word. Circles are kept for the avatar, Emergency and the CTA end icon only. |
 | `Badge` | Tone ok, warn, danger, info: tone-coloured word (plus icon) on its soft tint. Never colour alone. |
-| `Chip` | 48 px pill. Quick actions carry an icon. As a toggle (`selected`), the selected chip is gold with dark ink text. |
+| `Chip` | 48 px borderless pill on white with the hairline shadow. Quick actions carry an icon. Selected (`selected`) is the dark `--dock` pill with white text, matching the bottom menu. |
 | `Sheet` | Bottom sheet on the native modal `<dialog>`: focus trapped, Escape and the labelled Close button dismiss it. |
 | `Toast` | `ToastProvider` + `useToast()`. Polite live region, auto-dismiss after 4 s, sits above the bottom menu. Every user action reports its outcome. |
 | `Skeleton` | Block on `--surface-2` with a shimmer that stops under reduced motion. Every fetching view has one. |
 | `EmptyState` | Icon, title, body, and the next action as a large button. |
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
-| `Disclaimer` | The fixed safety reminder from the catalogue, on a warn tint with an icon. Never model wording. |
+| `Disclaimer` | The fixed safety reminder from the catalogue on a soft amber card; its icon sits in a white rounded square. No coloured side bar. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
 | Bottom menu | The dock, after Orionix and Scanova (Behance): one dark `--dock` capsule centred above the home indicator, four icons (Kausap · Card · Gamot · Talaan). Inactive icons `--dock-icon` grey, the current one white on a faint blue pill with a glowing `--dock-dot` under it. Words are screen-reader labels and tooltips. |
 | Header | A 48 px ringed avatar and a two-line greeting ("Kumusta po," / **name**) that opens the profile sheet (switch profile, Profile, Settings); one red round Emergency button on the right, 64 px, on every screen. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
-| Metric tile | Rounded-square icon on top, label, big number with a small unit, trend word, range badge; the whole tile is the link. On Talaan they form the blue results bento. |
+| Metric tile | After the dataviz stat-tile contract: rounded-square icon, label, semibold value in proportional figures with a small unit, a sparkline of up to 12 past readings (latest as the one solid dot), date, trend word, range badge; the whole tile is the link. On Talaan they form the blue results bento. |
 | CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
-| List row | Rounded-square icon thumbnail, title, small grey line, a quiet chevron. |
+| List row | Rounded-square icon thumbnail, title, small grey line, a quiet chevron. Dose rows add the time as a small chip and the taken action as a full-width tinted bar. |
 | Segmented filter | One white pill holding the filter chips, scrolls sideways. |
 
 States: every fetching view has a skeleton, an empty state with a next action, and an error state with Retry.
