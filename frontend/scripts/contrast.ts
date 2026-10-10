@@ -38,6 +38,8 @@ pairs.push(
   ['--on-primary', '--primary-fill'], // primary buttons, both themes
   ['--on-strong', '--primary-strong'],       // hero card text
   ['--on-strong-muted', '--primary-strong'], // hero card secondary text
+  ['--on-strong', '--primary-fill'],         // results tiles
+  ['--on-strong-muted', '--primary-fill'],   // dates and units on results tiles
   ['--on-danger', '--danger-fill'],   // emergency and danger buttons, both themes
   ['--primary', '--primary-soft'],    // info badge, selected tab
   ['--accent', '--accent-soft'],      // ok badge

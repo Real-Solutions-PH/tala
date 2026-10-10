@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { CalendarCheck, ChevronRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
+import { CalendarCheck, ChevronDown, ChevronRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
 import { useTimeline } from '../../api/queries'
 import type { TimelineItem, TimelineKind } from '../../api/types'
-import { Chip } from '../../components/Chip'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Key } from '../../i18n'
@@ -54,15 +53,14 @@ export function Timeline() {
   return (
     <section className="timeline" aria-labelledby="timeline-title">
       <h2 id="timeline-title">{t('records.timeline')}</h2>
-      <div className="chip-row" role="group" aria-label={t('records.filterLabel')}>
-        {FILTERS.map(f => (
-          <Chip key={f.label} selected={kind === f.kind} onClick={e => {
-            setKind(f.kind)
-            // The filter scrolls sideways: bring the chosen chip fully into view.
-            e.currentTarget.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
-          }}>{t(f.label)}</Chip>
-        ))}
-      </div>
+      {/* One pill dropdown instead of five chips: a native select, so it is accessible and large to tap. */}
+      <label className="tl-filter">
+        <span className="sr-only">{t('records.filterLabel')}</span>
+        <select value={kind ?? ''} onChange={e => setKind((e.target.value || undefined) as TimelineKind | undefined)}>
+          {FILTERS.map(f => <option key={f.label} value={f.kind ?? ''}>{t(f.label)}</option>)}
+        </select>
+        <ChevronDown aria-hidden="true" />
+      </label>
       {q.isPending
         ? <ul className="tl-list" aria-busy="true">{[0, 1, 2].map(i => (
             // Placeholder rows shaped like the real ones: an icon circle and two lines of text.
