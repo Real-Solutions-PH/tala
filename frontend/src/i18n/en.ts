@@ -3,7 +3,6 @@
 export const en = {
   common: {
     appName: 'Kapiling',
-    hello: 'Hello,',
     tagline: 'Your health, always by your side.',
     save: 'Save',
     cancel: 'Cancel',

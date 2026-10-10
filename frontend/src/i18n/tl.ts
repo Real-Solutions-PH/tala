@@ -5,7 +5,6 @@ import type { Catalogue } from './index'
 export const tl: Catalogue = {
   common: {
     appName: 'Kapiling',
-    hello: 'Kumusta po,',
     tagline: 'Laging kapiling ang kalusugan mo.',
     save: 'I-save',
     cancel: 'Huwag na',

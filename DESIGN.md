@@ -129,8 +129,8 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue, on a warn tint with an icon. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | A floating white capsule of four items, icon above a word: Kausap · Card · Gamot · Talaan. The current one is a filled blue pill with white icon and word. |
-| Header | Avatar with a soft ring and a two-line greeting ("Kumusta po," / **name**) that opens the profile sheet (switch profile, Profile, Settings); the red Emergency pill on the right, 64 px tall, on every screen. |
+| Bottom menu | Four floating 64 px circles, no bar: Kausap · Card · Gamot · Talaan. The current tab is a 76 px filled blue circle. Words are screen-reader labels and tooltips (a deliberate trade for the reference look; principle 3 now holds for content, not chrome). |
+| Header | A 56 px avatar with a blue ring (opens the profile sheet) on the left; on the right a light 64 px Settings circle and a red 64 px Emergency circle. Words are screen-reader labels and tooltips. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
 | Metric tile | Icon disc and ↗ circle on top, label, big number with a small unit, trend word, range badge. On Talaan they form the blue results bento. |
 | CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
