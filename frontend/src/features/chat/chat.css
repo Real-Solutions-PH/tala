@@ -1,6 +1,6 @@
 /* Chat: one plane filling the shell's main row. The list scrolls; the composer sits above the bottom menu. */
 .chat {
-  height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-columns: minmax(0, 1fr);
+  height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto auto; grid-template-columns: minmax(0, 1fr);
   width: 100%; max-width: 640px; margin: 0 auto;
 }
 .chat__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-1); padding: var(--s-1) var(--s-2) 0; flex-wrap: nowrap; }
@@ -40,9 +40,9 @@
 /* Messages */
 .msg { display: grid; gap: var(--s-3); min-width: 0; }
 .msg--user {
-  justify-self: end; max-width: 85%; color: var(--on-primary);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--sky) 40%, var(--primary-fill)), var(--primary-fill));
-  padding: var(--s-3) var(--s-4); border-radius: 16px 16px 4px 16px; overflow-wrap: anywhere;
+  justify-self: end; max-width: 90%; color: var(--on-primary);
+  background: linear-gradient(180deg, var(--sky), var(--primary-fill));
+  padding: 11px 14px; border-radius: 16px 16px 4px 16px; overflow-wrap: anywhere;
 }
 .msg--user p { margin: 0; }
 .msg__thumbs { display: flex; gap: var(--s-2); flex-wrap: wrap; }
@@ -183,3 +183,29 @@
   border: 2px solid transparent; border-radius: var(--radius-btn);
 }
 .history__rename-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+
+/* ---- The prototype's Ask screen ---- */
+.chat__top { display: grid; gap: 8px; padding: 4px 16px 0; }
+.consult { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 13px; border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
+.consult__lbl { display: flex; align-items: center; gap: 8px; font-size: calc(14.4px * var(--text-scale)); font-weight: 700; }
+.recdot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex: none; }
+.chat__minis { display: flex; gap: 6px; flex-wrap: wrap; }
+.mini { display: inline-flex; align-items: center; gap: 6px; min-height: 35px; padding: 6px 11px; border: 0; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink); font: inherit; font-size: calc(12.8px * var(--text-scale)); font-weight: 700; cursor: pointer; }
+.mini svg { width: 14px; height: 14px; }
+.chat__list { gap: 12px; padding: 12px 16px 16px; }
+.msg--assistant { justify-self: start; width: 90%; gap: 8px; }
+.from { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--muted); }
+.from svg { width: 14px; height: 14px; }
+.msg--assistant .msg__text { padding: 11px 14px; border-radius: 16px 16px 16px 4px; background: var(--surface); box-shadow: var(--shadow); }
+.msg--assistant .msg__text > :last-child { display: block; margin-bottom: 0; }
+.suggest { display: flex; gap: 7px; overflow-x: auto; padding: 3px 16px 8px; scrollbar-width: none; }
+.suggest::-webkit-scrollbar { display: none; }
+.sug { flex: none; display: inline-flex; align-items: center; min-height: 42px; padding: 9px 14px; border: 0; border-radius: var(--radius-pill); background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font: inherit; font-size: var(--fs-sm); white-space: nowrap; cursor: pointer; }
+.sug:disabled { opacity: 0.5; }
+/* Composer: the prototype's pill field; the camera, voice and send controls stay round beside it. */
+.composer { margin: 0; padding: 6px 16px 10px; background: none; box-shadow: none; border-radius: 0; }
+.composer__input { background: var(--surface); box-shadow: var(--shadow); border-radius: var(--radius-pill); height: 48px; min-height: 48px; padding: 11px 16px; }
+.composer__btn { width: 48px; min-height: 48px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); }
+.composer__btnlabel { display: none; }
+.composer__send { min-height: 48px; min-width: 48px; border-radius: var(--radius-pill); background: linear-gradient(180deg, var(--sky), var(--primary-fill)); }
+.composer__voice { background: var(--primary-soft); color: var(--primary); }

@@ -86,6 +86,7 @@ export const tl: Catalogue = {
     improving: 'Gumaganda',
   },
   chat: {
+    suggestions: 'Mga mungkahing tanong',
     greeting: 'Magandang araw po, {name}! Ano po ang kailangan ninyo?',
     placeholder: 'Mag-type dito, hal. "Ipakita ang PhilHealth ko"',
     send: 'Ipadala',

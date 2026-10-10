@@ -84,6 +84,7 @@ export const en = {
     improving: 'Improving',
   },
   chat: {
+    suggestions: 'Suggested questions',
     greeting: 'Good day, {name}! What do you need?',
     placeholder: 'Type here, e.g. "Show my PhilHealth"',
     send: 'Send',

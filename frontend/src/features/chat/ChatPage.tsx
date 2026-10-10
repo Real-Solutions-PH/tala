@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router'
-import { AudioLines, FileHeart, History, MessageSquarePlus, Pill, WalletCards, FlaskConical } from 'lucide-react'
+import { HeartPulse, FileHeart, History, MessageSquarePlus, Pill, WalletCards, FlaskConical } from 'lucide-react'
 import { keys, useConversation, useProfiles } from '../../api/queries'
 import type { Message as ApiMessage } from '../../api/types'
 import { Skeleton } from '../../components/Skeleton'
@@ -108,21 +108,24 @@ export function ChatPage() {
 
   return (
     <div className="chat">
-      <div className="chat__head">
-        {!empty && <h1 className="sr-only">{conv.data?.title || t('nav.chat')}</h1>}
-        <div className="chat__headgroup">
-          <button type="button" className="chat__headbtn" onClick={() => setDrawer(true)} aria-haspopup="dialog">
+      {!empty && <h1 className="sr-only">{conv.data?.title || t('nav.chat')}</h1>}
+      {/* The prototype's consultation bar: the switch opens listen-in (Usap's listening mode) for this conversation. */}
+      <div className="chat__top">
+        <div className="consult">
+          <span className="consult__lbl"><span className="recdot" aria-hidden="true" />{t('chat.consult')}</span>
+          <button type="button" className="switch" role="switch" aria-checked="false" aria-label={t('chat.consult')}
+            onClick={() => navigate(`/usap?mode=listen${cid ? `&cid=${cid}` : ''}`)} />
+        </div>
+        <div className="chat__minis">
+          <button type="button" className="mini" onClick={() => setDrawer(true)} aria-haspopup="dialog">
             <History aria-hidden="true" strokeWidth={2} /><span>{t('chat.historyShort')}</span>
           </button>
           {!empty && (
-            <button type="button" className="chat__headbtn" onClick={newChat}>
+            <button type="button" className="mini" onClick={newChat}>
               <MessageSquarePlus aria-hidden="true" strokeWidth={2} /><span>{t('chat.newShort')}</span>
             </button>
           )}
         </div>
-        <button type="button" className="chat__headbtn chat__headbtn--usap" onClick={() => navigate('/usap')}>
-          <AudioLines aria-hidden="true" strokeWidth={2} /><span>{t('chat.usapShort')}</span>
-        </button>
       </div>
 
       <MessageList messages={messages} onRetry={run.streaming ? undefined : retry}>
@@ -135,19 +138,21 @@ export function ChatPage() {
           </div>
         )}
         {empty && (
-          <div className="chat__empty">
-            <h1 className="chat__greeting">{boldName(t('chat.greeting', { name }), name)}</h1>
-            <div className="chat__chips">
-              {CHIPS.map(c => (
-                <button key={c.key} type="button" className="chat__chip"
-                  onClick={() => (c.photo ? composer.current?.openPhotos() : send({ text: t(c.key), files: [] }))}>
-                  <c.icon aria-hidden="true" strokeWidth={2} /><span>{t(c.key)}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          <article className="msg msg--assistant chat__hello">
+            <h1 className="sr-only">{t('chat.greeting', { name })}</h1>
+            <div className="from"><HeartPulse aria-hidden="true" strokeWidth={2} />{t('chat.from')}</div>
+            <div className="msg__text"><p>{t('chat.botHello')}</p></div>
+          </article>
         )}
       </MessageList>
+
+      {/* Suggested questions: a sideways row of pills, as in the prototype. */}
+      <div className="suggest" role="group" aria-label={t('chat.suggestions')}>
+        {CHIPS.map(c => (
+          <button key={c.key} type="button" className="sug" disabled={run.streaming}
+            onClick={() => (c.photo ? composer.current?.openPhotos() : send({ text: t(c.key), files: [] }))}>{t(c.key)}</button>
+        ))}
+      </div>
 
       <Composer ref={composer} streaming={run.streaming} onSend={send} onStop={run.stop} />
 
@@ -156,11 +161,4 @@ export function ChatPage() {
         onDeleted={id => { if (id === cid) newChat() }} />
     </div>
   )
-}
-
-/** The reference's mixed-weight title: the greeting in regular weight, the person's name bold. */
-function boldName(text: string, name: string) {
-  const i = name ? text.indexOf(name) : -1
-  if (i < 0) return text
-  return <>{text.slice(0, i)}<strong>{name}</strong>{text.slice(i + name.length)}</>
 }
