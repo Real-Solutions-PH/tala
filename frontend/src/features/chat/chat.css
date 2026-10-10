@@ -1,15 +1,18 @@
 /* Chat: one plane filling the shell's main row. The list scrolls; the composer sits above the bottom menu. */
 .chat {
-  height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto;
+  height: 100%; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-columns: minmax(0, 1fr);
   width: 100%; max-width: 640px; margin: 0 auto;
 }
-.chat__head { display: flex; justify-content: space-between; column-gap: var(--s-2); row-gap: 0; padding: var(--s-1) var(--s-2) 0; flex-wrap: wrap; }
+.chat__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-1); padding: var(--s-1) var(--s-2) 0; flex-wrap: nowrap; }
+.chat__headgroup { display: flex; align-items: center; gap: 0; min-width: 0; }
 .chat__headbtn {
   display: inline-flex; align-items: center; gap: var(--s-2); min-height: var(--tap); padding: 0 var(--s-3);
   border: 0; background: none; color: var(--primary); font: inherit; font-weight: 500; border-radius: var(--radius-btn); cursor: pointer;
 }
 .chat__headbtn:hover { background: var(--primary-soft); }
 .chat__headbtn svg { width: 24px; height: 24px; flex: none; }
+.chat__headbtn { white-space: nowrap; padding: 0 6px; gap: 4px; }
+.chat__headbtn--usap { border: 2px solid var(--primary); border-radius: var(--radius-pill); padding: 0 12px; font-weight: 600; }
 
 .chat__scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .chat__list { display: grid; gap: var(--s-4); padding: var(--s-3) var(--s-4) var(--s-4); align-content: start; }
@@ -121,26 +124,28 @@
   display: grid; gap: var(--s-2); margin: 0 var(--s-3) var(--s-2); padding: var(--s-3);
   background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow);
 }
+.composer__row { display: flex; align-items: flex-end; gap: var(--s-2); }
 .composer__input {
-  width: 100%; min-height: 56px; resize: none; padding: var(--s-3); font: inherit; line-height: var(--lh);
-  color: var(--ink); background: var(--bg); border: 2px solid transparent; border-radius: 22px; overflow-y: hidden;
+  flex: 1 1 0; width: 0; min-width: 0; height: 56px; min-height: 56px; resize: none; padding: 14px var(--s-3); font: inherit; line-height: var(--lh);
+  color: var(--ink); background: var(--bg); border: 2px solid transparent; border-radius: 22px; overflow-y: hidden; box-sizing: border-box;
 }
+.composer__input::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .composer__input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--primary); }
-.composer__actions { display: grid; grid-template-columns: auto auto 1fr; gap: var(--s-2); align-items: center; }
-.composer__btn, .composer__voice, .composer__send {
+.composer__btn, .composer__send {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-1); font: inherit; font-weight: 500;
-  border-radius: var(--radius-pill); cursor: pointer; padding: 0 var(--s-3);
+  border-radius: var(--radius-pill); cursor: pointer; padding: 0 var(--s-3); flex: none; border: 0;
 }
-.composer__btn svg, .composer__voice svg, .composer__send svg { width: 24px; height: 24px; flex: none; }
-.composer__btn { min-height: 64px; border: 0; border-radius: 50%; background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color: var(--ink); }
-.composer__btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.composer__btn { position: relative; min-width: 64px; }
-.composer__voice { min-height: 64px; min-width: 64px; border: 0; border-radius: 50%; background: var(--primary-soft); color: var(--primary); touch-action: none; }
+.composer__btn svg, .composer__send svg { width: 24px; height: 24px; flex: none; }
+.composer__btn {
+  flex-direction: column; gap: 0; min-width: 48px; min-height: 56px; padding: 0 2px; border-radius: var(--radius-btn);
+  background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color: var(--ink);
+}
+.composer__btnlabel { font-size: 13px; line-height: 1.1; }
+.composer__send { min-height: 56px; min-width: 56px; background: var(--primary-fill); color: var(--on-primary); }
+.composer__voice { background: var(--primary-soft); color: var(--primary); touch-action: none; }
 .composer__voice--on { background: var(--primary-fill); color: var(--on-primary); }
-.composer__send { min-height: 64px; border: 0; background: var(--primary-fill); color: var(--on-primary); }
-.composer__send:disabled { opacity: 0.5; cursor: default; }
 .composer__send--stop { background: var(--danger-fill); color: var(--on-danger); }
-.composer__btn:disabled, .composer__voice:disabled { opacity: 0.5; cursor: default; }
+.composer__btn:disabled { opacity: 0.5; cursor: default; }
 .composer__recording { margin: 0; color: var(--primary); font-weight: 500; }
 .composer__thumbs { list-style: none; margin: 0; padding: 12px 0 0; display: flex; gap: var(--s-5); flex-wrap: wrap; }
 .composer__thumbs li { position: relative; }

@@ -100,7 +100,7 @@ describe('ChatPage', () => {
     await waitFor(() => expect(calls.some(c => c.method === 'POST' && c.path === '/api/runs/r1/cancel')).toBe(true))
     expect(await screen.findByText('Itinigil')).toBeTruthy()
     expect(screen.getByText('Sandali po')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Ipadala' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Boses' })).toBeTruthy()
   })
 
   test('a stream that ends without RUN_FINISHED shows "Hindi natapos" and Retry resends', async () => {
@@ -139,10 +139,50 @@ describe('ChatPage', () => {
     expect(document.querySelector('.chat-skeleton')).toBeNull()
   })
 
+  test('one primary button: Boses when empty, Ipadala with text, Itigil while streaming', async () => {
+    const s = sseStream()
+    base({ 'POST /api/runs': () => s.response() })
+    renderRoutes(routes, '/chat')
+    const box = await screen.findByRole('textbox', { name: /Mag-type dito/ })
+    expect(screen.getByRole('button', { name: 'Boses' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Ipadala' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Magdagdag ng litrato' })).toBeTruthy()
+    await userEvent.type(box, 'Kumusta')
+    expect(screen.getByRole('button', { name: 'Ipadala' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Boses' })).toBeNull()
+    await userEvent.clear(box)
+    expect(screen.getByRole('button', { name: 'Boses' })).toBeTruthy()
+    await send('Kumusta')
+    await s.push({ type: 'RUN_STARTED', threadId: 'c9', runId: 'r1' })
+    expect(screen.getByRole('button', { name: 'Itigil' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Boses' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Ipadala' })).toBeNull()
+  })
+
+  test('closing a card opened from chat returns to the same conversation', async () => {
+    const card = { id: 5, kind: 'philhealth', label: 'PhilHealth', number_masked: null, front_url: '/api/files/5/front', back_url: null, expires: null }
+    base({
+      'GET /api/profiles/1/cards': () => json([card]),
+      'GET /api/conversations/c1': () => json({
+        id: 'c1', title: 'PhilHealth', messages: [
+          { id: 'u1', role: 'user', content: 'Ipakita ang PhilHealth', mode: 'text', status: 'complete', blocks: '[]', steps: '[]', sources: '[]', attachments: [], created: '' },
+          { id: 'a1', role: 'assistant', content: 'Ito po ang PhilHealth card ninyo.', mode: 'text', status: 'complete', blocks: JSON.stringify([{ type: 'card', card_id: 5, label: 'PhilHealth', front_url: '/api/files/5/front', back_url: null }]), steps: '[]', sources: '[]', attachments: [], created: '' },
+        ],
+      }),
+    })
+    const { router } = renderRoutes(routes, '/chat/c1')
+    await userEvent.click(await screen.findByRole('link', { name: /Ipakita ang card/ }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/cards/5'))
+    await userEvent.click(await screen.findByRole('button', { name: 'Isara' }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/chat/c1'))
+    expect(await screen.findByText('Ito po ang PhilHealth card ninyo.')).toBeTruthy()
+    expect(screen.getByText('Ipakita ang PhilHealth')).toBeTruthy()
+  })
+
   test('history rename sends PATCH and toasts', async () => {
     const { calls } = base({ 'PATCH /api/conversations/c1': () => new Response(null, { status: 204 }) })
     renderRoutes(routes, '/chat')
-    await userEvent.click(await screen.findByRole('button', { name: 'Mga nakaraang usapan' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Kasaysayan' }))
     const dialog = await screen.findByRole('dialog', { name: 'Mga nakaraang usapan' })
     expect(await within(dialog).findByText('Gamot ko')).toBeTruthy()
     await userEvent.click(within(dialog).getByRole('button', { name: 'Mga pagpipilian para sa Gamot ko' }))

@@ -62,11 +62,13 @@ export function ChatPage() {
     onThread: threadId => {
       if (liveCid.current !== threadId) {
         liveCid.current = threadId
-        if (cid !== threadId) navigate(`/chat/${threadId}`, { replace: !cid })
+        if (cid !== threadId) navigate(`/chat/${threadId}`, { replace: true })
       }
     },
     onDone: () => {
       void qc.invalidateQueries({ queryKey: keys.conversations(profileId) })
+      // Refetch the saved conversation so it is all there when the reader comes back from a card or document.
+      if (liveCid.current) void qc.invalidateQueries({ queryKey: keys.conversation(liveCid.current) })
     },
   })
   const { reset } = run
@@ -108,17 +110,19 @@ export function ChatPage() {
     <div className="chat">
       <div className="chat__head">
         {!empty && <h1 className="sr-only">{conv.data?.title || t('nav.chat')}</h1>}
-        <button type="button" className="chat__headbtn" onClick={() => setDrawer(true)} aria-haspopup="dialog">
-          <History aria-hidden="true" strokeWidth={2} /><span>{t('chat.history')}</span>
-        </button>
-        <button type="button" className="chat__headbtn" onClick={() => navigate('/usap')}>
-          <AudioLines aria-hidden="true" strokeWidth={2} /><span>{t('voice.usapTitle')}</span>
-        </button>
-        {!empty && (
-          <button type="button" className="chat__headbtn" onClick={newChat}>
-            <MessageSquarePlus aria-hidden="true" strokeWidth={2} /><span>{t('chat.newChat')}</span>
+        <div className="chat__headgroup">
+          <button type="button" className="chat__headbtn" onClick={() => setDrawer(true)} aria-haspopup="dialog">
+            <History aria-hidden="true" strokeWidth={2} /><span>{t('chat.historyShort')}</span>
           </button>
-        )}
+          {!empty && (
+            <button type="button" className="chat__headbtn" onClick={newChat}>
+              <MessageSquarePlus aria-hidden="true" strokeWidth={2} /><span>{t('chat.newShort')}</span>
+            </button>
+          )}
+        </div>
+        <button type="button" className="chat__headbtn chat__headbtn--usap" onClick={() => navigate('/usap')}>
+          <AudioLines aria-hidden="true" strokeWidth={2} /><span>{t('chat.usapShort')}</span>
+        </button>
       </div>
 
       <MessageList messages={messages} onRetry={run.streaming ? undefined : retry}>

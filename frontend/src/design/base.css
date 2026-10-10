@@ -357,19 +357,33 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 600; }
 
 .bottomnav {
-  /* Floating round buttons, after the reference: no bar, white circles, the current tab a bigger blue one. */
-  display: flex; justify-content: center; align-items: center; gap: var(--s-3);
-  margin: 0; padding: var(--s-2) var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom));
-  background: transparent;
+  /* A docked tab bar (Messenger/GCash pattern): a full-width plane, four equal tabs, icon over a word. */
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: stretch;
+  margin: 0; padding: 0 0 env(safe-area-inset-bottom); min-height: calc(72px + env(safe-area-inset-bottom));
+  background: var(--surface); border-top: 1px solid var(--border); box-shadow: var(--shadow);
 }
 .bottomnav .navitem {
-  flex: none; width: var(--tap-lg); height: var(--tap-lg); min-height: 0; padding: 0; margin: 0; border-radius: 50%;
-  background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-width: 0; min-height: 72px; padding: var(--s-1) 2px; margin: 0; border-radius: 0;
+  background: none; box-shadow: none; color: var(--muted); font-size: 15px; font-weight: 500; line-height: 1.1;
+  text-decoration: none; -webkit-tap-highlight-color: transparent;
 }
-.bottomnav .navitem svg { width: 26px; height: 26px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
-.bottomnav .navitem[aria-current='page'] { width: 72px; height: 72px; background: var(--primary-fill); color: var(--on-primary); box-shadow: 0 10px 24px color-mix(in srgb, var(--primary-fill) 35%, transparent); }
-.bottomnav .navitem[aria-current='page'] svg { color: var(--on-primary); }
+/* Press state: a tint fades in behind the tab; opacity/transform only, no layout shift. */
+.bottomnav .navitem::before {
+  content: ''; position: absolute; inset: 4px; border-radius: var(--radius-btn); background: var(--primary-soft);
+  opacity: 0; transform: scale(0.96); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); pointer-events: none;
+}
+.bottomnav .navitem:active::before { opacity: 1; transform: scale(1); }
+.bottomnav .navitem__icon {
+  position: relative; display: grid; place-items: center; width: 56px; height: 32px; border-radius: var(--radius-btn);
+  background: none; box-shadow: none;
+}
+.bottomnav .navitem svg { width: 24px; height: 24px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
+.bottomnav .navitem__label { position: relative; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bottomnav .navitem[aria-current='page'] { color: var(--primary); font-weight: 600; }
+.bottomnav .navitem[aria-current='page'] .navitem__icon { background: var(--primary-soft); color: var(--primary); }
+.bottomnav .navitem[aria-current='page'] svg { color: var(--primary); background: none; }
+.bottomnav .navitem:active svg { background: none; }
 
 .page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-5) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
 /* Every screen title is a display line: big, tight, calm. */

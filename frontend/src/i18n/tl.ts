@@ -86,6 +86,11 @@ export const tl: Catalogue = {
     you: 'Ikaw',
     sendFailed: 'Hindi naipadala. Pakisubukan muli.',
     retry: 'Subukan muli',
+    photoShort: 'Litrato',
+    placeholderShort: 'Mag-type dito…',
+    historyShort: 'Kasaysayan',
+    newShort: 'Bago',
+    usapShort: 'Usap',
   },
   steps: {
     reading_photo: 'Binabasa ang litrato…',
