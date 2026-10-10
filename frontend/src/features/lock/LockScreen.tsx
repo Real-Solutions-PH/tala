@@ -183,8 +183,8 @@ export function LockScreen() {
         </div>
 
         {selected != null && (
-          <BiometricUnlock profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
-            onUnlocked={() => navigate('/chat', { replace: true })} />
+          <BiometricUnlock key={selected} profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
+            disabled={blocked || busy} onUnlocked={() => navigate('/chat', { replace: true })} />
         )}
       </div>
     </main>

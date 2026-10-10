@@ -10,11 +10,11 @@ import { useLock } from './useLock'
 import { biometricAvailable, unlockWithBiometric } from './webauthn'
 import './biometric.css'
 
-type Props = { profileId: number; hasBiometric: boolean; onUnlocked: () => void }
+type Props = { profileId: number; hasBiometric: boolean; onUnlocked: () => void; disabled?: boolean }
 
 const KNOWN: ReadonlySet<string> = new Set(['lock.biometricNeedsDomain', 'settings.biometricNotSet', 'settings.biometricFailed'])
 
-export function BiometricUnlock({ profileId, hasBiometric, onUnlocked }: Props) {
+export function BiometricUnlock({ profileId, hasBiometric, onUnlocked, disabled = false }: Props) {
   const t = useT()
   const { adopt } = useLock()
   const [available, setAvailable] = useState(false)
@@ -46,7 +46,7 @@ export function BiometricUnlock({ profileId, hasBiometric, onUnlocked }: Props) 
 
   return (
     <div className="biometric-unlock">
-      <Button variant="secondary" size="lg" block icon={Fingerprint} loading={busy} onClick={go}>
+      <Button variant="secondary" size="lg" block icon={Fingerprint} loading={busy} disabled={disabled} onClick={go}>
         {t('settings.biometricButton')}
       </Button>
       {error?.pid === profileId && <p className="biometric-unlock__error" role="alert">{t(error.key)}</p>}
