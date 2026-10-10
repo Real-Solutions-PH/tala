@@ -2,7 +2,8 @@
 // emergency card without unlocking (spec section 3). Biometric unlock sits under the pad.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { Delete, Lock, Siren } from 'lucide-react'
+import { Delete, Siren } from 'lucide-react'
+import { Mark } from '../../brand/Mark'
 import { ApiError } from '../../api/client'
 import { useProfiles } from '../../api/queries'
 import type { ProfileListItem } from '../../api/types'
@@ -126,7 +127,8 @@ export function LockScreen() {
           </button>
         )}
 
-        <h1 className="lock__title"><Lock aria-hidden="true" strokeWidth={2} /><span>{t('lock.title')}</span></h1>
+        <Mark size={56} className="lock__mark" />
+        <h1 className="lock__title">{boldLast(t('lock.title'))}</h1>
 
         {profiles.isPending ? (
           <div className="lock__profiles" aria-busy="true">
@@ -189,4 +191,10 @@ export function LockScreen() {
       </div>
     </main>
   )
+}
+
+/** The reference's mixed-weight title: regular words, the last word bold ("Naka-lock ang **Kapiling**"). */
+function boldLast(text: string) {
+  const i = text.lastIndexOf(' ')
+  return i < 0 ? <strong>{text}</strong> : <>{text.slice(0, i + 1)}<strong>{text.slice(i + 1)}</strong></>
 }
