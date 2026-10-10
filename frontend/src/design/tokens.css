@@ -43,6 +43,9 @@
   --card-d: #344054;      /* vaccination, other */
   --card-ink: #FFFFFF;
   --card-shade: #000000;  /* mixed 30% into each card for its gradient */
+  --on-ink-accent: #8DB0FF; /* the toast's Undo, on --ink */
+  --cam-bg: #0A1222;      /* the scan screen's camera area, every theme */
+  --on-cam: #FFFFFF;
   --viewer-bg: #000000;   /* full-screen card viewer */
   --on-viewer: #FFFFFF;
 
@@ -90,6 +93,7 @@
 /* Blue follows the phone: dark when the phone is in dark mode. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-skin]) {
+    --on-ink-accent: #1B4FD8;
     color-scheme: dark;
     --bg: #111318;
     --grad-top: #16224A;
@@ -120,6 +124,7 @@
   }
 }
 :root[data-skin="navy"] {
+  --on-ink-accent: #1C4FB0;
   --card-a: #2457A8;
   --card-b: #2E68BF;
   --card-c: #1F6C86;
@@ -153,6 +158,7 @@
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
 }
 :root[data-skin="mint"] {
+  --on-ink-accent: #7FD6C3;
   --card-a: #0E7564;
   --card-b: #16827E;
   --card-c: #2B6C8A;
@@ -186,6 +192,7 @@
   --shadow: 0 1px 2px rgb(16 35 31 / 0.05), 0 8px 24px -12px rgb(16 35 31 / 0.16);
 }
 :root[data-skin="contrast"] {
+  --on-ink-accent: #9DB8FF;
   --card-a: #003DA8;
   --card-b: #00307F;
   --card-c: #004F5E;

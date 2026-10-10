@@ -53,7 +53,9 @@ export function useToggleDose(profileId: number | null, date: string, meds: Meds
     },
     onSuccess: (_r, { dose, take }) => {
       const name = dose.name ?? meds?.meds.find(m => m.id === dose.med_id)?.name ?? ''
-      toast(take ? t('toasts.medTaken', { name }) : t('meds.untaken', { name }))
+      // Taken: the toast offers Undo, as in the prototype (it un-marks the same dose).
+      if (take) toast(t('toasts.medTaken', { name }), 'ok', () => toggle.mutate({ dose: { ...dose, taken_at: new Date().toISOString() }, take: false }))
+      else toast(t('meds.untaken', { name }))
     },
     onError: (err, _v, ctx) => {
       if (ctx?.before) qc.setQueryData(key, ctx.before)

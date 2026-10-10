@@ -1,8 +1,7 @@
 import { useId, useState } from 'react'
-import { Check, Pencil, X } from 'lucide-react'
+import { Check, Pencil, Trash2 } from 'lucide-react'
 import type { Observation } from '../../api/types'
 import { Button } from '../../components/Button'
-import { Card } from '../../components/Card'
 import { useToast } from '../../components/Toast'
 import { formatDate, useLang, useT } from '../../i18n'
 import { useLock } from '../lock/useLock'
@@ -51,9 +50,9 @@ function RowView({ row, onChange, onRemove }: { row: Row; onChange: (r: Row) => 
       )}
       <div className="review-row__actions">
         {row.editing
-          ? <Button variant="secondary" icon={Check} disabled={bad || !row.date} onClick={() => onChange({ ...row, editing: false })}>{t('records.doneRow')}</Button>
-          : <Button variant="secondary" icon={Pencil} onClick={() => onChange({ ...row, editing: true })}>{t('records.editRow')}</Button>}
-        <Button variant="ghost" icon={X} onClick={onRemove}>{t('records.removeRow')}</Button>
+          ? <button type="button" className="mini mini--on" disabled={bad || !row.date} onClick={() => onChange({ ...row, editing: false })}><Check aria-hidden="true" strokeWidth={2.5} />{t('records.doneRow')}</button>
+          : <button type="button" className="mini" onClick={() => onChange({ ...row, editing: true })}><Pencil aria-hidden="true" strokeWidth={2} />{t('records.editRow')}</button>}
+        <button type="button" className="mini" onClick={onRemove}><Trash2 aria-hidden="true" strokeWidth={2} />{t('records.removeRow')}</button>
       </div>
     </li>
   )
@@ -107,9 +106,10 @@ export function ReviewExtraction({ documentId, proposed }: { documentId: number;
   }
 
   return (
-    <Card as="section" className="review" aria-labelledby={titleId}>
+    <section className="review" aria-labelledby={titleId}>
       <h2 id={titleId} className="review__title">{t('records.reviewTitle')}</h2>
-      <p className="muted">{t('records.reviewBody')}</p>
+      <p className="sub">{t('records.reviewBody')}</p>
+      <span className="chip-s c-warn review__chip">{t('records.proposedChip')}</span>
       <ul className="review__list">
         {rows.map(r => (
           <RowView key={r.obs.id} row={r}
@@ -118,6 +118,6 @@ export function ReviewExtraction({ documentId, proposed }: { documentId: number;
         ))}
       </ul>
       <Button size="lg" block icon={Check} loading={confirm.isPending} disabled={invalid || removing > 0} onClick={save}>{t('records.confirmAll')}</Button>
-    </Card>
+    </section>
   )
 }

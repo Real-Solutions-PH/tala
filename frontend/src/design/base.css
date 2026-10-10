@@ -289,11 +289,13 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   display: flex; align-items: center; gap: var(--s-3);
   max-width: 560px; width: 100%; padding: var(--s-3) var(--s-4);
   background: var(--ink); color: var(--bg);
-  border-radius: var(--radius-btn); box-shadow: var(--shadow);
-  font-weight: 600; pointer-events: auto;
+  border-radius: var(--radius-card); box-shadow: var(--shadow);
+  font-size: calc(14.7px * var(--text-scale)); font-weight: 500; pointer-events: auto;
   animation: toast-in var(--dur) var(--ease);
 }
 .toast svg { flex: none; width: 1.3em; height: 1.3em; }
+.toast__msg { flex: 1; min-width: 0; }
+.toast__undo { flex: none; min-height: 44px; padding: 5px 6px; border: 0; background: none; color: var(--on-ink-accent); font: inherit; font-weight: 700; cursor: pointer; }
 @keyframes toast-in { from { transform: translateY(12px); opacity: 0; } }
 
 /* ---- Mark (Usap character) ---- */
@@ -513,3 +515,22 @@ strong, b { font-weight: 600; }
 .trust-list li > span { display: grid; gap: 2px; }
 .trust-list li > span > span { font-size: var(--fs-sm); color: var(--muted); }
 .h { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+
+/* Full-screen overlays (prototype .ov): emergency card, scan, reading. */
+.ov { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); overflow-y: auto; }
+.ov-top { display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; }
+.ov-top h1 { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px calc(20px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+.ov-top h2 { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 600; }
+/* Steps with a spinner, then a check (reading a photo). */
+.steps { list-style: none; margin: 0; display: grid; gap: 10px; }
+.steps li { display: flex; align-items: center; gap: 8px; }
+.spin { flex: none; width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--primary-fill); animation: rot 0.8s linear infinite; }
+@keyframes rot { to { rotate: 360deg; } }
+.check { display: inline-grid; color: var(--accent); }
+.check svg { width: 15px; height: 15px; }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+/* Small pill actions (prototype .mini). */
+.mini { display: inline-flex; align-items: center; gap: 6px; min-height: 35px; padding: 6px 11px; border: 0; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink); font: inherit; font-size: calc(12.8px * var(--text-scale)); font-weight: 700; cursor: pointer; }
+.mini svg { width: 14px; height: 14px; }

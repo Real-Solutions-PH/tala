@@ -2,36 +2,26 @@
 // labelled with its value and month, the latest point filled. Plain SVG; the label summarises it for screen readers.
 import type { Observation } from '../../api/types'
 import { formatDate, useLang, useT } from '../../i18n'
-import { num } from './trend'
+import { niceAxis, num } from './trend'
 
 const W = 320, H = 170, L = 34, R = 14, TOP = 18, B = 26
 
-/** Grid lines every `step` between nice bounds that include the data and the normal range. */
-function axis(values: number[], lo: number | null, hi: number | null) {
-  const all = [...values, ...(lo != null ? [lo] : []), ...(hi != null ? [hi] : [])]
-  const span = Math.max(...all) - Math.min(...all) || 10
-  const step = span <= 8 ? 2 : span <= 40 ? 10 : 20
-  const min = Math.floor((Math.min(...all) - step / 2) / step) * step
-  const max = Math.ceil((Math.max(...all) + step / 2) / step) * step
-  const ticks: number[] = []
-  for (let v = min; v <= max; v += step) ticks.push(v)
-  return { min, max, ticks }
-}
-
-export function TrendChart({ points, name }: { points: Observation[]; name: string }) {
+/** `label` overrides the spoken summary; `tick` formats the dates under the points (month by default). */
+export function TrendChart({ points, name, label: given, tick }: { points: Observation[]; name: string; label?: string; tick?: (date: string) => string }) {
   const t = useT()
   const [lang] = useLang()
   const data = points.filter(p => p.value != null) as (Observation & { value: number })[]
   if (data.length === 0) return null
   const last = data[data.length - 1]
   const lo = last.ref_low, hi = last.ref_high
-  const { min, max, ticks } = axis(data.map(d => d.value), lo, hi)
+  const vals = data.map(d => d.value)
+  const { domain: [min, max], ticks } = niceAxis(Math.min(...vals, lo ?? Infinity), Math.max(...vals, hi ?? -Infinity))
   const x = (i: number) => L + (W - L - R) * (data.length === 1 ? 0.5 : i / (data.length - 1))
   const y = (v: number) => TOP + (H - TOP - B) * (1 - (v - min) / (max - min))
   const pts = data.map((d, i) => `${x(i)},${y(d.value)}`)
   const area = `M${x(0)},${y(min)} L${pts.join(' L')} L${x(data.length - 1)},${y(min)}Z`
-  const month = (d: string) => formatDate(d, lang, { month: 'short' })
-  const label = `${name}: ${data.map(d => `${month(d.date)} ${num(d.value, lang)}`).join(', ')} ${last.unit ?? ''}.`
+  const month = tick ?? ((d: string) => formatDate(d, lang, { month: 'short' }))
+  const label = given ?? `${name}: ${data.map(d => `${month(d.date)} ${num(d.value, lang)}`).join(', ')} ${last.unit ?? ''}.`
     + (lo != null && hi != null ? ` ${t('records.normalBand', { lo: num(lo, lang), hi: num(hi, lang) })}.` : '')
 
   return (

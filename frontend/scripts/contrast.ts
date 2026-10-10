@@ -47,6 +47,9 @@ pairs.push(
   ['--danger', '--danger-soft'],      // danger badge
   ['--ink', '--surface-2'],           // inputs, pressed secondary
   ['--muted', '--surface-2'],
+  ['--bg', '--ink'],                 // toast text
+  ['--on-ink-accent', '--ink'],      // the toast's Undo
+  ['--on-cam', '--cam-bg'],          // the scan screen
 )
 
 let failures = 0

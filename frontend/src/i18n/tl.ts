@@ -4,6 +4,7 @@ import type { Catalogue } from './index'
 
 export const tl: Catalogue = {
   common: {
+    undo: 'Ibalik',
     appName: 'Kapiling',
     tagline: 'Laging kapiling ang kalusugan mo.',
     save: 'I-save',
@@ -250,6 +251,12 @@ export const tl: Catalogue = {
     takenChip: 'Nainom na',
   },
   records: {
+    proposedChip: 'Mungkahi · walang maitatabi hangga’t hindi kinukumpirma',
+    camHint: 'Ilagay ang buong pahina sa loob ng frame',
+    readingTitle: 'Binabasa sa phone na ito',
+    reading1: 'Inaayos ang litrato',
+    reading2: 'Binabasa ang teksto',
+    reading3: 'Hinahanap ang mga lab value',
     addResultSub: 'Kunan ng litrato ang lab result o lumang record ng ospital. Dito lang sa phone ito binabasa.',
     title: 'Talaan',
     summary: 'Kalagayan',

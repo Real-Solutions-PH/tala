@@ -66,3 +66,16 @@ export function chartSummary(points: Observation[], name: string, lang: Lang): s
     start: month(first.date), end: month(last.date),
   }).replace(/\s+/g, ' ').trim()
 }
+
+/** Round axis ends and about four even ticks on 1/2/2.5/5 steps, so labels read 60, 80, 100 and not 142, 110, 85. */
+export function niceAxis(min: number, max: number): { domain: [number, number]; ticks: number[] } {
+  const span = Math.max(max - min, 1)
+  const raw = (span * 1.2) / 4
+  const mag = 10 ** Math.floor(Math.log10(raw))
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(x => x >= raw) ?? 10 * mag
+  const lo = Math.floor((min - span * 0.1) / step) * step
+  const hi = Math.ceil((max + span * 0.1) / step) * step
+  const ticks: number[] = []
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Number(v.toFixed(6)))
+  return { domain: [lo, hi], ticks }
+}

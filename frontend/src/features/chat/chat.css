@@ -190,8 +190,6 @@
 .consult__lbl { display: flex; align-items: center; gap: 8px; font-size: calc(14.4px * var(--text-scale)); font-weight: 700; }
 .recdot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; flex: none; }
 .chat__minis { display: flex; gap: 6px; flex-wrap: wrap; }
-.mini { display: inline-flex; align-items: center; gap: 6px; min-height: 35px; padding: 6px 11px; border: 0; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--ink); font: inherit; font-size: calc(12.8px * var(--text-scale)); font-weight: 700; cursor: pointer; }
-.mini svg { width: 14px; height: 14px; }
 .chat__list { gap: 12px; padding: 12px 16px 16px; }
 .msg--assistant { justify-self: start; width: 90%; gap: 8px; }
 .from { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--muted); }

@@ -89,6 +89,15 @@ describe('MedsPage', () => {
     expect(await screen.findByText('Nainom na po ang Losartan.')).toBeTruthy()
   })
 
+  test('the taken toast offers Undo, which un-marks the dose (DELETE)', async () => {
+    const f = mockApi({ '/api/profiles/1/meds/1/taken': () => new Response(null, { status: 204 }) })
+    renderAt('/meds')
+    const btn = within(await losartanRow()).getByRole('button', { name: /^Markahang nainom/ })
+    await userEvent.click(btn)
+    await userEvent.click(await screen.findByRole('button', { name: 'Ibalik' }))
+    await waitFor(() => expect(f.mock.calls.some(c => String(c[0]) === '/api/profiles/1/meds/1/taken' && (c[1] as RequestInit).method === 'DELETE')).toBe(true))
+  })
+
   test('on failure the toggle reverts and the error toast shows', async () => {
     mockApi({ '/api/profiles/1/meds/1/taken': () => json({ detail: 'x' }, 500) })
     renderAt('/meds')

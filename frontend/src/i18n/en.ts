@@ -2,6 +2,7 @@
 // Placeholders use {name}. Keep copy plain and polite; never say "AI", "data" or "upload" to users.
 export const en = {
   common: {
+    undo: 'Undo',
     appName: 'Kapiling',
     tagline: 'Your health, always by your side.',
     save: 'Save',
@@ -248,6 +249,12 @@ export const en = {
     takenChip: 'Taken',
   },
   records: {
+    proposedChip: 'Proposed · nothing is saved until you confirm',
+    camHint: 'Fit the page inside the frame',
+    readingTitle: 'Reading on this phone',
+    reading1: 'Straightening the photo',
+    reading2: 'Reading the text',
+    reading3: 'Finding lab values',
     addResultSub: 'Take a photo of a lab result or an old hospital record. It is read on this phone.',
     title: 'Records',
     summary: 'Health summary',

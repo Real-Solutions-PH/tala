@@ -1,9 +1,6 @@
 /* Emergency card, a copy of the prototype's overlay (.ov-top, .eheader, .kv, .tags, .contact, .qrwrap).
    Colours come only from tokens.css. */
 .ecard { background: var(--bg); }
-.ov-top { display: flex; align-items: center; gap: 10px; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; }
-.ov-top h1 { flex: 1; min-width: 0; font-size: var(--fs-lg); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ov-body { display: flex; flex-direction: column; gap: 16px; padding: 0 16px calc(20px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
 
 .eheader { display: grid; gap: 5px; padding: 16px; border-radius: var(--radius-card); background: var(--danger-fill); color: var(--on-danger); }
 .eheader .mono { font-family: ui-monospace, Menlo, monospace; font-size: var(--fs-xs); letter-spacing: 0.02em; opacity: 0.85; }
