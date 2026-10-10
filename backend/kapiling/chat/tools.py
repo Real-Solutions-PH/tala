@@ -215,8 +215,30 @@ def search_records(con, pid: int, args: dict, ctx) -> ToolResult:
 
 # --- forms (Task 17) ------------------------------------------------------------------------------
 
+def _sniff_mime(b: bytes) -> str:
+    if b[:3] == b"\xff\xd8\xff":
+        return "image/jpeg"
+    if b[:4] == b"RIFF" and b[8:12] == b"WEBP":
+        return "image/webp"
+    return "image/png"
+
+
 def answer_form(con, pid: int, args: dict, ctx) -> ToolResult:
-    return {"error": "not_ready"}, [], "reading_form"
+    """Runs in the agent's worker thread (run_in_threadpool), so form.answer_form may call asyncio.run."""
+    from kapiling.chat import form
+    from kapiling.docs import vision
+
+    images = getattr(ctx, "images", None) or []
+    if not images:
+        return {"error": "no_form_photo", "message": "No photo is attached. Ask the user to take a photo of the form."}, [], "reading_form"
+    steps: list[str] = []
+    try:
+        result, blocks = form.answer_form(con, pid, images[0], _sniff_mime(images[0]), getattr(ctx, "lang", "en"),
+                                          on_step=steps.append)
+    except vision.VisionUnavailable:
+        return {"error": "form_reader_unavailable"}, [], "reading_form"
+    # "_steps" is taken off by the agent, which emits them as stream steps; the model never sees it.
+    return {**result, "_steps": steps}, blocks, "reading_form"
 
 
 # --- plans, always with the fixed disclaimer -------------------------------------------------------

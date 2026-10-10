@@ -309,6 +309,7 @@ async def _run_tool(ctx: RunCtx, call: dict, block) -> AsyncIterator[dict]:
                 log.error("run %s: tool %s raised %s", ctx.run.id, name, type(e).__name__)
                 result, blocks = {"error": "tool_failed"}, []
             sources = result.pop("_sources", None)
+            extra_steps = [x for x in (result.pop("_steps", None) or []) if x != step]
             for b in blocks:
                 ev = block(b)
                 if ev:
@@ -318,5 +319,8 @@ async def _run_tool(ctx: RunCtx, call: dict, block) -> AsyncIterator[dict]:
                 yield agui.custom("sources", sources)
             if step:
                 yield agui.step_finished(step)
+            for x in extra_steps:  # later phases of one tool (e.g. answering_form), reported once the tool returns
+                yield agui.step_started(x)
+                yield agui.step_finished(x)
     yield agui.tool_end(call["id"])
     call["result"] = json.dumps(result, ensure_ascii=False)

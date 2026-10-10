@@ -105,10 +105,6 @@ def test_decline_medical_advice(con, lola):
     assert blocks == [{"type": "refusal", "kind": "medication"}] and step is None
 
 
-def test_answer_form_stub(con, lola):
-    assert call(con, lola, "answer_form") == ({"error": "not_ready"}, [], "reading_form")
-
-
 def test_schemas_match_tools():
     assert {s["function"]["name"] for s in tools.SCHEMAS} == set(tools.TOOLS)
     assert all(s["type"] == "function" for s in tools.SCHEMAS)

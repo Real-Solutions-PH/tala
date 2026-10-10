@@ -393,12 +393,6 @@ def test_search_records_emits_sources_and_document_blocks(con, lola, ctx_factory
     assert "_sources" not in result and result["passages"][0]["n"] == 1
 
 
-def test_answer_form_is_a_stub(ctx_factory, fake_llm):
-    fake_llm.script([tool_call("answer_form", {})], [text("Hindi pa po.")])
-    collect(ctx_factory("sagutan ang form"))
-    assert json.loads(fake_llm.payloads[1]["messages"][-1]["content"]) == {"error": "not_ready"}
-
-
 def test_timer_stamps_first_token(ctx_factory, fake_llm):
     from kapiling.voice.timing import TurnTimer
 
@@ -409,3 +403,26 @@ def test_timer_stamps_first_token(ctx_factory, fake_llm):
     assert "first_token" in ctx.timer.as_dict()
     timing = [e["value"] for e in ev if e.get("name") == "timing"]
     assert timing and "first_token" in timing[0]
+
+
+def test_sagutan_ang_form_with_photo_gives_form_answers_block(ctx_factory, fake_llm, monkeypatch):
+    from kapiling.chat import form
+
+    def fake_answer_form(con, pid, image, mime, lang, on_step=None):
+        on_step("reading_form")
+        on_step("answering_form")
+        return {"answered": 1, "total": 1}, [{"type": "form_answers", "items": [{"field": "Name", "answer": "Lola", "source": "profile"}]}]
+
+    monkeypatch.setattr(form, "answer_form", fake_answer_form)
+    fake_llm.script([tool_call("answer_form", {})], [text("Tapos na po.")])
+    ev = collect(ctx_factory("sagutan ang form", images=[b"\x89PNG fake"]))
+    assert [b["type"] for b in blocks_of(ev)] == ["form_answers"]
+    steps = [e["stepName"] for e in ev if e["type"] == "STEP_STARTED"]
+    assert steps == ["reading_form", "answering_form"]
+
+
+def test_form_without_photo_asks_for_one(ctx_factory, fake_llm):
+    fake_llm.script([tool_call("answer_form", {})], [text("Kuhanan po ng litrato.")])
+    ev = collect(ctx_factory("sagutan ang form"))
+    assert blocks_of(ev) == []
+    assert "no_form_photo" in fake_llm.payloads[1]["messages"][-1]["content"]
