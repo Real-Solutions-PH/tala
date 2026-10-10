@@ -97,7 +97,9 @@ app.include_router(chat_router)
 
 from kapiling.auth.webauthn import router as webauthn_router; app.include_router(webauthn_router)  # noqa: E402,E702
 
-from kapiling.spa import spa  # noqa: E402  (Task 11: deep links and reloads serve index.html)
+from kapiling import demo; demo.install(app)  # noqa: E402,E702  (Task 21: cloud demo, inert unless KAPILING_DEMO=1)
+
+from kapiling.spa import spa # noqa: E402  (Task 11: deep links and reloads serve index.html)
 
 if STATIC_DIR.is_dir():
     app.mount("/", spa(STATIC_DIR), name="static")

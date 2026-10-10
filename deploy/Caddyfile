@@ -1,0 +1,8 @@
+# TLS for the demo domain; Caddy gets and renews the certificate itself.
+{$KAPILING_DOMAIN:localhost} {
+	encode zstd gzip
+	reverse_proxy app:8787 {
+		# Chat streams over SSE: send each chunk as it arrives.
+		flush_interval -1
+	}
+}

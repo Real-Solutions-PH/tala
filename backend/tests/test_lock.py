@@ -238,7 +238,9 @@ PUBLIC_ROUTES = {("GET", "/api/health"), ("GET", "/api/profiles"), ("POST", "/ap
                  ("GET", "/api/profiles/{pid}/photo"), ("GET", "/api/emergency/{pid}"),
                  ("GET", "/api/emergency/{pid}/qr.svg"),
                  # Task 15: biometric unlock starts from the lock screen, like POST /unlock.
-                 ("POST", "/api/webauthn/login/options"), ("POST", "/api/webauthn/login/verify")}
+                 ("POST", "/api/webauthn/login/options"), ("POST", "/api/webauthn/login/verify"),
+                 # Task 21: cloud demo status and reset (reset is a 404 unless KAPILING_DEMO=1).
+                 ("GET", "/api/demo"), ("POST", "/api/demo/reset")}
 # Locked routes whose path has no {pid}: the handler must compare the actor's profile itself (tested above).
 HANDLER_CHECKED = {("GET", "/api/files/{card_id}/{side}"), ("GET", "/api/access-log"),
                    ("GET", "/api/documents/{doc_id}"), ("GET", "/api/documents/{doc_id}/file"),
