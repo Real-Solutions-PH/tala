@@ -84,6 +84,11 @@ export const en = {
     you: 'You',
     sendFailed: 'Couldn’t send. Please try again.',
     retry: 'Try again',
+    photoShort: 'Photo',
+    placeholderShort: 'Type here…',
+    historyShort: 'History',
+    newShort: 'New',
+    usapShort: 'Talk',
   },
   steps: {
     reading_photo: 'Reading the photo…',

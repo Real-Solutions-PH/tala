@@ -196,7 +196,9 @@ export function CardDetailPage() {
   const { profileId } = useLock()
   const cards = useCards(profileId)
   const card = cards.data?.find(c => c.id === Number(id))
-  const close = useCallback(() => navigate('/cards', { state: { focusCard: Number(id) } }), [navigate, id])
+  const from = (useLocation().state as { from?: string } | null)?.from
+  // Opened from a chat: go back to that conversation. Otherwise back to the wallet.
+  const close = useCallback(() => (from ? navigate(-1) : navigate('/cards', { state: { focusCard: Number(id) } })), [navigate, id, from])
 
   if (card) return <CardViewer card={card} onClose={close} />
   return (
