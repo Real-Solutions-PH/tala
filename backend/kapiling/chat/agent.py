@@ -18,7 +18,7 @@ import httpx
 from starlette.concurrency import run_in_threadpool
 
 from kapiling import config
-from kapiling.chat import agui, conversations, prompts, safety, tools
+from kapiling.chat import agui, conversations, listen, prompts, safety, tools
 from kapiling.chat.runs import Run
 from kapiling.voice import tts
 from kapiling.voice.sentences import SentenceAggregator
@@ -44,6 +44,8 @@ class RunCtx:
     audio: bytes | None
     message_id: str  # the assistant message id, generated server-side (uuid4().hex) and used for TEXT_MESSAGE_START
     timer: Any = None  # TurnTimer
+    user_message_id: str | None = None  # the saved user row, updated with the transcript after the prelude
+    gated_out: bool = False  # listen mode, not about the record: no text and no audio (set by listen.prelude)
     sources: list = field(default_factory=list)  # citations emitted so far in this reply (numbering continues)
 
 
@@ -200,6 +202,15 @@ def _accumulate(calls: dict[int, dict], deltas: list[dict]) -> None:
 
 async def stream_run(ctx: RunCtx) -> AsyncIterator[dict]:
     """Yield AG-UI events for one reply (no RUN_STARTED/RUN_FINISHED: the run owns those)."""
+    had_audio = bool(ctx.audio)
+    async for ev in listen.prelude(ctx):  # transcribing step, CUSTOM transcript, listen gate, CUSTOM timing
+        yield ev
+    if had_audio and ctx.user_message_id and ctx.con is not None:
+        await run_in_threadpool(conversations.set_content, ctx.con, ctx.user_message_id, ctx.user_text)
+    if had_audio and not ctx.user_text.strip():  # nothing was heard: no reply to compose
+        ctx.gated_out = True
+    if ctx.gated_out:  # listen mode, not about the record: stay quiet
+        return
     mid = ctx.message_id
     started = False
     shown: list[dict] = []  # safety blocks already emitted, so each appears once per reply

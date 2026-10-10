@@ -82,6 +82,7 @@ class _Prepared:
     text: str
     images: list[bytes]
     audio: bytes | None
+    user_message_id: str | None = None
 
 
 def _prepare(con: sqlite3.Connection, pid: int, conversation_id: str | None, message: str | None, lang: str | None,
@@ -110,8 +111,8 @@ def _prepare(con: sqlite3.Connection, pid: int, conversation_id: str | None, mes
     else:
         cid = conversations.create(con, pid, text, mode=mode, lang=lang)
     attachments = [{"type": "image"} for _ in images] + ([{"type": "audio"}] if audio_bytes else [])
-    conversations.append(con, cid, "user", text, mode=mode, attachments=attachments)
-    return _Prepared(cid, text, images, audio_bytes)
+    uid = conversations.append(con, cid, "user", text, mode=mode, attachments=attachments)
+    return _Prepared(cid, text, images, audio_bytes, uid)
 
 
 @router.post("/runs")
@@ -125,13 +126,18 @@ async def post_run(
     speak: Annotated[int, Form()] = 0,
     files: Annotated[list[UploadFile] | None, File()] = None,
     audio: Annotated[UploadFile | None, File()] = None,
+    speech_end_client: Annotated[float | None, Form()] = None,  # client epoch ms, for timing correlation only
 ):
     require_owner_of(actor, profile_id)  # profile_id is a form field, not a {pid} path param
+    timer = TurnTimer()
+    timer.stamp("speech_end")  # the moment the request arrives, before the upload is read
+    if speech_end_client is not None:
+        log.debug("speech_end_client=%s", speech_end_client)
     prep = await run_in_threadpool(_prepare, con, profile_id, conversation_id, message, lang, mode, files or [], audio)
     run = runs.start(profile_id)
     ctx = agent.RunCtx(con=None, run=run, profile_id=profile_id, conversation_id=prep.conversation_id, lang=lang,
                        mode=mode, speak=bool(speak), user_text=prep.text, images=prep.images, audio=prep.audio,
-                       message_id=uuid.uuid4().hex, timer=TurnTimer())
+                       message_id=uuid.uuid4().hex, timer=timer, user_message_id=prep.user_message_id)
     queue: asyncio.Queue[dict] = asyncio.Queue()
     # Its own task (EZ-D-017): a client disconnect ends the relay below, never the run.
     run.task = asyncio.create_task(_drive(run, ctx, queue))
@@ -227,7 +233,9 @@ async def _compose(run: runs.Run, ctx: agent.RunCtx, reply: _Reply, put) -> tupl
                 log.error("run %s: agent raised %s", run.id, type(exc).__name__)
                 return "failed", agui.run_error("errors.internal", "internal")
             return ("failed" if reply.errored else "complete"), None
-        return "stopped", agui.run_error("errors.cancelled", "cancelled")
+        # Barge-in during a hands-free turn is an interruption, not a deliberate stop.
+        status = "interrupted" if ctx.mode in ("usap", "listen") else "stopped"
+        return status, agui.run_error("errors.cancelled", "cancelled")
     finally:
         # Also on our own cancellation: never leave the agent running. The wait is bounded, and asyncio.wait
         # neither raises the pump's exception nor swallows a cancellation of this task.
@@ -264,10 +272,13 @@ async def _drive(run: runs.Run, ctx: agent.RunCtx, queue: asyncio.Queue) -> None
             # Saved BEFORE RUN_FINISHED, which carries this id (VCAC-G-022). Partial text is kept.
             if con is None:
                 con = await run_in_threadpool(db.connect)
-            await run_in_threadpool(conversations.append, con, cid, "assistant", "".join(reply.text), id=mid,
-                                    mode=ctx.mode, status=status, blocks=reply.blocks, steps=reply.steps,
-                                    sources=reply.sources)
-            saved_id = mid
+            if ctx.gated_out and not reply.text and status == "complete":
+                pass  # listen-in, not about the record (or nothing heard): only the user transcript is kept
+            else:
+                await run_in_threadpool(conversations.append, con, cid, "assistant", "".join(reply.text), id=mid,
+                                        mode=ctx.mode, status=status, blocks=reply.blocks, steps=reply.steps,
+                                        sources=reply.sources)
+                saved_id = mid
         except Exception as e:  # noqa: BLE001
             log.error("run %s: saving the reply failed: %s", run.id, type(e).__name__)
             if not error:

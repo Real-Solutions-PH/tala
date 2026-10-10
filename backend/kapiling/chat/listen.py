@@ -77,6 +77,7 @@ async def prelude(ctx: Any) -> AsyncIterator[dict]:
     timer = getattr(ctx, "timer", None)
     stamp = timer.stamp if timer is not None else (lambda _n: None)
     ctx.gated_out = False
+    voiced = bool(ctx.audio) or ctx.mode == "listen"  # a plain text run gets no prelude events at all
     if ctx.audio:
         if timer is not None and "speech_end" not in timer.as_dict():
             stamp("speech_end")
@@ -95,5 +96,5 @@ async def prelude(ctx: Any) -> AsyncIterator[dict]:
         stamp("gate_done")
         if not ok:
             ctx.gated_out = True
-    if timer is not None:
+    if timer is not None and voiced:
         yield agui.custom("timing", timer.as_dict())
