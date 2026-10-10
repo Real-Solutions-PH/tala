@@ -124,4 +124,33 @@ describe('LockScreen', () => {
     expect(document.querySelector('.skeleton')).toBeTruthy()
     expect(screen.queryByRole('radio')).toBeNull()
   })
+
+  describe('biometric unlock', () => {
+    const withBio = [{ ...PROFILES[0], has_biometric: true }, PROFILES[1]]
+    const platform = (ok: boolean) => vi.stubGlobal('PublicKeyCredential',
+      { isUserVerifyingPlatformAuthenticatorAvailable: vi.fn(async () => ok) })
+
+    test('renders the button when the profile has one and the device supports it', async () => {
+      mockApi({ '/api/profiles': () => json(withBio) })
+      platform(true)
+      renderAt('/lock?profile=1')
+      expect(await screen.findByRole('button', { name: /Face ID|fingerprint/i })).toBeTruthy()
+    })
+
+    test('does not render it without enrollment or without platform support', async () => {
+      mockApi({ '/api/profiles': () => json(PROFILES) })
+      platform(true)
+      renderAt('/lock?profile=1')
+      await screen.findByRole('radio', { name: /Lola Remy/ })
+      await act(async () => {})
+      expect(screen.queryByRole('button', { name: /Face ID|fingerprint/i })).toBeNull()
+      cleanup()
+      mockApi({ '/api/profiles': () => json(withBio) })
+      platform(false)
+      renderAt('/lock?profile=1')
+      await screen.findByRole('radio', { name: /Lola Remy/ })
+      await act(async () => {})
+      expect(screen.queryByRole('button', { name: /Face ID|fingerprint/i })).toBeNull()
+    })
+  })
 })
