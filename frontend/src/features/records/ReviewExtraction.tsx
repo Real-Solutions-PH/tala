@@ -6,7 +6,7 @@ import { Card } from '../../components/Card'
 import { useToast } from '../../components/Toast'
 import { formatDate, useLang, useT } from '../../i18n'
 import { useLock } from '../lock/useLock'
-import { useConfirmObservations, type ObservationEdit } from './api'
+import { useConfirmObservations, useRejectObservation, type ObservationEdit } from './api'
 import { num } from './trend'
 import './records.css'
 
@@ -69,8 +69,26 @@ export function ReviewExtraction({ documentId, proposed }: { documentId: number;
   const titleId = useId()
   const { profileId } = useLock()
   const confirm = useConfirmObservations(documentId, profileId)
+  const reject = useRejectObservation(documentId)
   const [rows, setRows] = useState<Row[]>(() => proposed.map(toRow))
+  const [removing, setRemoving] = useState(0)
   const [done, setDone] = useState(false)
+
+  // Optimistic: the row leaves at once; if the server does not delete it (any error, including 404/405 before
+  // the endpoint exists) it returns to its place and we say so. It is never reported removed unless it was.
+  const order = (r: Row) => proposed.findIndex(o => o.id === r.obs.id)
+  const remove = (row: Row) => {
+    setRows(rs => rs.filter(r => r.obs.id !== row.obs.id))
+    setRemoving(n => n + 1)
+    reject.mutate(row.obs.id, {
+      onSuccess: () => toast(t('records.removed')),
+      onError: () => {
+        setRows(rs => [...rs, row].sort((a, b) => order(a) - order(b)))
+        toast(t('records.removeFailed'), 'error')
+      },
+      onSettled: () => setRemoving(n => n - 1),
+    })
+  }
 
   if (done || proposed.length === 0) return null
 
@@ -81,8 +99,9 @@ export function ReviewExtraction({ documentId, proposed }: { documentId: number;
       if (changed(r)) edits[r.obs.id] = { value: r.obs.value != null ? Number(r.value) : null, unit: r.unit.trim() || null, date: r.date }
     }
     const ids = rows.map(r => r.obs.id)
+    if (ids.length === 0) { setDone(true); toast(t('records.allRemoved')); return } // nothing left to confirm
     confirm.mutate({ ids, edits }, {
-      onSuccess: () => { setDone(true); toast(t(ids.length ? 'records.confirmed' : 'records.allRemoved')) },
+      onSuccess: () => { setDone(true); toast(t('records.confirmed')) },
       onError: () => toast(t('toasts.failed'), 'error'),
     })
   }
@@ -92,13 +111,13 @@ export function ReviewExtraction({ documentId, proposed }: { documentId: number;
       <h2 id={titleId} className="review__title">{t('records.reviewTitle')}</h2>
       <p className="muted">{t('records.reviewBody')}</p>
       <ul className="review__list">
-        {rows.map((r, i) => (
+        {rows.map(r => (
           <RowView key={r.obs.id} row={r}
-            onChange={next => setRows(rs => rs.map((x, j) => (j === i ? next : x)))}
-            onRemove={() => setRows(rs => rs.filter((_, j) => j !== i))} />
+            onChange={next => setRows(rs => rs.map(x => (x.obs.id === next.obs.id ? next : x)))}
+            onRemove={() => remove(r)} />
         ))}
       </ul>
-      <Button size="lg" block icon={Check} loading={confirm.isPending} disabled={invalid} onClick={save}>{t('records.confirmAll')}</Button>
+      <Button size="lg" block icon={Check} loading={confirm.isPending} disabled={invalid || removing > 0} onClick={save}>{t('records.confirmAll')}</Button>
     </Card>
   )
 }

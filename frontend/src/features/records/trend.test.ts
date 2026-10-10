@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { chartSummary, rangeFlag, trendOf } from './trend'
+import { chartSummary, rangeFlag, sameUnit, trendBetween, trendOf } from './trend'
 import { findHighlight } from './highlight'
 import { obs } from './testing'
 
@@ -52,5 +52,24 @@ describe('findHighlight (VCAC-D-013)', () => {
     expect(findHighlight(md, { before: '| HbA1c | ', match: '132 mg/dL', after: ' |' })).toBeNull()
     expect(findHighlight(md, { before: '', match: '', after: '' })).toBeNull()
     expect(findHighlight(null, { before: '', match: '132', after: '' })).toBeNull()
+  })
+})
+
+describe('units (a trend never compares mg/dL with mmol/L)', () => {
+  const mixed = [obs('fbs', 118, '2024-07-02'), obs('fbs', 7.1, '2025-06-03', { unit: 'mmol/L' }), obs('fbs', 132, '2026-07-07')]
+  test('sameUnit keeps only the latest point\'s unit and says when others were left out', () => {
+    const r = sameUnit(mixed)
+    expect(r.points.map(p => p.value)).toEqual([118, 132])
+    expect(r.mixed).toBe(true)
+    expect(sameUnit([obs('fbs', 1, '2024-01-01'), obs('fbs', 2, '2024-02-01', { unit: ' MG/DL ' })]).mixed).toBe(false)
+  })
+  test('trendBetween is null across units and normal within one', () => {
+    expect(trendBetween(mixed[1], mixed[2])).toBeNull()
+    expect(trendBetween(mixed[0], mixed[2])).toBe('up')
+    expect(trendBetween(undefined, mixed[2])).toBeNull()
+  })
+  test('chartSummary reads only same-unit points', () => {
+    const mmolFirst = [obs('fbs', 6.1, '2023-01-10', { unit: 'mmol/L' }), ...mixed]
+    expect(chartSummary(mmolFirst, 'FBS', 'en')).toBe('FBS rose from 118 to 132 mg/dL between July 2024 and July 2026')
   })
 })

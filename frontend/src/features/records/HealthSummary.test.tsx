@@ -99,3 +99,17 @@ describe('HealthSummary when a series fails', () => {
     expect(fbs.textContent).toContain('132')
   })
 })
+
+describe('HealthSummary with mixed units', () => {
+  test('the trend compares with the previous value in the same unit only', async () => {
+    const series = [obs('fbs', 140, '2024-07-02'), obs('fbs', 7.3, '2025-06-03', { unit: 'mmol/L' }), obs('fbs', 132, '2026-07-07')]
+    mockFetch({
+      'GET /api/profiles/1/summary': () => json(summary({ fbs: series[2] })),
+      'GET /api/profiles/1/observations': () => json(series),
+    })
+    renderRoutes([{ path: '/records', element: <HealthSummary /> }], '/records')
+    const fbs = await screen.findByRole('link', { name: /FBS/ })
+    // 140 mg/dL -> 132 mg/dL is down; comparing with 7.3 mmol/L would have said "up"
+    expect(await within(fbs).findByText('Bumaba')).toBeTruthy()
+  })
+})

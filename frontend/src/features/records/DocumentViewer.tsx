@@ -9,12 +9,17 @@ import { Card } from '../../components/Card'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT } from '../../i18n'
-import { useDocument } from './api'
+import { useDocument, type DocumentDetail } from './api'
 import { findHighlight, type Quote } from './highlight'
 import { ReviewExtraction } from './ReviewExtraction'
 import './records.css'
 
 const ZOOMS = [1, 1.5, 2, 3]
+
+/** The backend's page URLs; built from `pages` only if an older server leaves them out. */
+const pageUrls = (d: DocumentDetail) => d.page_urls?.length
+  ? d.page_urls
+  : Array.from({ length: Math.max(1, d.pages) }, (_, i) => `/api/documents/${d.id}/page/${i + 1}.png`)
 
 // Minimal hast shapes, enough for the plugin below.
 type HText = { type: 'text'; value: string; position?: { start: { offset?: number }; end: { offset?: number } } }
@@ -120,13 +125,13 @@ export function DocumentViewer() {
                 <span className="doc-zoom__level num" aria-live="polite">{Math.round(ZOOMS[zoom] * 100)}%</span>
                 <Button variant="secondary" icon={ZoomIn} disabled={zoom === ZOOMS.length - 1} onClick={() => setZoom(z => Math.min(ZOOMS.length - 1, z + 1))}>{t('records.zoomIn')}</Button>
               </div>
-              {Array.from({ length: Math.max(1, doc!.pages) }, (_, i) => i + 1).map(n => (
-                <figure key={n} className="doc-page">
+              {pageUrls(doc!).map((src, i) => ({ src, n: i + 1 })).map(({ src, n }) => (
+                <figure key={src} className="doc-page">
                   <div className="doc-page__scroll" tabIndex={0}>
-                    <img src={`/api/documents/${doc!.id}/page/${n}.png`} alt={t('records.pageAlt', { title: doc!.title, n })}
+                    <img src={src} alt={t('records.pageAlt', { title: doc!.title, n })}
                       style={{ width: `${ZOOMS[zoom] * 100}%` }} onLoad={() => setLoaded(n => n + 1)} />
                   </div>
-                  {doc!.pages > 1 && <figcaption className="small muted">{t('records.pageOf', { n, total: doc!.pages })}</figcaption>}
+                  {pageUrls(doc!).length > 1 && <figcaption className="small muted">{t('records.pageOf', { n, total: pageUrls(doc!).length })}</figcaption>}
                 </figure>
               ))}
 

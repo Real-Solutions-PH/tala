@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { ArrowLeft, ChartLine, FlaskConical, Table } from 'lucide-react'
+import { ArrowLeft, ChartLine, FlaskConical, Info, Table } from 'lucide-react'
 import {
   CartesianGrid, LabelList, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
@@ -14,7 +14,7 @@ import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Lang } from '../../i18n'
 import { useLock } from '../lock/useLock'
 import { RangeBadge, TrendWord } from './HealthSummary'
-import { chartSummary, num, rangeFlag, rangeText, shortName, trendOf } from './trend'
+import { chartSummary, num, rangeFlag, rangeText, sameUnit, shortName, trendBetween } from './trend'
 import './records.css'
 
 const MIN_CHART_POINTS = 4
@@ -71,7 +71,7 @@ function StatCards({ points, lang }: { points: Observation[]; lang: Lang }) {
             <Card className="stat-card">
               <span className="stat-card__value"><span className="num">{p.value != null ? num(p.value, lang) : p.value_text}</span> <span className="stat-tile__unit">{p.unit}</span></span>
               <time className="small muted" dateTime={p.date}>{formatDate(p.date, lang)}</time>
-              {prev && <TrendWord trend={trendOf(prev.value, p.value)} />}
+              {prev && <TrendWord trend={trendBetween(prev, p)} />}
               <RangeBadge flag={rangeFlag(p)} />
             </Card>
           </li>
@@ -124,7 +124,8 @@ export function LabDetail() {
   const q = useObservations(profileId, code)
   const [asTable, setAsTable] = useState(false)
 
-  const points = (q.data ?? []).filter(o => o.status !== 'proposed' && o.value != null)
+  // Only the latest unit is compared, plotted and banded; results in another unit are left out with a notice.
+  const { points, mixed } = sameUnit((q.data ?? []).filter(o => o.status !== 'proposed' && o.value != null))
   const label = points[points.length - 1]?.label
   const name = shortName(code, label, lang)
   const last = points[points.length - 1]
@@ -132,6 +133,8 @@ export function LabDetail() {
   const rangeLine = range && (
     <p className="lab-card__range"><span className="lab-card__swatch" aria-hidden="true" />{t('blocks.refRange', { range: `${range} ${last.unit ?? ''}`.trim() })}</p>
   )
+
+  const unitNotice = mixed && <p className="unit-notice small"><Info aria-hidden="true" strokeWidth={2} /><span>{t('records.otherUnits')}</span></p>
 
   return (
     <div className="page lab">
@@ -146,10 +149,11 @@ export function LabDetail() {
           : points.length === 0
             ? <EmptyState icon={FlaskConical} title={t('records.labEmptyTitle')} body={t('records.labEmptyBody')} />
             : points.length < MIN_CHART_POINTS
-              ? <>{rangeLine}<StatCards points={points} lang={lang} /></>
+              ? <>{rangeLine}{unitNotice}<StatCards points={points} lang={lang} /></>
               : (
                 <Card className="lab-card">
                   {rangeLine}
+                  {unitNotice}
                   {asTable ? <LabTable points={points} lang={lang} /> : <Chart points={points} name={name} lang={lang} />}
                   <Button variant="secondary" block icon={asTable ? ChartLine : Table} onClick={() => setAsTable(v => !v)}>
                     {asTable ? t('records.viewChart') : t('records.viewTable')}

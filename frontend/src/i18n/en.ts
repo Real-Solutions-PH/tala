@@ -217,6 +217,9 @@ export const en = {
     chooseFile: 'Choose a photo or PDF',
     saving: 'Keeping it…',
     filteredEmpty: 'Nothing here yet.',
+    otherUnits: 'Some results are in a different unit and are not included.',
+    removed: 'Result removed.',
+    removeFailed: 'Couldn’t remove the result. Please try again.',
   },
   emergency: {
     button: 'Emergency',

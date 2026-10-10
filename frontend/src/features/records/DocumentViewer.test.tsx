@@ -6,7 +6,8 @@ import { json, mockFetch, renderRoutes } from './testing'
 
 const MD = '# Marikina Valley Diagnostic Center\n\n## Results\n\n| Test | Result | Unit |\n|---|---|---|\n| FBS | 132 | mg/dL |\n\nReleased 2026-07-07'
 const DOC = { id: 7, title: 'FBS and HbA1c', kind: 'lab', date: '2026-07-07', facility: 'Marikina Valley Diagnostic Center',
-  pages: 2, status: 'indexed', error: null, transcript_md: MD, observations: [] }
+  pages: 2, page_urls: ['/api/documents/7/page/1.png?v=a', '/api/documents/7/page/2.png?v=a'],
+  status: 'indexed', error: null, transcript_md: MD, observations: [] }
 const routes = [{ path: '/records/documents/:id', element: <DocumentViewer /> }]
 
 beforeEach(() => {
@@ -21,7 +22,7 @@ describe('DocumentViewer', () => {
     renderRoutes(routes, '/records/documents/7')
     expect(await screen.findByRole('heading', { level: 1, name: 'FBS and HbA1c' })).toBeTruthy()
     const imgs = screen.getAllByRole('img') as HTMLImageElement[]
-    expect(imgs.map(i => i.getAttribute('src'))).toEqual(['/api/documents/7/page/1.png', '/api/documents/7/page/2.png'])
+    expect(imgs.map(i => i.getAttribute('src'))).toEqual(DOC.page_urls)
     expect(screen.queryByText('Released 2026-07-07')).toBeNull()
     await userEvent.click(screen.getByRole('button', { name: 'Basahin ang nakasulat' }))
     expect(screen.getByText('Released 2026-07-07')).toBeTruthy()

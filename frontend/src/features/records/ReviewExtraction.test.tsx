@@ -12,12 +12,15 @@ const DOC = { id: 7, title: 'FBS and HbA1c', kind: 'lab', date: '2026-07-07', fa
   error: null, transcript_md: '# Lab', observations: [...PROPOSED, obs('ldl', 120, '2025-01-01', { id: 50, document_id: 7 })] }
 const routes = [{ path: '/records/documents/:id', element: <DocumentViewer /> }]
 
-function setup() {
+function setup(deleteStatus = 204) {
   return mockFetch({
     'GET /api/documents/7': () => json(DOC),
     'POST /api/documents/7/observations/confirm': () => new Response(null, { status: 204 }),
+    'DELETE /api/documents/7/observations/101': () => new Response(null, { status: deleteStatus }),
+    'DELETE /api/documents/7/observations/102': () => new Response(null, { status: deleteStatus }),
   })
 }
+const deletes = (calls: ReturnType<typeof setup>['calls']) => calls.filter(c => c.method === 'DELETE')
 const confirmPosts = (calls: ReturnType<typeof setup>['calls']) => calls.filter(c => c.method === 'POST')
 
 beforeEach(() => localStorage.clear())
@@ -64,6 +67,7 @@ describe('ReviewExtraction', () => {
 
     await userEvent.click(within(second).getByRole('button', { name: /Alisin/ }))
     expect(within(section).getAllByRole('listitem')).toHaveLength(1)
+    await waitFor(() => expect(deletes(calls).map(c => c.path)).toEqual(['/api/documents/7/observations/102']))
 
     await userEvent.click(screen.getByRole('button', { name: 'Tama ito' }))
     await waitFor(() => expect(confirmPosts(calls)).toHaveLength(1))
@@ -81,6 +85,41 @@ describe('ReviewExtraction', () => {
     await userEvent.type(value, 'abc')
     expect(within(first).getByText('Numero po ang ilagay.')).toBeTruthy()
     expect((screen.getByRole('button', { name: 'Tama ito' }) as HTMLButtonElement).disabled).toBe(true)
+    expect(confirmPosts(calls)).toHaveLength(0)
+  })
+
+  test('Remove calls DELETE and reports it', async () => {
+    const { calls } = setup()
+    renderRoutes(routes, '/records/documents/7')
+    const section = await screen.findByRole('region', { name: 'Tingnan po kung tama ang nabasa' })
+    await userEvent.click(within(within(section).getAllByRole('listitem')[0]).getByRole('button', { name: /Alisin/ }))
+    await waitFor(() => expect(deletes(calls)).toHaveLength(1))
+    expect(deletes(calls)[0].path).toBe('/api/documents/7/observations/101')
+    expect(await screen.findByText('Inalis na po ang resulta.')).toBeTruthy()
+    expect(within(section).getAllByRole('listitem')).toHaveLength(1)
+  })
+
+  test.each([404, 405, 500])('a failed DELETE (%i) keeps the row and says so', async status => {
+    setup(status)
+    renderRoutes(routes, '/records/documents/7')
+    const section = await screen.findByRole('region', { name: 'Tingnan po kung tama ang nabasa' })
+    await userEvent.click(within(within(section).getAllByRole('listitem')[0]).getByRole('button', { name: /Alisin/ }))
+    expect(await screen.findByText('Hindi po naalis ang resulta. Pakisubukan ulit.')).toBeTruthy()
+    const rows = within(section).getAllByRole('listitem')
+    expect(rows).toHaveLength(2)
+    expect(rows[0].textContent).toContain('Fasting blood sugar') // back in its place
+    expect(screen.queryByText('Inalis na po ang resulta.')).toBeNull()
+  })
+
+  test('confirming with every row removed makes no POST', async () => {
+    const { calls } = setup()
+    renderRoutes(routes, '/records/documents/7')
+    const section = await screen.findByRole('region', { name: 'Tingnan po kung tama ang nabasa' })
+    for (const row of within(section).getAllByRole('listitem')) await userEvent.click(within(row).getByRole('button', { name: /Alisin/ }))
+    await waitFor(() => expect(deletes(calls)).toHaveLength(2))
+    const confirmBtn = screen.getByRole('button', { name: 'Tama ito' }) as HTMLButtonElement
+    await waitFor(() => expect(confirmBtn.disabled).toBe(false))
+    await userEvent.click(confirmBtn)
     expect(confirmPosts(calls)).toHaveLength(0)
   })
 })

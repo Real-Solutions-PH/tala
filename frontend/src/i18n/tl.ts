@@ -219,6 +219,9 @@ export const tl: Catalogue = {
     chooseFile: 'Pumili ng litrato o PDF',
     saving: 'Itinatabi…',
     filteredEmpty: 'Wala pa po rito.',
+    otherUnits: 'Ilang resulta ay ibang unit at hindi isinama.',
+    removed: 'Inalis na po ang resulta.',
+    removeFailed: 'Hindi po naalis ang resulta. Pakisubukan ulit.',
   },
   emergency: {
     button: 'Emergency',

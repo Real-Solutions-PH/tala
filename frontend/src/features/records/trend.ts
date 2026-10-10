@@ -10,6 +10,24 @@ export function trendOf(prev: number | null | undefined, cur: number | null | un
   return cur > prev ? 'up' : cur < prev ? 'down' : 'same'
 }
 
+/** Units compare loosely ("mg/dL" = " MG/DL "), but a different unit is never compared or plotted. */
+const unitKey = (u: string | null | undefined) => (u ?? '').trim().toLowerCase()
+export const sameUnitAs = (a: Pick<Observation, 'unit'>, b: Pick<Observation, 'unit'>) => unitKey(a.unit) === unitKey(b.unit)
+
+/** The points (oldest first) that share the latest point's unit, and whether any were left out. */
+export function sameUnit(points: Observation[]): { points: Observation[]; mixed: boolean } {
+  const last = points[points.length - 1]
+  if (!last) return { points, mixed: false }
+  const kept = points.filter(p => sameUnitAs(p, last))
+  return { points: kept, mixed: kept.length !== points.length }
+}
+
+/** Trend from one observation to the next; null when either is missing or their units differ. */
+export function trendBetween(prev: Pick<Observation, 'value' | 'unit'> | undefined, cur: Pick<Observation, 'value' | 'unit'> | undefined): Trend | null {
+  if (!prev || !cur || !sameUnitAs(prev, cur)) return null
+  return trendOf(prev.value, cur.value)
+}
+
 export const TREND_WORD: Record<Trend, Key> = { up: 'records.rose', down: 'records.fell', same: 'records.same' }
 
 export function rangeFlag(o: Pick<Observation, 'value' | 'ref_low' | 'ref_high'>): 'high' | 'low' | null {
@@ -37,7 +55,7 @@ export function rangeText(lo: number | null, hi: number | null, lang: Lang): str
 
 /** "FBS rose from 118 to 132 mg/dL between July 2024 and July 2026" (points oldest first). */
 export function chartSummary(points: Observation[], name: string, lang: Lang): string {
-  const withValue = points.filter(p => p.value != null)
+  const withValue = sameUnit(points.filter(p => p.value != null)).points
   if (withValue.length === 0) return name
   const first = withValue[0]
   const last = withValue[withValue.length - 1]

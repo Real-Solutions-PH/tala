@@ -7,7 +7,7 @@ import { api } from '../../api/client'
 import { keys } from '../../api/queries'
 import type { DocumentItem, Observation } from '../../api/types'
 
-export type DocumentDetail = DocumentItem & { transcript_md?: string | null; observations?: Observation[] }
+export type DocumentDetail = DocumentItem & { transcript_md?: string | null; observations?: Observation[]; page_urls?: string[] }
 
 export type ObservationEdit = { value: number | null; unit: string | null; date: string }
 
@@ -39,6 +39,13 @@ export function useUploadDocument(pid: number | null) {
       qc.invalidateQueries({ queryKey: keys.documents(pid) })
       qc.invalidateQueries({ queryKey: ['timeline', pid] })
     },
+  })
+}
+
+/** Rejects one proposed value (DELETE, 204). Until the backend has it, a 404/405 is just a failure. */
+export function useRejectObservation(docId: number) {
+  return useMutation({
+    mutationFn: (oid: number) => api.send('DELETE', `/documents/${docId}/observations/${oid}`),
   })
 }
 

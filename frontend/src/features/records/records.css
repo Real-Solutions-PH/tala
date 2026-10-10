@@ -57,6 +57,9 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .lab-card__range { display: flex; align-items: center; gap: var(--s-2); color: var(--muted); font-size: var(--fs-sm); font-weight: 700; }
 .lab-card__swatch { flex: none; width: 1.4em; height: 0.9em; border-radius: 4px; background: var(--primary-soft); border: 1px solid var(--primary); }
 
+.unit-notice { display: flex; align-items: flex-start; gap: var(--s-2); color: var(--muted); font-weight: 700; }
+.unit-notice svg { flex: none; width: 1.2em; height: 1.2em; margin-top: 2px; color: var(--primary); }
+
 .lab-chart { margin: 0; width: 100%; height: calc(260px * var(--text-scale)); }
 /* Recharts draws with SVG attributes; these rules (which beat presentation attributes) keep it on tokens. */
 .lab-chart .recharts-cartesian-grid line { stroke: var(--border); }

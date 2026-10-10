@@ -10,8 +10,13 @@ const FBS = [
 ]
 const A1C = [obs('hba1c', 6.9, '2025-09-02'), obs('hba1c', 7.2, '2026-03-02')]
 
-function setup(code: string, lang: 'en' | 'tl' = 'tl') {
-  mockFetch({ 'GET /api/profiles/1/observations': ({ url }) => json(url.includes('code=fbs') ? FBS : url.includes('code=hba1c') ? A1C : []) })
+const MIXED = [
+  obs('fbs', 118, '2024-07-02'), obs('fbs', 6.9, '2024-12-03', { unit: 'mmol/L', ref_low: 3.9, ref_high: 5.6 }), obs('fbs', 125, '2025-06-03'),
+  obs('fbs', 128, '2025-12-02'), obs('fbs', 130, '2026-03-02'), obs('fbs', 132, '2026-07-07'),
+]
+
+function setup(code: string, lang: 'en' | 'tl' = 'tl', fbs = FBS) {
+  mockFetch({ 'GET /api/profiles/1/observations': ({ url }) => json(url.includes('code=fbs') ? fbs : url.includes('code=hba1c') ? A1C : []) })
   return renderRoutes([{ path: '/records/labs/:code', element: <LabDetail /> }], `/records/labs/${code}`, lang)
 }
 
@@ -54,6 +59,31 @@ describe('LabDetail', () => {
     const cards = [...document.querySelectorAll('.stat-card')]
     expect(cards[0].textContent).toContain('7.2')
     expect(within(cards[0] as HTMLElement).getByText('Tumaas')).toBeTruthy()
+  })
+
+  test('a series with another unit plots only the latest unit and says some were left out', async () => {
+    setup('fbs', 'en', MIXED)
+    expect(await screen.findByRole('img', { name: 'FBS rose from 118 to 132 mg/dL between July 2024 and July 2026' })).toBeTruthy()
+    expect(screen.getByText('Some results are in a different unit and are not included.')).toBeTruthy()
+    expect(screen.getByText('Normal range: 70–100 mg/dL')).toBeTruthy()
+    await userEvent.click(screen.getByRole('button', { name: 'View as table' }))
+    const table = screen.getByRole('table')
+    expect(within(table).getAllByRole('row')).toHaveLength(MIXED.length) // header + the 5 mg/dL rows
+    expect(table.textContent).not.toContain('mmol/L')
+  })
+
+  test('no notice when every result shares a unit', async () => {
+    setup('fbs')
+    await screen.findByRole('img')
+    expect(screen.queryByText('Ilang resulta ay ibang unit at hindi isinama.')).toBeNull()
+  })
+
+  test('stat cards never show a trend across units', async () => {
+    mockFetch({ 'GET /api/profiles/1/observations': () => json([obs('hba1c', 6.9, '2025-09-02', { unit: 'mmol/mol' }), obs('hba1c', 7.2, '2026-03-02')]) })
+    renderRoutes([{ path: '/records/labs/:code', element: <LabDetail /> }], '/records/labs/hba1c')
+    expect(await screen.findByText('Ilang resulta ay ibang unit at hindi isinama.')).toBeTruthy()
+    expect(document.querySelectorAll('.stat-card')).toHaveLength(1)
+    expect(screen.queryByText('Tumaas')).toBeNull()
   })
 
   test('no results shows an empty state', async () => {

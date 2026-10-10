@@ -8,7 +8,7 @@ import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Key } from '../../i18n'
 import { useLock } from '../lock/useLock'
-import { num, rangeFlag, TREND_WORD, trendOf, type Trend } from './trend'
+import { num, rangeFlag, sameUnitAs, TREND_WORD, trendBetween, type Trend } from './trend'
 import './records.css'
 
 const TREND_ICON: Record<Trend, LucideIcon> = { up: ArrowUp, down: ArrowDown, same: ArrowRight }
@@ -36,9 +36,11 @@ export function RangeBadge({ flag }: { flag: 'high' | 'low' | null }) {
  * series is loading or failed, so the tile shows no trend rather than a wrong "first result".
  */
 const confirmed = (xs: Observation[] | undefined) => xs?.filter(o => o.status !== 'proposed')
+/** The value before `latest` in the same unit (a result in another unit is never compared). */
 const previous = (series: Observation[], latest: Observation) => {
   const i = series.findIndex(o => o.id === latest.id)
-  return (i > 0 ? series[i - 1] : i < 0 ? series[series.length - 2] : undefined)?.value
+  const before = (i >= 0 ? series.slice(0, i) : series.filter(o => o.date < latest.date)).filter(o => sameUnitAs(o, latest))
+  return before[before.length - 1]
 }
 
 type TileProps = { name: Key; to: string; latest?: Observation; value?: string; series?: Observation[]; flag: 'high' | 'low' | null }
@@ -59,7 +61,7 @@ function Tile({ name, to, latest, value, series, flag }: TileProps) {
       <span className="stat-tile__name">{t(name)}</span>
       <span className="stat-tile__value"><span className="num">{value}</span> <span className="stat-tile__unit">{latest.unit}</span></span>
       <time className="stat-tile__date small muted" dateTime={latest.date}>{formatDate(latest.date, lang)}</time>
-      {series && <TrendWord trend={trendOf(previous(series, latest), latest.value)} />}
+      {series && <TrendWord trend={trendBetween(previous(series, latest), latest)} />}
       <RangeBadge flag={flag} />
     </Link>
   )
