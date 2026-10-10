@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { CalendarCheck, ChevronRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
+import { CalendarCheck, Check, ChevronRight, FileText, FlaskConical, List, Stethoscope, Syringe, type LucideIcon } from 'lucide-react'
 import { useTimeline } from '../../api/queries'
 import type { TimelineItem, TimelineKind } from '../../api/types'
 import { Chip } from '../../components/Chip'
@@ -10,12 +10,12 @@ import { formatDate, useLang, useT, type Key } from '../../i18n'
 import { useLock } from '../lock/useLock'
 import './records.css'
 
-const FILTERS: { kind?: TimelineKind; label: Key }[] = [
-  { label: 'records.all' },
-  { kind: 'lab', label: 'records.filterLab' },
-  { kind: 'vaccine', label: 'records.filterVaccine' },
-  { kind: 'visit', label: 'records.filterVisit' },
-  { kind: 'document', label: 'records.filterDocument' },
+const FILTERS: { kind?: TimelineKind; label: Key; icon: LucideIcon }[] = [
+  { label: 'records.all', icon: List },
+  { kind: 'lab', label: 'records.filterLab', icon: FlaskConical },
+  { kind: 'vaccine', label: 'records.filterVaccine', icon: Syringe },
+  { kind: 'visit', label: 'records.filterVisit', icon: Stethoscope },
+  { kind: 'document', label: 'records.filterDocument', icon: FileText },
 ]
 
 const KIND: Record<TimelineKind, { icon: LucideIcon; label: Key }> = {
@@ -54,14 +54,16 @@ export function Timeline() {
   return (
     <section className="timeline" aria-labelledby="timeline-title">
       <h2 id="timeline-title">{t('records.timeline')}</h2>
-      <div className="chip-row" role="group" aria-label={t('records.filterLabel')}>
-        {FILTERS.map(f => (
-          <Chip key={f.label} selected={kind === f.kind} onClick={e => {
-            setKind(f.kind)
-            // The filter scrolls sideways: bring the chosen chip fully into view.
-            e.currentTarget.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
-          }}>{t(f.label)}</Chip>
-        ))}
+      <div className="kind-filter" role="group" aria-label={t('records.filterLabel')}>
+        {FILTERS.map(f => {
+          const on = kind === f.kind
+          // Selected carries a check as well as the colour, so it never relies on colour alone.
+          return (
+            <Chip key={f.label} icon={f.icon} selected={on} onClick={() => setKind(f.kind)}>
+              {t(f.label)}{on && <Check aria-hidden="true" strokeWidth={2.5} />}
+            </Chip>
+          )
+        })}
       </div>
       {q.isPending
         ? <ul className="tl-list" aria-busy="true">{[0, 1, 2].map(i => (

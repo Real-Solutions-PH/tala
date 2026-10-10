@@ -266,6 +266,12 @@ export const en = {
     otherUnits: 'Some results are in a different unit and are not included.',
     removed: 'Result removed.',
     removeFailed: 'Couldn’t remove the result. Please try again.',
+    summaryOf: 'Health of {name}',
+    tileBpLong: 'Blood pressure (BP)',
+    tileFbsLong: 'Blood sugar (FBS)',
+    tileHba1cLong: 'HbA1c',
+    allergiesTitle: 'Allergies',
+    noAllergiesRecorded: 'No allergies recorded',
   },
   emergency: {
     button: 'Emergency',

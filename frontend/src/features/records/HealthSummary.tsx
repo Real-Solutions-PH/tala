@@ -1,9 +1,8 @@
 import { Link } from 'react-router'
-import { ArrowDown, ArrowRight, ArrowUp, Droplet, FlaskConical, HeartPulse, TriangleAlert, type LucideIcon } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUp, ChevronRight, Droplet, FlaskConical, HeartPulse, ShieldAlert, Stethoscope, TriangleAlert, type LucideIcon } from 'lucide-react'
 import { useObservations, useProfiles, useSummary } from '../../api/queries'
 import type { Observation } from '../../api/types'
 import { Badge } from '../../components/Badge'
-import { Card } from '../../components/Card'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Key } from '../../i18n'
@@ -45,37 +44,43 @@ const previous = (series: Observation[], latest: Observation) => {
 
 type TileProps = { name: Key; icon: LucideIcon; to: string; latest?: Observation; value?: string; series?: Observation[]; flag: 'high' | 'low' | null }
 
+/** One vital, read top to bottom on the left: icon and label, the value, the status words, the date. */
 function Tile({ name, icon: Icon, to, latest, value, series, flag }: TileProps) {
   const t = useT()
   const [lang] = useLang()
+  const head = (
+    <span className="vtile__head">
+      <span className="vtile__icon" aria-hidden="true"><Icon /></span>
+      {latest && <ChevronRight className="vtile__go" aria-hidden="true" />}
+    </span>
+  )
+  const label = <span className="vtile__label">{t(name)}</span>
   if (!latest) {
     return (
-      <div className="stat-tile stat-tile--empty">
-        <span className="stat-tile__head"><span className="stat-tile__icon" aria-hidden="true"><Icon /></span></span>
-        <span className="stat-tile__name">{t(name)}</span>
-        <span className="stat-tile__none">{t('records.noResultYet')}</span>
+      <div className="vtile vtile--empty">
+        {head}
+        {label}
+        <span className="vtile__none">{t('records.noResultYet')}</span>
       </div>
     )
   }
-  // After the reference tile: icon top-left, the reading small top-right, the name large bottom-left.
   return (
-    <Link to={to} className="stat-tile">
-      <span className="stat-tile__head">
-        <span className="stat-tile__icon" aria-hidden="true"><Icon /></span>
-        <span className="stat-tile__now">
-          <time className="stat-tile__date" dateTime={latest.date}>{formatDate(latest.date, lang, { month: 'short', day: 'numeric' })}<span className="sr-only">, {latest.date.slice(0, 4)}</span></time>
-          <span className="stat-tile__value"><span className="num">{value}</span> <span className="stat-tile__unit">{latest.unit}</span></span>
-          {flag && <span className="stat-tile__flag" aria-hidden="true"><TriangleAlert />{t(flag === 'high' ? 'blocks.high' : 'blocks.low')}</span>}
+    <Link to={to} className="vtile">
+      {head}
+      {label}
+      <span className="vtile__value"><span className="num">{value}</span> <span className="vtile__unit">{latest.unit}</span></span>
+      {(flag || series) && (
+        <span className="vtile__status">
+          <RangeBadge flag={flag} />
+          {series && <TrendWord trend={trendBetween(previous(series, latest), latest)} />}
         </span>
-      </span>
-      <span className="stat-tile__name">{t(name)}</span>
-      {series && <span className="sr-only"><TrendWord trend={trendBetween(previous(series, latest), latest)} /></span>}
-      {flag && <span className="sr-only"><RangeBadge flag={flag} /></span>}
+      )}
+      <time className="vtile__date" dateTime={latest.date}>{formatDate(latest.date, lang, { month: 'short', day: 'numeric', year: 'numeric' })}</time>
     </Link>
   )
 }
 
-/** The "Kalagayan" block: conditions, allergies, and the latest BP, FBS and HbA1c with a trend word. */
+/** The "Kalagayan" block: the latest BP, FBS and HbA1c with a trend word, then allergies and conditions. */
 export function HealthSummary() {
   const t = useT()
   const [lang] = useLang()
@@ -87,7 +92,7 @@ export function HealthSummary() {
   const me = useProfiles().data?.find(p => p.id === profileId)
 
   if (summary.isPending) {
-    return <Card as="section" className="summary"><Skeleton height={24} width="40%" /><Skeleton height={340} radius={32} /><Skeleton height={140} radius={32} /></Card>
+    return <section className="summary"><Skeleton height={24} width="40%" /><Skeleton height={340} radius={20} /><Skeleton height={140} radius={20} /></section>
   }
   if (summary.isError) return <ErrorState onRetry={() => { summary.refetch() }} />
 
@@ -99,52 +104,43 @@ export function HealthSummary() {
   const bpFlag = bpS && (rangeFlag(bpS) === 'high' || (bpD && rangeFlag(bpD) === 'high')) ? 'high'
     : bpS && (rangeFlag(bpS) === 'low' || (bpD && rangeFlag(bpD) === 'low')) ? 'low' : null
   const fmt = (o?: Observation) => (o?.value != null ? num(o.value, lang) : o?.value_text ?? '')
+  const who = me ? (me.nickname ?? me.full_name) : ''
 
   return (
-    <Card as="section" className="summary" aria-labelledby="summary-title">
-      <h2 id="summary-title">{t('records.summary')}</h2>
+    <section className="summary" aria-labelledby="summary-title">
+      <div className="summary__head">
+        <h2 id="summary-title">{t('records.summary')}</h2>
+        {who && <p className="muted summary__sub">{t('records.summaryOf', { name: who })}</p>}
+      </div>
 
-      <div className="summary__group">
-        <h3 className="summary__label"><span className="icon-disc" aria-hidden="true"><HeartPulse /></span>{t('records.conditions')}</h3>
+      <div className="vgrid">
+        {/* BP's trend follows the systolic (top) number */}
+        <Tile name="records.tileBpLong" icon={HeartPulse} to="/records/labs/bp_systolic" latest={bpS} series={confirmed(sys.data)} flag={bpFlag}
+          value={bpS ? `${fmt(bpS)}${bpD && bpD.date === bpS.date ? `/${fmt(bpD)}` : ''}` : undefined} />
+        <Tile name="records.tileFbsLong" icon={Droplet} to="/records/labs/fbs" latest={latest.fbs} value={fmt(latest.fbs)}
+          series={confirmed(fbs.data)} flag={latest.fbs ? rangeFlag(latest.fbs) : null} />
+        <Tile name="records.tileHba1cLong" icon={FlaskConical} to="/records/labs/hba1c" latest={latest.hba1c} value={fmt(latest.hba1c)}
+          series={confirmed(a1c.data)} flag={latest.hba1c ? rangeFlag(latest.hba1c) : null} />
+      </div>
+
+      <div className="stile stile--allergy">
+        <h3 className="stile__label"><span className="vtile__icon vtile__icon--danger" aria-hidden="true"><ShieldAlert /></span>{t('records.allergiesTitle')}</h3>
+        {s.allergies.length
+          ? <ul className="allergy-list">{s.allergies.map(a => (
+              <li key={a.id}>
+                <Badge tone="danger" icon={TriangleAlert}>{a.substance}</Badge>
+                {a.reaction && <span className="muted">{a.reaction}</span>}
+              </li>
+            ))}</ul>
+          : <p className="muted">{t('records.noAllergiesRecorded')}</p>}
+      </div>
+
+      <div className="stile">
+        <h3 className="stile__label"><span className="vtile__icon" aria-hidden="true"><Stethoscope /></span>{t('records.conditions')}</h3>
         {conditions.length
           ? <ul className="summary__list">{conditions.map(c => <li key={c.id}>{c.name}</li>)}</ul>
           : <p className="muted">{t('records.noConditions')}</p>}
       </div>
-
-      <div className="summary__group">
-        <h3 className="summary__label"><span className="icon-disc summary__label-icon--danger" aria-hidden="true"><TriangleAlert /></span>{t('records.allergies')}</h3>
-        {s.allergies.length
-          ? <ul className="summary__badges">{s.allergies.map(a => (
-              <li key={a.id}><Badge tone="danger" icon={TriangleAlert}>{a.substance}{a.reaction ? ` · ${a.reaction}` : ''}</Badge></li>
-            ))}</ul>
-          : <p className="muted">{t('records.noAllergies')}</p>}
-      </div>
-
-      <div className="summary__group">
-        <h3>{t('records.latestResults')}</h3>
-        <div className="panel__top">
-          <span className="name-pill">
-            {me?.photo_url ? <img src={me.photo_url} alt="" width={44} height={44} /> : <span className="name-pill__dot" aria-hidden="true" />}
-            <span>{me ? (me.nickname ?? me.full_name) : ''}</span>
-          </span>
-        </div>
-        <div className="stat-grid">
-          {/* BP's trend follows the systolic (top) number */}
-          <Tile name="records.tileBp" icon={HeartPulse} to="/records/labs/bp_systolic" latest={bpS} series={confirmed(sys.data)} flag={bpFlag}
-            value={bpS ? `${fmt(bpS)}${bpD && bpD.date === bpS.date ? `/${fmt(bpD)}` : ''}` : undefined} />
-          <Tile name="records.tileFbs" icon={Droplet} to="/records/labs/fbs" latest={latest.fbs} value={fmt(latest.fbs)}
-            series={confirmed(fbs.data)} flag={latest.fbs ? rangeFlag(latest.fbs) : null} />
-          <Tile name="records.tileHba1c" icon={FlaskConical} to="/records/labs/hba1c" latest={latest.hba1c} value={fmt(latest.hba1c)}
-            series={confirmed(a1c.data)} flag={latest.hba1c ? rangeFlag(latest.hba1c) : null} />
-          <div className="stat-tile stat-tile--static">
-            <span className="stat-tile__head">
-              <span className="stat-tile__icon stat-tile__icon--danger" aria-hidden="true"><TriangleAlert /></span>
-              <span className="stat-tile__now"><span className="stat-tile__value"><span className="num">{s.allergies.length}</span></span></span>
-            </span>
-            <span className="stat-tile__name">{t('records.allergies')}</span>
-          </div>
-        </div>
-      </div>
-    </Card>
+    </section>
   )
 }

@@ -36,4 +36,21 @@ describe('Timeline', () => {
     expect(screen.getByText('Influenza Annual')).toBeTruthy()
   })
 
+  test('filters are wrapping buttons with an icon, and the selected one adds a check', async () => {
+    mockFetch({
+      'GET /api/profiles/1/summary': () => json(SUMMARY),
+      'GET /api/profiles/1/timeline': () => json(TIMELINE),
+    })
+    renderRoutes(routes, '/records')
+    const group = await screen.findByRole('group', { name: /Ipakita/ })
+    expect(group.className).toContain('kind-filter')
+    expect(group.className).not.toContain('chip-row')
+    const buttons = within(group).getAllByRole('button')
+    expect(buttons.every(b => b.tagName === 'BUTTON' && b.querySelector('svg'))).toBe(true)
+    const pressed = buttons.filter(b => b.getAttribute('aria-pressed') === 'true')
+    expect(pressed.map(b => b.textContent)).toEqual(['Lahat'])
+    expect(pressed[0].querySelectorAll('svg').length).toBe(2)
+    expect(buttons[1].querySelectorAll('svg').length).toBe(1)
+  })
+
 })
