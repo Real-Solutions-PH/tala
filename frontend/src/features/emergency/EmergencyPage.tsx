@@ -5,7 +5,6 @@ import { Link, useParams } from 'react-router'
 import { ArrowLeft, Droplet, HeartPulse, Phone, Pill, QrCode, Siren, Stethoscope, TriangleAlert, UserRound, Users, IdCard } from 'lucide-react'
 import { useEmergency } from '../../api/queries'
 import type { EmergencyCard } from '../../api/types'
-import { Button } from '../../components/Button'
 import { ErrorState } from '../../components/ErrorState'
 import { Sheet } from '../../components/Sheet'
 import { Skeleton } from '../../components/Skeleton'
@@ -17,10 +16,10 @@ import './emergency.css'
 /** "Ana Dela Cruz" → "Ana", for the "Tawagan si Ana" button. */
 const firstName = (name: string) => name.trim().split(/\s+/)[0] ?? name
 
-function Row({ icon: Icon, title, children }: { icon: typeof Siren; title: string; children: ReactNode }) {
+function Row({ icon: Icon, title, alert, children }: { icon: typeof Siren; title: string; alert?: boolean; children: ReactNode }) {
   return (
-    <section className="ecard__row" aria-label={title}>
-      <h2 className="ecard__label"><Icon aria-hidden="true" strokeWidth={2.25} /><span>{title}</span></h2>
+    <section className={alert ? 'ecard__row ecard__row--alert' : 'ecard__row'} aria-label={title}>
+      <h2 className="ecard__label"><span className="ecard__icon"><Icon aria-hidden="true" strokeWidth={1.75} /></span><span>{title}</span></h2>
       <div className="ecard__value">{children}</div>
     </section>
   )
@@ -41,10 +40,7 @@ function Body({ card }: { card: EmergencyCard }) {
   const none = <p>{t('emergency.noneListed')}</p>
   return (
     <div className="ecard__rows">
-      {card.blood_type && (
-        <Row icon={Droplet} title={t('emergency.bloodType')}><p className="ecard__big">{card.blood_type}</p></Row>
-      )}
-      <Row icon={TriangleAlert} title={t('emergency.allergies')}>
+      <Row icon={TriangleAlert} title={t('emergency.allergies')} alert={card.allergies.length > 0}>
         {card.allergies.length === 0 ? <p>{t('emergency.noAllergies')}</p> : (
           <ul className="ecard__list">
             {card.allergies.map(a => (
@@ -67,8 +63,8 @@ function Body({ card }: { card: EmergencyCard }) {
         {card.meds.length ? (
           <ul className="ecard__list ecard__bullets">
             {card.meds.map(m => (
-              <li key={m.name}><strong>{m.name}</strong>{m.strength && ` ${m.strength}`}
-                {m.schedule.length > 0 && <span className="ecard__sched"> · {m.schedule.join(', ')}</span>}</li>
+              <li key={m.name}><span><strong>{m.name}</strong>{m.strength && ` ${m.strength}`}</span>
+                {m.schedule.length > 0 && <span className="ecard__sched">{m.schedule.map(h => <span key={h} className="ecard__time">{h}</span>)}</span>}</li>
             ))}
           </ul>
         ) : none}
@@ -96,11 +92,6 @@ function Body({ card }: { card: EmergencyCard }) {
           </div>
         </Row>
       )}
-      {card.philhealth_last4 && (
-        <Row icon={IdCard} title={t('emergency.philhealth')}>
-          <p className="ecard__big tabular">•••• {card.philhealth_last4}</p>
-        </Row>
-      )}
     </div>
   )
 }
@@ -117,23 +108,43 @@ export function EmergencyPage() {
   return (
     <main className="standalone ecard">
       <header className="ecard__band">
-        <Link to={profileId != null ? '/chat' : '/lock'} className="ecard__back" title={t('common.back')}>
-          <ArrowLeft aria-hidden="true" />
-          <span className="sr-only">{t('common.back')}</span>
-        </Link>
-        <h1 className="ecard__title"><Siren aria-hidden="true" strokeWidth={2.25} /><span>{t('emergency.title')}</span></h1>
+        <div className="ecard__bar">
+          <Link to={profileId != null ? '/chat' : '/lock'} className="ecard__back" title={t('common.back')}>
+            <ArrowLeft aria-hidden="true" />
+            <span className="sr-only">{t('common.back')}</span>
+          </Link>
+          {data && (
+            <button type="button" className="ecard__qrbtn" onClick={() => setQrOpen(true)}>
+              <QrCode aria-hidden="true" strokeWidth={1.75} /><span>{t('emergency.showQr')}</span>
+            </button>
+          )}
+        </div>
+        <h1 className="ecard__title"><Siren aria-hidden="true" strokeWidth={1.75} /><span>{t('emergency.title')}</span></h1>
         {card.isPending ? (
-          <div className="ecard__who"><Skeleton width={88} height={88} radius="50%" /><Skeleton width="60%" height={32} /></div>
+          <div className="ecard__who"><Skeleton width={72} height={72} radius={14} /><Skeleton width="60%" height={32} /></div>
         ) : data && (
-          <div className="ecard__who">
-            {data.photo_url
-              ? <img className="ecard__photo" src={data.photo_url} alt="" width={88} height={88} />
-              : <span className="ecard__photo ecard__photo--none" aria-hidden="true"><UserRound strokeWidth={2} /></span>}
-            <div>
-              <p className="ecard__name">{data.name}</p>
-              {data.age != null && <p className="ecard__age">{t('emergency.years', { n: data.age })}</p>}
+          <>
+            <div className="ecard__who">
+              {data.photo_url
+                ? <img className="ecard__photo" src={data.photo_url} alt="" width={72} height={72} />
+                : <span className="ecard__photo ecard__photo--none" aria-hidden="true"><UserRound strokeWidth={1.75} /></span>}
+              <div>
+                <p className="ecard__name">{data.name}</p>
+                {data.age != null && <p className="ecard__age">{t('emergency.years', { n: data.age })}</p>}
+              </div>
             </div>
-          </div>
+            {(data.blood_type || data.philhealth_last4) && (
+              // The two facts a nurse asks first, as white tiles on the band (the reference's results tiles).
+              <dl className="ecard__facts">
+                {data.blood_type && (
+                  <div className="ecard__fact"><dt><Droplet aria-hidden="true" strokeWidth={1.75} />{t('emergency.bloodType')}</dt><dd className="ecard__big">{data.blood_type}</dd></div>
+                )}
+                {data.philhealth_last4 && (
+                  <div className="ecard__fact"><dt><IdCard aria-hidden="true" strokeWidth={1.75} />{t('emergency.philhealth')}</dt><dd className="ecard__big tabular">•••• {data.philhealth_last4}</dd></div>
+                )}
+              </dl>
+            )}
+          </>
         )}
       </header>
 
@@ -146,7 +157,6 @@ export function EmergencyPage() {
           <ErrorState message={errorKey(card.error)} onRetry={() => { card.refetch() }} />
         ) : data && (
           <>
-            <Button size="lg" variant="secondary" block icon={QrCode} onClick={() => setQrOpen(true)}>{t('emergency.showQr')}</Button>
             <Body card={data} />
             <Sheet open={qrOpen} onClose={() => setQrOpen(false)} title={t('emergency.showQr')}>
               {qrOpen && (
