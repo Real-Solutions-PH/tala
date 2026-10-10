@@ -181,6 +181,8 @@ export const en = {
     emptyTitle: 'No medicines yet',
     emptyBody: 'Add your maintenance medicines so Kapiling can remind you.',
     todayHeading: 'Today',
+    progress: '{taken} of {total} doses taken today',
+    allTaken: 'All of today\'s doses are taken.',
     untaken: '{name} is no longer marked as taken.',
     times: 'Schedule: {times}',
   },

@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useEmergency, useProfiles } from '../api/queries'
+import { DisplayTitle } from '../components/DisplayTitle'
 import { EmptyState } from '../components/EmptyState'
 import { useLock } from '../features/lock/useLock'
 import { useT, type Key } from '../i18n'
@@ -14,7 +15,7 @@ function Page({ title, icon, empty, children }: { title: string; icon: LucideIco
   const t = useT()
   return (
     <div className="page">
-      <h1>{title}</h1>
+      <DisplayTitle>{title}</DisplayTitle>
       {children}
       <EmptyState icon={icon} title={empty?.title ?? t('common.soonTitle')} body={empty?.body ?? t('common.soonBody')} />
     </div>

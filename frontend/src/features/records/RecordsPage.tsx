@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '../../components/Button'
+import { DisplayTitle } from '../../components/DisplayTitle'
 import { useT } from '../../i18n'
 import { HealthSummary } from './HealthSummary'
 import { Timeline } from './Timeline'
@@ -13,9 +14,9 @@ export function RecordsPage() {
   const [adding, setAdding] = useState(false)
   return (
     <div className="page records">
-      <h1>{t('records.title')}</h1>
+      <DisplayTitle>{t('records.title')}</DisplayTitle>
       <HealthSummary />
-      <Button size="lg" block icon={Plus} onClick={() => setAdding(true)}>{t('records.addResult')}</Button>
+      <Button size="lg" block icon={Plus} className="btn--cta" onClick={() => setAdding(true)}>{t('records.addResult')}</Button>
       <Timeline />
       <UploadSheet open={adding} onClose={() => setAdding(false)} />
     </div>

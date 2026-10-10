@@ -36,18 +36,19 @@ export function TopBar() {
     <header className="topbar">
       <button type="button" className="topbar__profile" onClick={() => setOpen(true)} aria-haspopup="dialog"
         aria-label={name ? `${name}, ${t('common.switchProfile')}` : t('common.switchProfile')}>
-        <Avatar p={me} />
-        <span className="topbar__name">{name}</span>
+        <Avatar p={me} size={56} />
+        <span className="sr-only">{name}</span>
       </button>
 
-      <Link to={`/emergency/${profileId}`} className="topbar__sos">
-        <Siren aria-hidden="true" strokeWidth={2} />
-        <span>{t('emergency.button')}</span>
+      {/* Round icon buttons, as in the reference: the words stay for screen readers and long-press labels. */}
+      <Link to="/settings" className="topbar__iconlink" title={t('nav.settings')}>
+        <Settings aria-hidden="true" strokeWidth={2} />
+        <span className="sr-only">{t('nav.settings')}</span>
       </Link>
 
-      <Link to="/settings" className="topbar__iconlink">
-        <Settings aria-hidden="true" strokeWidth={2} />
-        <span>{t('nav.settings')}</span>
+      <Link to={`/emergency/${profileId}`} className="topbar__sos" title={t('emergency.button')}>
+        <Siren aria-hidden="true" strokeWidth={2} />
+        <span className="sr-only">{t('emergency.button')}</span>
       </Link>
 
       <Sheet open={open} onClose={() => setOpen(false)} title={t('common.switchProfile')}>

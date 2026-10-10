@@ -19,6 +19,7 @@ import { ConfirmSheet } from './ConfirmSheet'
 import { errorKey } from './errorKey'
 import { Field, FormError, Section } from './parts'
 import './settings.css'
+import { DisplayTitle } from '../../components/DisplayTitle'
 
 type Form = Record<'full_name' | 'nickname' | 'birth_date' | 'sex' | 'blood_type' | 'phone' | 'address' | 'philhealth_no' | 'senior_id_no', string>
 const BLOOD = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
@@ -215,7 +216,7 @@ export function ProfilePage() {
 
   return (
     <div className="page">
-      <h1>{t('profile.title')}</h1>
+      <DisplayTitle>{t('profile.title')}</DisplayTitle>
 
       <Section icon={UserRound} title={t('profile.personal')}>
         {profile.isPending && <div className="skeleton-stack" aria-busy="true">{[0, 1, 2, 3].map(i => <Skeleton key={i} height={84} />)}</div>}

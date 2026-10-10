@@ -8,6 +8,7 @@ import { api } from '../../api/client'
 import { keys, useMeds } from '../../api/queries'
 import type { Med, MedsDay } from '../../api/types'
 import { Badge } from '../../components/Badge'
+import { DisplayTitle } from '../../components/DisplayTitle'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
@@ -66,6 +67,34 @@ function RefillBadge({ med }: { med: Med | undefined }) {
   return <Badge tone="warn" icon={PackageOpen}>{t('meds.refillSoon', { n: med.supply_left })}</Badge>
 }
 
+/** Today at a glance, after the reference's top card: doses taken as a value, one bar per dose, and the next dose. */
+function TodayHero({ doses }: { doses: Dose[] }) {
+  const t = useT()
+  const [lang] = useLang()
+  if (doses.length === 0) return null
+  const taken = doses.filter(d => d.taken_at != null).length
+  const next = doses.find(d => d.taken_at == null)
+  return (
+    <section className="today card" aria-label={t('meds.progress', { taken, total: doses.length })}>
+      <div className="today__top" aria-hidden="true">
+        <span className="icon-disc"><Pill /></span>
+        <span className="today__what">
+          <span className="today__label">{t('meds.taken')}</span>
+          <span className="today__value">{taken}<span className="today__of"> / {doses.length}</span></span>
+        </span>
+        <span className="today__chip">{t('meds.todayHeading')}</span>
+      </div>
+      <div className="today__panel" aria-hidden="true">
+        <span className="today__bars">{doses.map((d, i) => <span key={i} className={d.taken_at != null ? 'is-on' : undefined} />)}</span>
+        <span className="today__next">
+          {next ? <><span className="today__value">{slotTime(next.slot, lang)}</span><span className="today__label">{t('common.next')}</span></>
+            : <span className="today__label">{t('meds.allTaken')}</span>}
+        </span>
+      </div>
+    </section>
+  )
+}
+
 function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; onToggle: (d: Dose) => void }) {
   const t = useT()
   const [lang] = useLang()
@@ -75,11 +104,12 @@ function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; on
   const id = `dose-${dose.med_id}-${dose.slot.replace(/\W/g, '')}`
   return (
     <li className={['dose', taken && 'dose--taken'].filter(Boolean).join(' ')} data-testid="dose">
+      <span className="icon-disc dose__icon" aria-hidden="true">{taken ? <Check strokeWidth={2.5} /> : <Pill strokeWidth={2} />}</span>
       <div className="dose__info" id={id}>
         <p className="dose__name">{name}{strength && <span className="dose__strength"> {strength}</span>}</p>
         <p className="dose__meta">
-          <span className="tabular">{slotTime(dose.slot, lang)}</span>
-          {taken && dose.taken_at && <span> · {t('meds.takenAt', { time: formatDate(dose.taken_at, lang, { hour: 'numeric', minute: '2-digit' }) })}</span>}
+          <span className="tabular dose__time">{slotTime(dose.slot, lang)}</span>
+          {taken && dose.taken_at && <span>{t('meds.takenAt', { time: formatDate(dose.taken_at, lang, { hour: 'numeric', minute: '2-digit' }) })}</span>}
         </p>
         <RefillBadge med={med} />
       </div>
@@ -145,12 +175,13 @@ export function MedsPage() {
 
   return (
     <div className="page meds">
-      <h1>{t('meds.title')}</h1>
+      <DisplayTitle>{t('meds.title')}</DisplayTitle>
       {meds.isPending ? <MedsSkeleton />
         : meds.isError ? <ErrorState message={errorKey(meds.error)} onRetry={() => { meds.refetch() }} />
         : meds.data.meds.length === 0 ? <EmptyState icon={Pill} title={t('meds.emptyTitle')} body={t('meds.emptyBody')} />
         : (
           <>
+            <TodayHero doses={(meds.data.today ?? []) as Dose[]} />
             <section className="meds__section" aria-labelledby="meds-today">
               <h2 id="meds-today" className="meds__h2">{t('meds.todayHeading')}</h2>
               {PERIODS.filter(p => groups[p.id].length > 0).map(({ id, label, icon: Icon }) => (

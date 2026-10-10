@@ -60,7 +60,13 @@ export function Timeline() {
         ))}
       </div>
       {q.isPending
-        ? <div className="tl-list" aria-busy="true">{[0, 1, 2].map(i => <Skeleton key={i} height={72} radius={14} />)}</div>
+        ? <ul className="tl-list" aria-busy="true">{[0, 1, 2].map(i => (
+            // Placeholder rows shaped like the real ones: an icon circle and two lines of text.
+            <li key={i} className="tl-row">
+              <Skeleton width={48} height={48} radius="50%" />
+              <span className="tl-row__text tl-row__text--skeleton"><Skeleton width="70%" height={18} /><Skeleton width="45%" height={14} /></span>
+            </li>
+          ))}</ul>
         : q.isError
           ? <ErrorState onRetry={() => { q.refetch() }} />
           : q.data.length === 0
