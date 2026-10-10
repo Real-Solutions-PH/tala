@@ -21,7 +21,7 @@ Every model runs on the family's laptop: Qwen3-VL for chat and reading photos, W
 
 It's rough in places. The first answer after startup is slow, and the 8B model's meal suggestions aren't great yet. But the clinic-visit flow works in airplane mode, and that was the part we cared about.
 
-Demo below. Code is open: github.com/Real-Solutions-PH/tala
+Demo below. Code is open: github.com/Real-Solutions-PH/Kapiling
 
 @Cognition @Devin #AppBuildersPH #LocalAI
 
@@ -31,7 +31,7 @@ Demo below. Code is open: github.com/Real-Solutions-PH/tala
 
 We built Kapiling for the AppBuildersPH Hackathon: a health record Lola can talk to, in Tagalog or English. It shows her meds, opens her PhilHealth card for the nurse, reads photos of old lab results, and refuses to give medicine advice. Every AI model runs on the family laptop, so nothing is uploaded and it works offline.
 
-github.com/Real-Solutions-PH/tala
+github.com/Real-Solutions-PH/Kapiling
 @Cognition @Devin #AppBuildersPH #LocalAI
 
 ## Video

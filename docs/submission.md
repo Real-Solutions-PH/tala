@@ -15,7 +15,7 @@ Team name: Real Solutions PH
 - Ervin Piol (https://github.com/ervinpiol)
 
 ## Public GitHub repository
-https://github.com/Real-Solutions-PH/tala  (must be public before 10:00)
+https://github.com/Real-Solutions-PH/Kapiling  (must be public before 10:00)
 
 ## Why does this product benefit from running AI locally?
 Health records are the most sensitive data a person has (sensitive personal information under the Data Privacy Act, RA 10173), so Kapiling never uploads them: every model runs on the family's own laptop and phones connect over home Wi-Fi. Hospitals and clinics often have weak signal, so search, voice and reading a photographed lab result all work in airplane mode. In an emergency the card and its QR code need no network and no login. And with no per-request cloud AI fees, seniors can use it for free.
