@@ -25,6 +25,7 @@ import { errorKey } from './errorKey'
 import { Field, FormError, Section } from './parts'
 import { applyTextScale, readTextScale, SCALES, type Scale } from './textScale'
 import './settings.css'
+import { BackLink } from '../../components/BackLink'
 import { DisplayTitle } from '../../components/DisplayTitle'
 
 const SCALE_LABEL: Record<Scale, Key> = { 1: 'settings.textNormal', 1.25: 'settings.textLarge', 1.5: 'settings.textLarger' }
@@ -423,6 +424,7 @@ export function SettingsPage() {
 
   return (
     <div className="page">
+      <BackLink />
       <DisplayTitle>{t('settings.title')}</DisplayTitle>
       {info.data && <p className="muted">{t('settings.signedInAs', { name: info.data.actor })}</p>}
       <LanguageSection profileId={profileId} />

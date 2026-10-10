@@ -158,7 +158,7 @@ export function LabDetail() {
                   {rangeLine}
                   {unitNotice}
                   {asTable ? <LabTable points={points} lang={lang} /> : <Chart points={points} name={name} lang={lang} />}
-                  <Button size="lg" block icon={asTable ? ChartLine : Table} onClick={() => setAsTable(v => !v)}>
+                  <Button size="lg" block icon={asTable ? ChartLine : Table} className="btn--cta" onClick={() => setAsTable(v => !v)}>
                     {asTable ? t('records.viewChart') : t('records.viewTable')}
                   </Button>
                 </Card>

@@ -1,25 +1,32 @@
 /* Records screens. Colours come only from tokens.css. */
 
-/* Back: a light round button with an arrow, after the reference. */
-.back-link { justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%; background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color: var(--ink); }
-.back-link svg { width: 26px; height: 26px; }
-.back-link:active { transform: scale(0.95); }
-
 /* ---- Health summary ---- */
 /* Separate white tiles on the page, each with a hairline border and the one soft shadow. No coloured block. */
 .summary { display: grid; gap: var(--s-3); }
-.summary__head { display: grid; gap: 2px; }
-.summary__sub { margin: 0; font-size: var(--fs-body); }
+/* The blue panel (reference): a deeper-blue ground, a white name pill, brand-blue tiles with white text. */
+.vpanel { display: grid; gap: var(--s-3); padding: var(--s-3); border-radius: var(--radius-card); background: var(--primary-strong); box-shadow: var(--shadow); }
+.vpanel__pill {
+  justify-self: start; display: flex; align-items: center; gap: var(--s-2); margin: 0; max-width: 100%;
+  min-height: var(--tap); padding: var(--s-1) var(--s-4) var(--s-1) var(--s-1); border-radius: var(--radius-pill);
+  background: var(--surface); color: var(--ink); font-weight: 500;
+}
+.vpanel__pill span { padding-left: var(--s-2); overflow-wrap: anywhere; }
+.vpanel__pill img + span { padding-left: 0; }
+.vpanel__avatar { flex: none; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
 .vtile, .stile {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow);
   color: var(--ink); padding: var(--s-4);
 }
+.vpanel .vtile { background: var(--primary-fill); border: 0; box-shadow: none; color: var(--on-strong); padding: var(--s-3); }
+/* 2 x 2 on a 375px phone, as in the reference; one column at 125% text and up. */
+.vpanel .vgrid { gap: var(--s-2); grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(128px * var(--text-scale))), 1fr)); }
+.vpanel .vtile__value { font-size: calc(28px * var(--text-scale)); }
 /* Two columns at 375px; one when the text is 125% or larger (the minimum grows with --text-scale) or the screen is narrow. */
 .vgrid { display: grid; gap: var(--s-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(150px * var(--text-scale))), 1fr)); }
 @media (max-width: 359px) { .vgrid { grid-template-columns: 1fr; } }
 .vtile { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); min-width: 0; text-decoration: none; transition: transform var(--dur) var(--ease); }
-a.vtile:active { transform: scale(0.98); background: var(--surface-2); }
-a.vtile:focus-visible { outline: var(--focus); outline-offset: 3px; }
+a.vtile:active { transform: scale(0.98); }
+a.vtile:focus-visible { outline: var(--focus); outline-color: var(--on-strong); outline-offset: 3px; }
 .vtile--empty { box-shadow: none; }
 .vtile__head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); width: 100%; }
 .vtile__icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); }
@@ -31,8 +38,14 @@ a.vtile:focus-visible { outline: var(--focus); outline-offset: 3px; }
 .vtile__value .num { font-variant-numeric: tabular-nums; }
 .vtile__unit, .stat-tile__unit { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 400; color: var(--muted); white-space: nowrap; }
 .vtile__status { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); font-size: var(--fs-sm); }
-.vtile__status .badge { white-space: normal; }
+.vtile__status .badge { white-space: normal; border-radius: var(--radius-sm); }
+.vgrid > :last-child:nth-child(odd) { grid-column: 1 / -1; } /* no lone half-width tile */
 .vtile__date, .vtile__none { font-size: var(--fs-sm); color: var(--muted); }
+/* On the blue tiles: a white circle holds the icon, every word is white, dates and units the soft white. */
+.vpanel .vtile__icon { width: 40px; height: 40px; background: var(--on-strong); color: var(--primary); }
+.vpanel .vtile__go, .vpanel .trend, .vpanel .trend svg, .vpanel .vtile__value { color: var(--on-strong); }
+.vpanel .vtile__unit, .vpanel .vtile__date, .vpanel .vtile__none, .vpanel .trend--none { color: var(--on-strong-muted); }
+.vpanel .vtile--empty { background: color-mix(in srgb, var(--primary-fill) 70%, var(--primary-strong)); }
 .stile { display: grid; gap: var(--s-3); }
 .stile__label { display: flex; align-items: center; gap: var(--s-2); margin: 0; font-family: var(--font-body); font-size: calc(16px * var(--text-scale)); font-weight: 600; color: var(--ink); }
 .stile p { margin: 0; }

@@ -130,10 +130,11 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue on a soft amber card; its icon sits in a white rounded square. No coloured side bar. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | After the reference: four floating 64 px white circles, no bar; the current tab is a 72 px blue circle with a white icon. Words are screen-reader labels and tooltips (the reference has none; UI/UX Pro Max `nav-label-icon` flags this as a known trade). |
-| Header | After the reference: a 56 px avatar on a blue ring (opens the profile sheet) on the left; a light-grey Settings circle and a red Emergency circle, 64 px, on the right. No visible words. |
+| Bottom menu | After the reference: a floating white capsule (28 px radius) on the pale ground holding four 48 px round icon buttons; the current one is a solid blue circle with a white icon. Unlike the reference every icon keeps its word underneath (Principle 3). A shell row, never fixed over content. |
+| Header | After the reference: a 56 px round avatar on a blue ring (opens the profile sheet) on the left; a white Settings circle and a red Emergency circle, 64 px, on the right. Words are screen-reader labels and tooltips. |
+| `BackLink` | 64 px light round arrow button above the display title on every screen opened from the header (Settings, Profile) or one tap deeper. Goes to the previous screen, or a fixed fallback when opened directly. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
-| Metric tile | After the reference's blue panel: a white name pill on top, then 2 x 2 lighter-blue tiles; each has a white circle icon top-left, the reading small top-right (short date, value, a white ⚠ Mataas when out of range) and the name large bottom-left. The 4th tile is Allergies. |
+| Metric tile | After the reference's blue panel: a deeper-blue `--primary-strong` panel, a white pill with the avatar and "Kalagayan ni …", then brand-blue tiles 2 across (one column at 125% text). Each tile: white circle icon and chevron, the name, the value, a worded range badge and trend, the date. Allergies and conditions stay white cards below. |
 | CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
 | List row | Rounded-square icon thumbnail, title, small grey line, a quiet chevron. Dose rows add the time as a small chip and the taken action as a full-width tinted bar. |
 | Segmented filter | One white pill holding the filter chips, scrolls sideways. |

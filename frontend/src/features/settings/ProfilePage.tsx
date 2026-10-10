@@ -19,6 +19,7 @@ import { ConfirmSheet } from './ConfirmSheet'
 import { errorKey } from './errorKey'
 import { Field, FormError, Section } from './parts'
 import './settings.css'
+import { BackLink } from '../../components/BackLink'
 import { DisplayTitle } from '../../components/DisplayTitle'
 
 type Form = Record<'full_name' | 'nickname' | 'birth_date' | 'sex' | 'blood_type' | 'phone' | 'address' | 'philhealth_no' | 'senior_id_no', string>
@@ -216,6 +217,7 @@ export function ProfilePage() {
 
   return (
     <div className="page">
+      <BackLink fallback="/settings" />
       <DisplayTitle>{t('profile.title')}</DisplayTitle>
 
       <Section icon={UserRound} title={t('profile.personal')}>
