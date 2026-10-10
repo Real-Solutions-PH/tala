@@ -41,32 +41,39 @@ a.vtile:focus-visible { outline: var(--focus); outline-offset: 3px; }
 .trend svg { width: 1.1em; height: 1.1em; flex: none; color: var(--primary); }
 .trend--none { color: var(--muted); font-weight: 400; }
 
-/* ---- Timeline ---- */
-.timeline { display: grid; gap: var(--s-3); }
-/* Filters: wrapping buttons, every option visible, nothing scrolls sideways. */
-.kind-filter { display: flex; flex-wrap: wrap; gap: 8px; }
-.kind-filter .chip { min-height: var(--tap); border: 1.5px solid transparent; border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); box-shadow: var(--shadow); padding-inline: var(--s-4); }
-.kind-filter .chip > span { display: inline-flex; align-items: center; gap: var(--s-1); }
-.kind-filter .chip[aria-pressed='true'] { background: var(--primary-soft); border-color: var(--primary-fill); color: var(--primary); }
-/* One white list card: rows split by hairlines, no boxes inside boxes. */
-.tl-list { list-style: none; margin: 0; padding: var(--s-1) var(--s-5); display: grid; background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); }
-.tl-list > li + li { border-top: 1px solid var(--border); }
-.tl-row {
-  display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-3) 0;
-  color: var(--ink); text-decoration: none;
-}
+/* ---- Timeline (prototype .tl / .tli / .tags2) ---- */
+.timeline__empty { margin: 0; }
+.tl { list-style: none; margin: 0; padding: 3px 16px; display: grid; }
+.tl > li + li { border-top: 1px solid var(--border); }
+.tl-row { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 11px 0; color: var(--ink); text-decoration: none; }
 .tl-row--link:active { opacity: 0.7; }
-.tl-row__icon { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: var(--radius-btn); background: var(--surface-2); color: var(--ink); }
-/* File-type tiles, as in the prototype: lab blue, document red, vaccine amber, visit grey. */
+.tl-row__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-btn); background: var(--surface-2); color: var(--ink); }
+.tl-row__icon svg { width: 20px; height: 20px; }
 .tl-row__icon--lab { background: var(--primary-soft); color: var(--primary); }
 .tl-row__icon--document { background: var(--danger-soft); color: var(--danger); }
-.tl-row__icon svg { width: 24px; height: 24px; }
 .tl-row__icon--vaccine { background: var(--warn-soft); color: var(--warn); }
-.tl-row__text { flex: 1; min-width: 0; display: grid; }
-.tl-row__text--skeleton { gap: var(--s-2); }
-.tl-row__title { font-weight: 500; overflow-wrap: anywhere; }
-.tl-row__go { flex: none; width: 1.3em; height: 1.3em; color: var(--muted); }
-.timeline__empty { padding: var(--s-3) 0; }
+.tl-row__text { min-width: 0; display: grid; }
+.tl-row__text--skeleton { gap: 6px; }
+.tl-row__title { font-size: calc(15.2px * var(--text-scale)); font-weight: 600; }
+.tags2 { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tags2 > span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: var(--radius-pill); background: var(--surface-2); font-size: var(--fs-xs); font-weight: 500; color: var(--muted); }
+.tags2 svg { width: 12px; height: 12px; }
+
+/* ---- Trend chart (prototype .chart) and table ---- */
+.chart { padding: 10px; }
+.trend-chart { display: block; width: 100%; height: auto; }
+.trend-chart .band { fill: var(--accent-soft); }
+.trend-chart .grid { stroke: var(--border); stroke-width: 1; }
+.trend-chart .ax { fill: var(--muted); font-size: 10px; font-family: var(--font-body); }
+.trend-chart .area { fill: var(--primary-fill); opacity: 0.12; }
+.trend-chart .ln { fill: none; stroke: var(--primary-fill); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.trend-chart .pt { fill: var(--surface); stroke: var(--primary-fill); stroke-width: 2; }
+.trend-chart .pt.last { fill: var(--primary-fill); }
+.trend-chart .vl { fill: var(--ink); font-size: 10.5px; font-weight: 700; font-family: var(--font-body); }
+.trend-chart .bl { fill: var(--accent); font-size: 9.5px; font-family: var(--font-body); }
+table.t { width: 100%; border-collapse: collapse; font-size: calc(14.4px * var(--text-scale)); }
+table.t th, table.t td { text-align: left; padding: 9px 5px; border-top: 1px solid var(--border); }
+table.t th { color: var(--muted); font-weight: 400; font-size: calc(12.8px * var(--text-scale)); border-top: 0; }
 
 /* ---- Upload sheet ---- */
 .upload { display: grid; gap: var(--s-3); }
@@ -157,14 +164,13 @@ a.vtile:focus-visible { outline: var(--focus); outline-offset: 3px; }
 .input[aria-invalid='true'] { border-color: var(--danger); }
 .field__error { color: var(--danger); font-weight: 500; font-size: var(--fs-sm); }
 
-/* Add a result: the prototype's dashed scan tile. */
+/* Scan a record: the prototype's dashed tile. */
 .scanbtn {
-  display: flex; align-items: center; gap: var(--s-4); width: 100%; min-height: var(--tap-lg); padding: var(--s-4);
+  display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px;
   border: 2px dashed var(--primary-fill); border-radius: var(--radius-card); background: var(--primary-soft); color: var(--primary);
-  font: inherit; text-align: left; cursor: pointer; transition: transform var(--dur) var(--ease);
+  font: inherit; text-align: left; cursor: pointer;
 }
 .scanbtn:active { transform: scale(0.98); }
-.scanbtn > svg { flex: none; width: 32px; height: 32px; }
-.scanbtn b { display: block; font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; }
-.scanbtn span span { display: block; font-size: var(--fs-sm); color: var(--ink); }
-.kind-filter .chip[aria-pressed='true'] svg { color: var(--primary); }
+.scanbtn > svg { flex: none; width: 28px; height: 28px; }
+.scanbtn b { display: block; font-family: var(--font-head); font-size: calc(16.8px * var(--text-scale)); font-weight: 600; }
+.scanbtn span span { display: block; font-size: var(--fs-sm); color: var(--ink); opacity: 0.8; }

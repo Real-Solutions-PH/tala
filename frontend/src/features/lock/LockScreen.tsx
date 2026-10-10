@@ -2,11 +2,9 @@
 // emergency card without unlocking (spec section 3). Biometric unlock sits under the pad.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { Delete, Siren } from 'lucide-react'
-import { Mark } from '../../brand/Mark'
+import { Delete, HeartPulse } from 'lucide-react'
 import { ApiError } from '../../api/client'
 import { useProfiles } from '../../api/queries'
-import type { ProfileListItem } from '../../api/types'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { useT } from '../../i18n'
@@ -18,13 +16,6 @@ import './lock.css'
 const PIN_LEN = 6
 const DEFAULT_BACKOFF = 60 // seconds; matches the backend's BACKOFF when no Retry-After arrives
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-
-function Avatar({ p }: { p: ProfileListItem }) {
-  const initial = (p.nickname ?? p.full_name).trim().charAt(0).toUpperCase()
-  return p.photo_url
-    ? <img className="lock-avatar__img" src={p.photo_url} alt="" />
-    : <span className="lock-avatar__img lock-avatar__img--initial" aria-hidden="true">{initial}</span>
-}
 
 export function LockScreen() {
   const t = useT()
@@ -115,85 +106,73 @@ export function LockScreen() {
   return (
     <main className="standalone lock">
       <div className="lock__inner">
-        <Mark size={56} className="lock__mark" />
-        <h1 className="lock__title">{boldLast(t('lock.title'))}</h1>
+        <KapilingLogo />
+        <h1 className="lock__title">{t('common.appName')}</h1>
+        <p className="sub" id="pin-label">{t('lock.enterPin')}</p>
 
-        {profiles.isPending ? (
-          <div className="lock__profiles" aria-busy="true">
-            <Skeleton width={88} height={112} radius={20} />
-            <Skeleton width={88} height={112} radius={20} />
-          </div>
-        ) : profiles.isError ? (
-          <ErrorState message={errorKey(profiles.error)} onRetry={() => { profiles.refetch() }} />
-        ) : (
-          <div className="lock__profiles" role="radiogroup" aria-label={t('lock.whoIs')}>
-            {list.map(p => (
-              <button key={p.id} type="button" role="radio" aria-checked={p.id === selected} className="lock-avatar"
-                onClick={() => choose(p.id)}>
-                <Avatar p={p} />
-                <span className="lock-avatar__name">{p.nickname ?? p.full_name}</span>
-              </button>
-            ))}
-          </div>
-        )}
+        {profiles.isPending ? <Skeleton width={180} height={38} radius={999} />
+          : profiles.isError ? <ErrorState message={errorKey(profiles.error)} onRetry={() => { profiles.refetch() }} />
+          : list.length > 1 && (
+            <div className="seg lock__who" role="radiogroup" aria-label={t('lock.whoIs')}>
+              {list.map(p => (
+                <button key={p.id} type="button" role="radio" aria-checked={p.id === selected} aria-pressed={p.id === selected}
+                  onClick={() => choose(p.id)}>{p.nickname ?? p.full_name}</button>
+              ))}
+            </div>
+          )}
 
-        <p className="lock__prompt" id="pin-label">{t('lock.enterPin')}</p>
-
-        <div key={shake} className={['pin-dots', shake > 0 && error === 'wrong' && 'pin-dots--shake'].filter(Boolean).join(' ')}
+        <div key={shake} className={['dots', shake > 0 && error === 'wrong' && 'dots--shake'].filter(Boolean).join(' ')}
           role="img" aria-labelledby="pin-label pin-progress">
-          {Array.from({ length: PIN_LEN }, (_, i) => (
-            <span key={i} className={['pin-dot', i < pin.length && 'pin-dot--on'].filter(Boolean).join(' ')} />
-          ))}
+          {Array.from({ length: PIN_LEN }, (_, i) => <i key={i} className={i < pin.length ? 'f' : undefined} />)}
         </div>
         <span id="pin-progress" className="sr-only">{t('lock.pinProgress', { n: pin.length })}</span>
 
-        <div className="lock__status" role="status" aria-live="polite">
-          {busy && <p className="lock__msg">{t('lock.checking')}</p>}
-          {error === 'wrong' && <p className="lock__msg lock__msg--error">{t('errors.wrongPin')}</p>}
-          {error === 'other' && <p className="lock__msg lock__msg--error">{t(otherKey)}</p>}
+        <div className="pinmsg" role="status" aria-live="polite">
+          {busy && <p>{t('lock.checking')}</p>}
+          {error === 'wrong' && <p className="err">{t('errors.wrongPin')}</p>}
+          {error === 'other' && <p className="err">{t(otherKey)}</p>}
           {blocked && (
-            <div className="lock__msg lock__msg--error">
+            <div className="err">
               <p>{t('errors.tooManyAttempts')}</p>
               <p className="lock__countdown">{t('lock.tryAgainIn', { n: secondsLeft })}</p>
             </div>
           )}
         </div>
 
-        <div className="pinpad">
+        <div className="pad">
           {KEYS.map(d => (
-            <button key={d} type="button" className="pinpad__key" onClick={() => press(d)} disabled={keysDisabled}>{d}</button>
+            <button key={d} type="button" className="key" onClick={() => press(d)} disabled={keysDisabled}>{d}</button>
           ))}
-          <span aria-hidden="true" />
-          <button type="button" className="pinpad__key" onClick={() => press('0')} disabled={keysDisabled}>0</button>
-          <button type="button" className="pinpad__key pinpad__key--del" onClick={backspace} disabled={keysDisabled}
-            aria-label={t('lock.deleteDigit')}>
+          <span className="pad__slot">
+            {selected != null && (
+              <BiometricUnlock key={selected} asKey profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
+                disabled={blocked || busy} onUnlocked={() => navigate('/home', { replace: true })} />
+            )}
+          </span>
+          <button type="button" className="key" onClick={() => press('0')} disabled={keysDisabled}>0</button>
+          <button type="button" className="key key--plain" onClick={backspace} disabled={keysDisabled} aria-label={t('lock.deleteDigit')}>
             <Delete aria-hidden="true" strokeWidth={2} />
-            <span aria-hidden="true">{t('common.delete')}</span>
           </button>
         </div>
 
-        {selected != null && (
-          <BiometricUnlock key={selected} profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
-            disabled={blocked || busy} onUnlocked={() => navigate('/home', { replace: true })} />
-        )}
         {selected != null ? (
-          <Link to={`/emergency/${selected}`} className="lock__sos">
-            <Siren aria-hidden="true" strokeWidth={2} />
-            <span>{t('emergency.button')}</span>
-          </Link>
+          <Link to={`/emergency/${selected}`} className="emerg"><HeartPulse aria-hidden="true" strokeWidth={2} /><span>{t('lock.emergencyNoUnlock')}</span></Link>
         ) : (
-          <button type="button" className="lock__sos" disabled>
-            <Siren aria-hidden="true" strokeWidth={2} />
-            <span>{t('emergency.button')}</span>
-          </button>
+          <button type="button" className="emerg" disabled><HeartPulse aria-hidden="true" strokeWidth={2} /><span>{t('lock.emergencyNoUnlock')}</span></button>
         )}
       </div>
     </main>
   )
 }
 
-/** The reference's mixed-weight title: regular words, the last word bold ("Naka-lock ang **Kapiling**"). */
-function boldLast(text: string) {
-  const i = text.lastIndexOf(' ')
-  return i < 0 ? <strong>{text}</strong> : <>{text.slice(0, i + 1)}<strong>{text.slice(i + 1)}</strong></>
+/** The prototype's mark: a blue rounded square with two hearts' worth of curve and two dots (people side by side). */
+function KapilingLogo() {
+  return (
+    <svg className="lock__logo" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="9" fill="var(--primary-fill)" />
+      <path d="M11 22c-2.5-1.7-4-4.2-4-7a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 2.8-1.5 5.3-4 7" fill="none" stroke="var(--on-primary)" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="12.5" cy="23.5" r="2.3" fill="var(--on-primary)" />
+      <circle cx="19.5" cy="23.5" r="2.3" fill="var(--on-primary)" />
+    </svg>
+  )
 }

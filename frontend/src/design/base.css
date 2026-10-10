@@ -107,9 +107,9 @@ p { margin: 0; }
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .btn svg { flex: none; width: 1.25em; height: 1.25em; }
-.btn--lg { min-height: var(--tap-lg); padding: var(--s-3) var(--s-6); font-size: var(--fs-lg); }
+.btn--lg { min-height: 52px; padding: 0 var(--s-5); font-size: var(--fs-body); }
 .btn--block { width: 100%; }
-.btn--primary { background: linear-gradient(180deg, color-mix(in srgb, var(--sky) 40%, var(--primary-fill)), var(--primary-fill)); color: var(--on-primary); }
+.btn--primary { background: linear-gradient(180deg, var(--sky), var(--primary-fill)); color: var(--on-primary); }
 .btn--secondary { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .btn--danger { background: var(--danger-fill); color: var(--on-danger); }
 .btn--ghost { background: transparent; color: var(--primary); }
@@ -351,79 +351,74 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .shell__main { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 .topbar {
-  /* After the prototype. Home: the person and a greeting, Settings on the right. Other screens: a title bar
-     (round back, centred name, the person's avatar). */
-  display: flex; align-items: center; gap: var(--s-3); min-width: 0;
-  padding: calc(var(--s-3) + env(safe-area-inset-top)) var(--s-4) var(--s-2);
+  /* After the prototype (.top / .titlebar). */
+  display: flex; align-items: center; gap: 11px; min-width: 0;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 8px;
   background: transparent;
 }
-.topbar--title { display: grid; grid-template-columns: var(--tap-lg) 1fr var(--tap-lg); }
-.topbar__title { margin: 0; text-align: center; font-family: var(--font-head); font-size: calc(20px * var(--text-scale)); font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
-.topbar__hello, .topbar__profile {
-  display: flex; align-items: center; gap: var(--s-3); min-width: 0; min-height: var(--tap);
-  padding: 0; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--ink);
-  font: inherit; text-align: left; cursor: pointer;
+.topbar--title { display: grid; grid-template-columns: 44px 1fr 44px; }
+.topbar__title { margin: 0; text-align: center; font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; }
+.iconbtn {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow); text-decoration: none; cursor: pointer;
 }
-.topbar__hello { flex: 1 1 auto; }
-.topbar__profile { justify-self: end; justify-content: center; width: var(--tap-lg); height: var(--tap-lg); }
-.topbar__hello:active, .topbar__profile:active { transform: scale(0.98); }
-.topbar__who { display: grid; min-width: 0; line-height: 1.25; }
-.topbar__greet { font-size: var(--fs-sm); color: var(--muted); }
-.topbar__name { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; overflow-wrap: anywhere; }
-.topbar__iconlink {
-  display: grid; place-items: center; flex: none; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%;
-  background: var(--surface); color: var(--ink); box-shadow: var(--shadow); text-decoration: none;
-  transition: transform var(--dur) var(--ease);
+.iconbtn svg { width: 20px; height: 20px; }
+.iconbtn--av { box-shadow: none; background: none; justify-self: end; }
+.iconbtn:active { transform: scale(0.95); }
+.av {
+  display: grid; place-items: center; flex: none; border-radius: 50%; background: var(--primary-fill); color: var(--on-primary);
+  font-family: var(--font-body); font-weight: 700; font-size: var(--fs-sm);
 }
-.topbar__iconlink svg { width: 26px; height: 26px; }
-.topbar__iconlink:active { transform: scale(0.95); background: var(--surface-2); }
+.hello { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.hello .av { box-shadow: 0 0 0 3px var(--surface); font-size: var(--fs-body); }
+.hello__text { display: grid; min-width: 0; }
+.hello__text b { font-size: calc(16.3px * var(--text-scale)); font-weight: 600; }
+.hello__text span { font-size: var(--fs-sm); color: var(--muted); }
+.trust {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 35px; padding: 6px 11px; border: 0; border-radius: var(--radius-pill);
+  background: var(--surface); box-shadow: var(--shadow); color: var(--accent); font: inherit; font-size: var(--fs-xs); font-weight: 500; cursor: pointer;
+}
+.trust svg { width: 14px; height: 14px; }
 
 .avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
-.topbar .avatar { background: var(--primary-fill); box-shadow: 0 0 0 3px var(--surface); }
 .avatar--initial { display: grid; place-items: center; background: var(--primary-fill); color: var(--on-primary); font-family: var(--font-head); font-weight: 600; }
 
 .bottomnav {
-  /* The prototype's dock: a white pill of four tabs and, beside it, the round blue Kausap button. Every icon
-     keeps its word (Principle 3). Still a row of the shell grid, never fixed over content. */
-  display: flex; align-items: center; gap: var(--s-2);
-  padding: var(--s-2) var(--s-3) calc(var(--s-3) + env(safe-area-inset-bottom));
+  /* The prototype's dock: a white pill of four tabs and, beside it, the round blue mic. A shell row, never fixed. */
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px calc(13px + env(safe-area-inset-bottom));
 }
 .bottomnav__tabs {
-  flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0;
-  padding: 4px; border-radius: var(--radius-pill); background: var(--surface); box-shadow: var(--shadow);
+  flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px;
+  padding: 6px; border-radius: var(--radius-pill); background: var(--surface); box-shadow: var(--shadow);
 }
 .bottomnav .navitem {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  min-width: 0; min-height: var(--tap-lg); padding: var(--s-1) 2px; margin: 0;
+  display: grid; justify-items: center; align-content: center; gap: 2px;
+  min-width: 0; min-height: 50px; padding: 5px 3px; margin: 0;
   border: 1.5px solid transparent; border-radius: var(--radius-pill);
-  background: none; box-shadow: none; color: var(--muted); font-size: 15px; font-weight: 500; line-height: 1.1;
-  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+  background: none; box-shadow: none; color: var(--muted); font-size: var(--fs-xs); font-weight: 500; line-height: 1.2;
 }
 .bottomnav .navitem__icon { display: grid; place-items: center; background: none; box-shadow: none; }
-.bottomnav .navitem svg { width: 24px; height: 24px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
+.bottomnav .navitem svg { width: 22px; height: 22px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
 .bottomnav .navitem__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* The current tab: an outlined soft-blue pill. */
-.bottomnav__tabs .navitem[aria-current='page'] { background: var(--primary-soft); border-color: var(--primary-fill); color: var(--primary); font-weight: 600; }
+.bottomnav__tabs .navitem[aria-current='page'] { background: var(--primary-soft); border-color: var(--primary-fill); color: var(--primary); }
 .bottomnav__tabs .navitem[aria-current='page'] svg { color: var(--primary); }
-.bottomnav .navitem:active { transform: scale(0.96); }
-/* Kausap: a round blue button with its word underneath. */
-.bottomnav .navitem--ask { flex: none; padding: 0; border: 0; color: var(--primary); font-weight: 600; }
-.navitem--ask .navitem__icon {
-  width: 56px; height: 56px; border-radius: 50%; color: var(--on-primary) !important;
-  background: linear-gradient(180deg, var(--sky), var(--primary-fill)) !important;
-  box-shadow: 0 10px 22px -8px var(--primary-fill) !important;
+.aibtn {
+  flex: none; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; color: var(--on-primary);
+  background: linear-gradient(180deg, var(--sky), var(--primary-fill)); box-shadow: 0 10px 22px -8px var(--primary-fill);
 }
-.navitem--ask .navitem__icon svg { color: var(--on-primary); width: 26px; height: 26px; }
-.navitem--ask[aria-current='page'] .navitem__icon { box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--primary-soft) !important; }
+.aibtn svg { width: 26px; height: 26px; }
+.aibtn[aria-current='page'] { outline: 3px solid var(--primary-soft); outline-offset: 3px; }
+.aibtn:active { transform: scale(0.96); }
 
 /* Back: a light round button with an arrow, after the reference. */
 .back-link { justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); color: var(--ink); }
 .back-link svg { width: 26px; height: 26px; }
 .back-link:active { transform: scale(0.95); }
 
-.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-2) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); align-content: start; }
+.page { width: 100%; max-width: 640px; margin: 0 auto; padding: 0 16px 20px; display: grid; gap: 16px; align-content: start; }
 /* Every screen title is a display line: big, tight, calm. */
-.page > h1 { font-size: calc(26px * var(--text-scale)); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+.page > h1 { font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
 /* Display titles: regular words, one bold word, like "Mga **gamot**". */
 /* One weight per title, as in the prototype. */
 .display-title, .display-title strong { font-weight: 600; }
@@ -433,7 +428,7 @@ strong, b { font-weight: 600; }
 
 /* Section titles, as in the reference ("Blood Pressure"): plain, regular weight, ink. */
 .page section > h2, .page .meds__h2, .summary > h2, .summary__head h2 {
-  font-family: var(--font-head); font-size: calc(20px * var(--text-scale)); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
+  font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
 }
 .hero__of { font-weight: 400; color: var(--on-strong-muted); }
 
@@ -476,3 +471,43 @@ strong, b { font-weight: 600; }
 .page > :nth-child(3) { animation-delay: 80ms; }
 .page > :nth-child(4) { animation-delay: 120ms; }
 .page > :nth-child(n + 5) { animation-delay: 160ms; }
+
+/* ---- Prototype primitives (Kapiling-App-Prototype.html, v5) ---- */
+.panel { background: var(--surface); color: var(--ink); border-radius: var(--radius-card); box-shadow: var(--shadow); padding: 17.6px; }
+.greet { display: grid; gap: 3px; padding-top: 4px; }
+.sub { font-size: var(--fs-sm); color: var(--muted); }
+.chip-s { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--radius-pill); font-size: var(--fs-xs); font-weight: 500; line-height: 1.3; white-space: nowrap; }
+.chip-s svg { width: 13px; height: 13px; flex: none; }
+.c-ok { background: var(--accent-soft); color: var(--accent); }
+.c-warn { background: var(--warn-soft); color: var(--warn); }
+.c-bad { background: var(--danger-soft); color: var(--danger); }
+.c-blue { background: var(--primary-soft); color: var(--primary); }
+.btn--ink { background: var(--ink); color: var(--surface); text-decoration: none; }
+/* Segmented control: one grey pill, the chosen part white. */
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface-2); }
+.seg button { flex: 1; min-height: 38px; padding: 8px 10px; border: 0; border-radius: var(--radius-pill); background: none; color: var(--muted); font: inherit; font-size: var(--fs-sm); font-weight: 600; cursor: pointer; }
+.seg button[aria-pressed='true'] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgb(11 31 63 / 0.12); }
+/* Switch */
+.switch { position: relative; flex: none; width: 51px; height: 30px; border: 0; border-radius: var(--radius-pill); background: var(--border); cursor: pointer; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--surface); transition: translate var(--dur) var(--ease); }
+.switch[aria-checked='true'] { background: var(--primary-fill); }
+.switch[aria-checked='true']::after { translate: 21px 0; }
+/* Rows inside a panel (settings, contacts, trust). */
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+.row:first-child { border-top: 0; }
+.row__l { display: grid; gap: 2px; min-width: 0; }
+.row__l span { font-size: var(--fs-sm); color: var(--muted); }
+/* "Whose record?" */
+.plist { display: grid; gap: 8px; margin-bottom: 12px; }
+.pbtn { display: flex; align-items: center; gap: 13px; padding: 12px; border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.pbtn[aria-pressed='true'] { border-color: var(--primary-fill); }
+.pbtn__l { display: grid; }
+.pbtn__l span { font-size: var(--fs-sm); color: var(--muted); }
+.sheet__note { margin: 0 0 12px; font-size: var(--fs-sm); color: var(--muted); }
+.trust-list { list-style: none; margin: 0 0 16px; padding: 3px 16px; box-shadow: none; }
+.trust-list li { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+.trust-list li + li { border-top: 1px solid var(--border); }
+.trust-list svg { flex: none; width: 22px; height: 22px; color: var(--accent); }
+.trust-list li > span { display: grid; gap: 2px; }
+.trust-list li > span > span { font-size: var(--fs-sm); color: var(--muted); }
+.h { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }

@@ -44,12 +44,14 @@
   --font-body: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; /* one typeface, as in the prototype */
   --font-head: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --text-scale: 1;        /* 1 / 1.25 / 1.5, set on <html> from Settings */
-  --fs-sm: calc(15px * var(--text-scale));
-  --fs-body: calc(18px * var(--text-scale));
-  --fs-lg: calc(22px * var(--text-scale));
-  --fs-xl: calc(28px * var(--text-scale));
-  --fs-2xl: calc(34px * var(--text-scale));
-  --lh: 1.55;
+  /* The prototype's 20 / 16 / 14 / 12 scale (v5), times the text-size setting. */
+  --fs-xs: calc(12px * var(--text-scale));
+  --fs-sm: calc(14px * var(--text-scale));
+  --fs-body: calc(16px * var(--text-scale));
+  --fs-lg: calc(20px * var(--text-scale));
+  --fs-xl: calc(24px * var(--text-scale));
+  --fs-2xl: calc(28px * var(--text-scale));
+  --lh: 1.5;
   --lh-head: 1.2;
 
   /* Space */

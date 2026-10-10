@@ -1,72 +1,41 @@
-/* Lock screen. Colours come only from tokens.css. */
+/* Lock screen, a copy of the prototype's (.lock, .dots, .pad, .key, .emerg). Colours come only from tokens.css. */
 .lock__inner {
-  width: 100%; max-width: 420px; margin: 0 auto; padding: var(--s-3) var(--s-4) var(--s-5);
-  display: flex; flex-direction: column; align-items: stretch; gap: var(--s-3); /* the whole pad fits a 375x812 phone without scrolling */
+  width: 100%; max-width: 420px; min-height: 100dvh; margin: 0 auto; box-sizing: border-box;
+  padding: 24px 24px calc(16px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
 }
-.lock__sos {
-  /* After the prototype: a full-width soft-red pill under the keypad, reachable without unlocking. */
-  align-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--s-2);
-  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
-  background: var(--danger-soft); color: var(--danger); text-decoration: none;
-  font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); line-height: 1.2;
-  transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
-}
-.lock__sos svg { flex: none; width: 1.3em; height: 1.3em; }
-.lock__sos:hover { filter: brightness(0.97); }
-.lock__sos:active:not(:disabled) { transform: scale(0.97); }
-button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); }
-.lock__sos:disabled { opacity: 0.6; cursor: not-allowed; }
-.lock__mark { align-self: center; margin-top: var(--s-4); }
-.lock__title { font-size: calc(30px * var(--text-scale)); font-weight: 600; line-height: 1.1; letter-spacing: -0.03em; text-align: center; }
-.lock__title strong { font-weight: 600; }
-.lock__title svg { display: inline-block; width: 0.9em; height: 0.9em; margin-right: var(--s-2); vertical-align: -0.1em; color: var(--primary); }
+.lock__logo { width: 64px; height: 64px; flex: none; }
+.lock__title { font-size: calc(25.6px * var(--text-scale)); font-weight: 600; letter-spacing: -0.01em; text-align: center; }
+.lock__inner > .sub { margin-top: -8px; }
+.lock__who { width: min(100%, 280px); }
 
-.lock__profiles { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-3); }
-.lock-avatar {
-  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
-  min-width: 96px; max-width: 10em; min-height: var(--tap-lg); padding: var(--s-1);
-  border: 0; border-radius: var(--radius-card); background: transparent; color: var(--ink);
-  font: inherit; font-weight: 500; line-height: 1.25; text-align: center; cursor: pointer;
-  transition: transform var(--dur) var(--ease);
-}
-.lock-avatar:active { transform: scale(0.97); }
-.lock-avatar__img { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; background: var(--surface-2); box-shadow: var(--shadow); }
-.lock-avatar__img--initial {
-  display: grid; place-items: center; background: var(--primary-soft); color: var(--primary);
-  font-family: var(--font-head); font-size: var(--fs-xl);
-}
-/* The chosen person: the header's blue ring. */
-.lock-avatar[aria-checked='true'] .lock-avatar__img { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary-fill); }
-.lock-avatar[aria-checked='true'] .lock-avatar__name { color: var(--primary); }
-.lock-avatar__name { overflow-wrap: anywhere; }
+.dots { display: flex; gap: 13px; margin: 6px 0; }
+.dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--primary-fill); }
+.dots i.f { background: var(--primary-fill); }
+.dots--shake { animation: shake 350ms; }
+@keyframes shake { 25% { translate: -8px; } 75% { translate: 8px; } }
+@media (prefers-reduced-motion: reduce) { .dots--shake { animation: none; } }
 
-.lock__prompt { text-align: center; font-weight: 400; color: var(--muted); }
-
-.pin-dots { display: flex; justify-content: center; gap: var(--s-3); padding: var(--s-1) 0; }
-.pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--primary-fill); background: transparent; transition: background-color var(--dur) var(--ease); }
-.pin-dot--on { background: var(--primary-fill); border-color: var(--primary-fill); }
-.pin-dots--shake { animation: pin-shake 360ms var(--ease); }
-@keyframes pin-shake {
-  20%, 60% { transform: translateX(-10px); }
-  40%, 80% { transform: translateX(10px); }
-}
-@media (prefers-reduced-motion: reduce) { .pin-dots--shake { animation: none; } }
-
-.lock__status { min-height: calc(var(--fs-body) * 1.55); text-align: center; }
-.lock__msg { font-weight: 500; color: var(--ink); }
-.lock__msg--error { color: var(--danger); }
+.pinmsg { min-height: 22px; font-size: var(--fs-sm); color: var(--muted); text-align: center; }
+.pinmsg .err { color: var(--danger); font-weight: 700; }
 .lock__countdown { font-variant-numeric: tabular-nums; }
 
-.pinpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); justify-items: center; }
-.pinpad__key {
-  display: flex; align-items: center; justify-content: center; gap: var(--s-1);
-  /* Phone-keypad keys: 72px at normal text size, never under 64px. */
-  width: calc(72px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
-  background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: calc(30px * var(--text-scale)); font-variant-numeric: tabular-nums;
-  cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+.pad { display: grid; grid-template-columns: repeat(3, 74px); gap: 13px 22px; }
+.pad__slot { display: grid; }
+.key {
+  display: grid; place-items: center; width: 74px; height: 74px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--surface); box-shadow: var(--shadow); color: var(--ink);
+  font-family: var(--font-head); font-size: calc(27px * var(--text-scale)); font-weight: 500; cursor: pointer;
 }
-.pinpad__key:active:not(:disabled) { transform: scale(0.96); background: var(--surface-2); }
-.pinpad__key:disabled { cursor: not-allowed; opacity: 0.55; }
-.pinpad__key--del { font-size: var(--fs-sm); color: var(--primary); flex-direction: column; gap: 0; box-shadow: none; background: transparent; }
-.pinpad__key--del svg { width: 26px; height: 26px; }
+.key:active:not(:disabled) { background: var(--primary-soft); }
+.key:disabled { opacity: 0.4; cursor: not-allowed; }
+.key--plain { background: transparent; box-shadow: none; }
+.key--plain svg { width: 28px; height: 28px; }
+
+.emerg {
+  margin-top: auto; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px;
+  border: 0; border-radius: var(--radius-pill); background: var(--danger-soft); color: var(--danger);
+  font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
+}
+.emerg svg { width: 22px; height: 22px; flex: none; }
+.emerg:disabled { opacity: 0.6; cursor: not-allowed; }

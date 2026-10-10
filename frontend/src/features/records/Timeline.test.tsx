@@ -1,5 +1,4 @@
-import { cleanup, screen, waitFor, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { cleanup, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { DocumentViewer } from './DocumentViewer'
 import { RecordsPage } from './RecordsPage'
@@ -20,37 +19,17 @@ beforeEach(() => localStorage.clear())
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers() })
 
 describe('Timeline', () => {
-  test('filter chips refetch the timeline by kind and mark the selected one', async () => {
-    const { calls } = mockFetch({
-      'GET /api/profiles/1/summary': () => json(SUMMARY),
-      'GET /api/profiles/1/timeline': ({ url }) => json(url.includes('kind=vaccine') ? [TIMELINE[2]] : TIMELINE),
-    })
-    renderRoutes(routes, '/records')
-    const group = await screen.findByRole('group', { name: /Ipakita/ })
-    expect(within(group).getAllByRole('button').map(b => b.textContent)).toEqual(['Lahat', 'Laboratoryo', 'Bakuna', 'Pagpapatingin', 'Dokumento'])
-    expect(within(group).getByRole('button', { name: 'Lahat' }).getAttribute('aria-pressed')).toBe('true')
-    await userEvent.click(within(group).getByRole('button', { name: 'Bakuna' }))
-    expect(within(group).getByRole('button', { name: 'Bakuna' }).getAttribute('aria-pressed')).toBe('true')
-    await waitFor(() => expect(calls.some(c => c.url.endsWith('/timeline?kind=vaccine'))).toBe(true))
-    await waitFor(() => expect(screen.queryByText('Maintenance check-up')).toBeNull())
-    expect(screen.getByText('Influenza Annual')).toBeTruthy()
-  })
-
-  test('filters are wrapping buttons with an icon, and the selected one adds a check', async () => {
+  test('rows show the title and tags for type and date; lab and document rows open the document', async () => {
     mockFetch({
       'GET /api/profiles/1/summary': () => json(SUMMARY),
       'GET /api/profiles/1/timeline': () => json(TIMELINE),
     })
     renderRoutes(routes, '/records')
-    const group = await screen.findByRole('group', { name: /Ipakita/ })
-    expect(group.className).toContain('kind-filter')
-    expect(group.className).not.toContain('chip-row')
-    const buttons = within(group).getAllByRole('button')
-    expect(buttons.every(b => b.tagName === 'BUTTON' && b.querySelector('svg'))).toBe(true)
-    const pressed = buttons.filter(b => b.getAttribute('aria-pressed') === 'true')
-    expect(pressed.map(b => b.textContent)).toEqual(['Lahat'])
-    expect(pressed[0].querySelectorAll('svg').length).toBe(2)
-    expect(buttons[1].querySelectorAll('svg').length).toBe(1)
+    expect(await screen.findByText('Maintenance check-up')).toBeTruthy()
+    const lab = screen.getByRole('link', { name: /FBS and HbA1c/ })
+    expect(lab.getAttribute('href')).toBe('/records/documents/7')
+    expect(lab.querySelector('.tags2')?.textContent).toMatch(/Laboratoryo/)
+    expect(screen.queryByRole('link', { name: /Influenza/ })).toBeNull()
+    expect(screen.queryByRole('group', { name: /Ipakita/ })).toBeNull() // no filter chips, as in the prototype
   })
-
 })

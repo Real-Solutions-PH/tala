@@ -12,7 +12,7 @@ const ITEMS: { to: string; label: Key; icon: LucideIcon }[] = [
 
 /**
  * The bottom menu, after the prototype's dock: a white pill of four tabs (icon above a word) and, beside it,
- * the round blue Kausap button. The current one is marked aria-current="page".
+ * the round blue Ask button (the mic, as in the prototype: no word under it). The current one is marked aria-current="page".
  * It is the last row of the shell grid (never fixed). Its measured height is published as --nav-h on
  * <html> so toasts sit just above it, whatever the text size.
  */
@@ -45,9 +45,8 @@ export function BottomNav() {
           </NavLink>
         ))}
       </div>
-      <NavLink to="/chat" className="navitem navitem--ask">
-        <span className="navitem__icon"><Mic aria-hidden="true" strokeWidth={2} /></span>
-        <span className="navitem__label">{t('nav.chat')}</span>
+      <NavLink to="/chat" className="aibtn" aria-label={t('home.ask')}>
+        <Mic aria-hidden="true" strokeWidth={2} />
       </NavLink>
     </nav>
   )

@@ -44,7 +44,7 @@ describe('routing and the lock', () => {
     mockApi()
     const router = renderAt('/chat')
     await waitFor(() => expect(router.state.location.pathname).toBe('/lock'))
-    expect(await screen.findByRole('heading', { name: 'Naka-lock ang Kapiling' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Kapiling' })).toBeTruthy()
     expect(screen.queryByRole('navigation')).toBeNull()
   })
 
@@ -87,11 +87,12 @@ describe('routing and the lock', () => {
 describe('shell', () => {
   beforeEach(() => { localStorage.setItem(PROFILE_KEY, '1'); mockApi() })
 
-  test('the dock has 4 tabs and the Kausap button, all with visible text, and marks the current one', async () => {
+  test('the dock has 4 tabs with visible text and the round Ask mic, and marks the current one', async () => {
     renderAt('/meds')
     const nav = await screen.findByRole('navigation', { name: 'Pangunahing menu' })
     const links = within(nav).getAllByRole('link')
-    expect(links.map(a => a.textContent)).toEqual(['Tahanan', 'Talaan', 'Card', 'Gamot', 'Kausap'])
+    expect(links.map(a => a.textContent)).toEqual(['Tahanan', 'Rekord', 'Pitaka', 'Gamot', ''])
+    expect(links[4].getAttribute('aria-label')).toBe('Magtanong kay Kapiling')
     const current = links.filter(a => a.getAttribute('aria-current') === 'page')
     expect(current).toHaveLength(1)
     expect(current[0].textContent).toBe('Gamot')
@@ -100,14 +101,15 @@ describe('shell', () => {
   test('a nested route keeps its tab current', async () => {
     renderAt('/records/labs/fbs')
     const nav = await screen.findByRole('navigation', { name: 'Pangunahing menu' })
-    expect(within(nav).getByRole('link', { name: 'Talaan' }).getAttribute('aria-current')).toBe('page')
+    expect(within(nav).getByRole('link', { name: 'Rekord' }).getAttribute('aria-current')).toBe('page')
   })
 
   test('Home: the header greets the person and has Settings; Emergency is one tap away', async () => {
     renderAt('/home')
     const header = await screen.findByRole('banner')
-    expect(await within(header).findByText('Lola Remy')).toBeTruthy()
+    expect(await within(header).findByText('Kumusta, Lola Remy')).toBeTruthy()
     expect(within(header).getByRole('link', { name: /Settings/ })).toBeTruthy()
+    expect(within(header).getByRole('button', { name: /Pribado/ })).toBeTruthy()
     const sos = await screen.findByRole('link', { name: /Emergency/ })
     expect(sos.getAttribute('href')).toBe('/emergency/1')
     expect(sos.querySelector('svg')).toBeTruthy()
@@ -116,7 +118,7 @@ describe('shell', () => {
   test('other screens: a title bar with back, the screen name and the avatar', async () => {
     renderAt('/meds')
     const header = await screen.findByRole('banner')
-    expect(within(header).getByRole('link', { name: 'Bumalik' }).getAttribute('href')).toBe('/home')
+    expect(within(header).getByRole('button', { name: 'Bumalik' })).toBeTruthy()
     expect(within(header).getByText('Gamot')).toBeTruthy()
     expect(within(header).getByRole('button', { name: /Palitan ang tao/ })).toBeTruthy()
   })

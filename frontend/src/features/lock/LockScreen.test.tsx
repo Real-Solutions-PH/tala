@@ -69,9 +69,9 @@ describe('LockScreen', () => {
     for (const d of '0123456789') expect(screen.getByRole('button', { name: d })).toBeTruthy()
     expect(screen.queryByRole('button', { name: /fingerprint|mukha/i })).toBeNull()
     await typePin('12')
-    expect(document.querySelectorAll('.pin-dot--on')).toHaveLength(2)
+    expect(document.querySelectorAll('.dots i.f')).toHaveLength(2)
     await userEvent.click(screen.getByRole('button', { name: 'Burahin ang huling numero' }))
-    expect(document.querySelectorAll('.pin-dot--on')).toHaveLength(1)
+    expect(document.querySelectorAll('.dots i.f')).toHaveLength(1)
   })
 
   test('the red Emergency button opens the selected profile card without unlocking', async () => {
@@ -96,8 +96,8 @@ describe('LockScreen', () => {
     await screen.findByRole('radio', { name: /Lola Remy/ })
     await typePin('111111')
     expect(await screen.findByText('Mali po ang PIN. Pakisubukan ulit.')).toBeTruthy()
-    expect(document.querySelector('.pin-dots--shake')).toBeTruthy()
-    expect(document.querySelectorAll('.pin-dot--on')).toHaveLength(0)
+    expect(document.querySelector('.dots--shake')).toBeTruthy()
+    expect(document.querySelectorAll('.dots i.f')).toHaveLength(0)
     expect(router.state.location.pathname).toBe('/lock')
   })
 
@@ -120,7 +120,7 @@ describe('LockScreen', () => {
   test('shows a skeleton while profiles load, not an empty list', async () => {
     mockApi({ '/api/profiles': () => new Promise(() => {}) })
     renderAt('/lock')
-    expect(await screen.findByRole('heading', { name: 'Naka-lock ang Kapiling' })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: 'Kapiling' })).toBeTruthy()
     expect(document.querySelector('.skeleton')).toBeTruthy()
     expect(screen.queryByRole('radio')).toBeNull()
   })

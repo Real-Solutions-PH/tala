@@ -1,76 +1,38 @@
-// Home, after the prototype: today's medicines at a glance with the next dose and one "Markahang nainom" action,
-// the Ask Kapiling pill, three quick actions (PhilHealth, Talaan, Emergency), the latest results, and a
-// privacy line. Everything here is a shortcut into an existing screen.
-import { useMemo, useState } from 'react'
+// Home, a copy of the prototype's: a status headline, the next-medicine panel with "Mark as taken", the Ask
+// Kapiling pill, three quick actions, the latest results, and the "stays on this phone" line.
+import { useMemo } from 'react'
 import { Link } from 'react-router'
-import { Check, ChevronRight, FileHeart, HeartPulse, IdCard, Lock, Mic, Plane, ShieldCheck, Stethoscope, TriangleAlert, UserRound, type LucideIcon } from 'lucide-react'
-import { useCards, useMeds, useProfiles, useSummary } from '../../api/queries'
+import { Check, CloudSun, FileText, HeartPulse, IdCard, Lock, Mic, Moon, Sun, TriangleAlert, type LucideIcon } from 'lucide-react'
+import { useCards, useMeds, useSummary } from '../../api/queries'
 import type { Observation } from '../../api/types'
-import { Badge } from '../../components/Badge'
-import { Button } from '../../components/Button'
-import { DisplayTitle } from '../../components/DisplayTitle'
-import { Sheet } from '../../components/Sheet'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Key } from '../../i18n'
 import { useLock } from '../lock/useLock'
-import { localDate, periodOf, slotTime, useToggleDose, type Dose } from '../meds/doses'
+import { localDate, periodOf, slotTime, useToggleDose, type Dose, type Period } from '../meds/doses'
 import { num, rangeFlag } from '../records/trend'
 import './home.css'
 
-const PERIOD_WORD = { morning: 'meds.morning', noon: 'meds.noon', night: 'meds.night' } as const
+const SLOT: Record<Period, [Key, LucideIcon]> = { morning: ['meds.morning', Sun], noon: ['meds.noon', CloudSun], night: ['meds.night', Moon] }
 
-/** The next untaken dose, with one bar per dose and the action that marks it. */
-function NextDose({ doses, onTake, name }: { doses: Dose[]; onTake: (d: Dose) => void; name: (d: Dose) => string }) {
-  const t = useT()
-  const [lang] = useLang()
-  const taken = doses.filter(d => d.taken_at != null).length
-  const next = doses.find(d => d.taken_at == null)
-  return (
-    <section className="card nextdose" aria-labelledby="nextdose-label">
-      <div className="nextdose__row">
-        <span id="nextdose-label" className="nextdose__label">{t(next ? 'home.nextMed' : 'meds.todayHeading')}</span>
-        {next
-          ? <span className="nextdose__chip">{t(PERIOD_WORD[periodOf(next.slot)])} · {slotTime(next.slot, lang)}</span>
-          : <Badge tone="ok" icon={Check}>{t('common.done')}</Badge>}
-      </div>
-      <p className="nextdose__drug">{next ? name(next) : t('home.allTaken')}</p>
-      <div className="nextdose__segs" aria-hidden="true">{doses.map((d, i) => <i key={i} className={d.taken_at != null ? 'is-on' : undefined} />)}</div>
-      <p className="nextdose__cap">{t('home.doses', { taken, total: doses.length })}</p>
-      {next
-        ? <Button size="lg" block icon={Check} onClick={() => onTake(next)}>{t('meds.markTaken')}</Button>
-        : <Link to="/meds" className="btn btn--secondary btn--lg btn--block"><span>{t('home.seeMeds')}</span></Link>}
-    </section>
-  )
-}
-
-/** One latest result: name and date on the left, the value and its worded range on the right. */
-function Result({ label, o, value, to }: { label: Key; o?: Observation; value: string; to: string }) {
+/** One latest result: name and its source on the left; the value and a worded chip on the right. */
+function Result({ label, o, value, to, source }: { label: Key; o?: Observation; value: string; to: string; source: Key }) {
   const t = useT()
   const [lang] = useLang()
   if (!o) return null
   const flag = rangeFlag(o)
   return (
-    <li>
-      <Link to={to} className="res">
-        <span className="res__k">{t(label)}</span>
-        <time className="res__d" dateTime={o.date}>{formatDate(o.date, lang, { month: 'short', day: 'numeric', year: 'numeric' })}</time>
-        <span className="res__v">
-          <b className="num">{value}<small>{o.unit}</small></b>
-          {flag
-            ? <Badge tone="warn" icon={TriangleAlert}>{t(flag === 'high' ? 'records.highForRange' : 'records.lowForRange')}</Badge>
-            : <Badge tone="ok" icon={Check}>{t('home.inRange')}</Badge>}
-        </span>
-      </Link>
-    </li>
+    <Link to={to} className="res">
+      <span className="res__k">{t(label)}</span>
+      <span className="res__src">{formatDate(o.date, lang, { month: 'short', day: 'numeric' })} · {t(source)}</span>
+      <span className="res__v">
+        <b className="num">{value}<small>{o.unit}</small></b>
+        {flag
+          ? <span className="chip-s c-warn"><TriangleAlert aria-hidden="true" strokeWidth={3} />{t(flag === 'high' ? 'home.aboveRange' : 'home.belowRange')}</span>
+          : <span className="chip-s c-ok"><Check aria-hidden="true" strokeWidth={3} />{t('home.inRange')}</span>}
+      </span>
+    </Link>
   )
 }
-
-const TRUST: { icon: LucideIcon; title: Key; body: Key }[] = [
-  { icon: Lock, title: 'home.trust1', body: 'home.trust1Body' },
-  { icon: Plane, title: 'home.trust2', body: 'home.trust2Body' },
-  { icon: UserRound, title: 'home.trust3', body: 'home.trust3Body' },
-  { icon: Stethoscope, title: 'home.trust4', body: 'home.trust4Body' },
-]
 
 export function HomePage() {
   const t = useT()
@@ -80,20 +42,14 @@ export function HomePage() {
   const meds = useMeds(profileId, date)
   const summary = useSummary(profileId)
   const cards = useCards(profileId)
-  const me = useProfiles().data?.find(p => p.id === profileId)
   const onTake = useToggleDose(profileId, date, meds.data)
-  const [trust, setTrust] = useState(false)
 
   const doses = (meds.data?.today ?? []) as Dose[]
-  const taken = doses.filter(d => d.taken_at != null).length
+  const done = doses.filter(d => d.taken_at != null).length
+  const next = doses.find(d => d.taken_at == null)
   const byId = new Map((meds.data?.meds ?? []).map(m => [m.id, m]))
-  const doseName = (d: Dose) => {
-    const m = byId.get(d.med_id)
-    return [d.name ?? m?.name, d.strength ?? m?.strength].filter(Boolean).join(' ')
-  }
-  const who = me ? (me.nickname ?? me.full_name) : ''
-  const headline = doses.length === 0 ? t('home.noMeds', { name: who })
-    : taken === doses.length ? t('home.allTaken') : t('home.headline', { taken, total: doses.length })
+  const medOf = (d: Dose) => byId.get(d.med_id)
+  const headline = doses.length && !next ? t('home.allTaken') : t('home.headline', { taken: done, total: doses.length })
 
   const philhealth = cards.data?.find(c => c.kind === 'philhealth')
   const latest = summary.data?.latest ?? {}
@@ -102,59 +58,70 @@ export function HomePage() {
   const bpS = ok(latest.bp_systolic)
   const bpD = ok(latest.bp_diastolic)
 
+  const nextMed = next && medOf(next)
+  const [slotWord, SlotIcon] = next ? SLOT[periodOf(next.slot)] : SLOT.morning
+
   return (
     <div className="page home">
-      <div className="home__head">
-        <DisplayTitle>{headline}</DisplayTitle>
-        <button type="button" className="trust-pill" onClick={() => setTrust(true)} aria-haspopup="dialog">
-          <ShieldCheck aria-hidden="true" strokeWidth={2} /><span>{t('home.private')}</span>
-        </button>
-      </div>
+      <div className="status"><h1 className="h">{headline}</h1></div>
 
-      {meds.isPending ? <Skeleton height={260} radius={16} /> : doses.length > 0 && <NextDose doses={doses} onTake={onTake} name={doseName} />}
+      {meds.isPending ? <Skeleton height={220} radius={16} /> : doses.length > 0 && (
+        <section className="panel nextcard" aria-labelledby="next-label">
+          {next ? (
+            <>
+              <div className="row1">
+                <span id="next-label" className="lbl">{t('home.nextMed')}</span>
+                <span className="chip-s c-blue"><SlotIcon aria-hidden="true" strokeWidth={2} />{t(slotWord)}</span>
+              </div>
+              <div>
+                <div className="drug">{next.name ?? nextMed?.name} {next.strength ?? nextMed?.strength}</div>
+                <div className="note">{[slotTime(next.slot, lang), nextMed?.purpose].filter(Boolean).join(' · ')}</div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="row1">
+                <span id="next-label" className="lbl">{t('meds.todayTitle')}</span>
+                <span className="chip-s c-ok"><Check aria-hidden="true" strokeWidth={3} />{t('common.done')}</span>
+              </div>
+              <div className="drug">{t('home.allTaken')}</div>
+            </>
+          )}
+          <div className="segs" aria-hidden="true">{doses.map((d, i) => <i key={i} className={d.taken_at != null ? 'on' : undefined} />)}</div>
+          <div className="segcap">{t('home.doses', { taken: done, total: doses.length })}</div>
+          {next
+            ? <button type="button" className="btn btn--primary btn--block btn--lg" onClick={() => onTake(next)}><Check aria-hidden="true" strokeWidth={3} /><span>{t('home.markTaken')}</span></button>
+            : <Link to="/meds" className="btn btn--ink btn--block btn--lg"><span>{t('home.seeMeds')}</span></Link>}
+        </section>
+      )}
 
-      <Link to="/usap" className="askpill">
-        <span className="askpill__mic" aria-hidden="true"><Mic strokeWidth={2} /></span>
-        <span className="askpill__text"><b>{t('home.ask')}</b><span>{t('home.askSub')}</span></span>
+      <Link to="/usap" className="askbig">
+        <span className="mc" aria-hidden="true"><Mic strokeWidth={2} /></span>
+        <span><b>{t('home.ask')}</b><span className="s">{t('home.askSub')}</span></span>
       </Link>
 
-      <nav className="quick" aria-label={t('home.quick')}>
-        <Link to={philhealth ? `/cards/${philhealth.id}` : '/cards'} className="quick__item">
-          <span className="quick__icon" aria-hidden="true"><IdCard /></span>PhilHealth
-        </Link>
-        <Link to="/records" className="quick__item">
-          <span className="quick__icon" aria-hidden="true"><FileHeart /></span>{t('nav.records')}
-        </Link>
-        <Link to={`/emergency/${profileId}`} className="quick__item quick__item--danger">
-          <span className="quick__icon" aria-hidden="true"><HeartPulse /></span>{t('emergency.button')}
-        </Link>
+      <nav className="qa" aria-label={t('home.quick')}>
+        <Link to={philhealth ? `/cards/${philhealth.id}` : '/cards'}><span className="qi" aria-hidden="true"><IdCard /></span>PhilHealth</Link>
+        <Link to="/records"><span className="qi" aria-hidden="true"><FileText /></span>{t('nav.records')}</Link>
+        <Link to={`/emergency/${profileId}`} className="red"><span className="qi" aria-hidden="true"><HeartPulse /></span>{t('emergency.button')}</Link>
       </nav>
 
-      <section className="home__sec" aria-labelledby="home-latest">
-        <div className="home__sech">
+      <section className="sec" aria-labelledby="home-latest">
+        <div className="sech">
           <h2 id="home-latest">{t('home.latest')}</h2>
-          <Link to="/records" className="home__link">{t('common.seeAll')}<ChevronRight aria-hidden="true" /></Link>
+          <Link to="/records" className="link">{t('common.seeAll')}</Link>
         </div>
         {summary.isPending ? <Skeleton height={200} radius={16} /> : (
-          <ul className="card results">
-            <Result label="records.tileBpLong" o={bpS} to="/records/labs/bp_systolic"
+          <div className="panel results">
+            <Result label="records.tileBpLong" o={bpS} to="/records/labs/bp_systolic" source="home.checkup"
               value={bpS ? `${fmt(bpS)}${bpD && bpD.date === bpS.date ? `/${fmt(bpD)}` : ''}` : ''} />
-            <Result label="records.tileFbsLong" o={ok(latest.fbs)} value={fmt(ok(latest.fbs))} to="/records/labs/fbs" />
-            <Result label="records.tileHba1cLong" o={ok(latest.hba1c)} value={fmt(ok(latest.hba1c))} to="/records/labs/hba1c" />
-          </ul>
+            <Result label="records.tileFbsLong" o={ok(latest.fbs)} value={fmt(ok(latest.fbs))} to="/records/labs/fbs" source="home.fromLab" />
+            <Result label="records.tileHba1cLong" o={ok(latest.hba1c)} value={fmt(ok(latest.hba1c))} to="/records/labs/hba1c" source="home.fromLab" />
+          </div>
         )}
       </section>
 
-      <p className="home__foot"><Lock aria-hidden="true" strokeWidth={2} /><span>{t('home.stays')}</span></p>
-
-      <Sheet open={trust} onClose={() => setTrust(false)} title={t('home.trustTitle')}>
-        <ul className="card trust-list">
-          {TRUST.map(({ icon: Icon, title, body }) => (
-            <li key={title}><Icon aria-hidden="true" strokeWidth={2} /><span><b>{t(title)}</b><span>{t(body)}</span></span></li>
-          ))}
-        </ul>
-        <Button size="lg" block onClick={() => setTrust(false)}>{t('home.gotIt')}</Button>
-      </Sheet>
+      <p className="foot"><Lock aria-hidden="true" strokeWidth={2.4} /><span>{t('home.stays')}</span></p>
     </div>
   )
 }
