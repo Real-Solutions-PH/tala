@@ -1,4 +1,9 @@
 import dataclasses
+import os
+
+# Before kapiling is imported: no ingestion worker in tests, and no Hugging Face network calls.
+os.environ.setdefault("KAPILING_WORKER", "0")
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
 import pytest
 

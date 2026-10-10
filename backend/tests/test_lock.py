@@ -238,7 +238,10 @@ PUBLIC_ROUTES = {("GET", "/api/health"), ("GET", "/api/profiles"), ("POST", "/ap
                  ("GET", "/api/profiles/{pid}/photo"), ("GET", "/api/emergency/{pid}"),
                  ("GET", "/api/emergency/{pid}/qr.svg")}
 # Locked routes whose path has no {pid}: the handler must compare the actor's profile itself (tested above).
-HANDLER_CHECKED = {("GET", "/api/files/{card_id}/{side}"), ("GET", "/api/access-log")}
+HANDLER_CHECKED = {("GET", "/api/files/{card_id}/{side}"), ("GET", "/api/access-log"),
+                   ("GET", "/api/documents/{doc_id}"), ("GET", "/api/documents/{doc_id}/file"),
+                   ("GET", "/api/documents/{doc_id}/page/{n}.png"),
+                   ("POST", "/api/documents/{doc_id}/observations/confirm")}
 
 
 def test_every_route_is_public_or_locked():

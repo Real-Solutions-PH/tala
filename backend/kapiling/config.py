@@ -13,6 +13,7 @@ class Settings:
     data_dir: Path = Path(os.getenv("KAPILING_DATA", ROOT / "data"))
     pair_key: str = os.getenv("KAPILING_KEY", "")
     demo: bool = os.getenv("KAPILING_DEMO", "0") == "1"
+    worker: bool = os.getenv("KAPILING_WORKER", "1") == "1"   # the ingestion worker; tests set 0
     embed_tokenizer: str = os.getenv("EMBED_TOKENIZER", "Qwen/Qwen3-Embedding-0.6B")
 
     @property

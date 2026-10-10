@@ -1,6 +1,8 @@
 """Kapiling API: local-first personal health record."""
 
+import asyncio
 import re
+from contextlib import asynccontextmanager, suppress
 from typing import Any
 
 import httpx
@@ -10,6 +12,8 @@ from fastapi.staticfiles import StaticFiles
 
 from kapiling import config
 from kapiling.auth.routes import router as auth_router
+from kapiling.docs.ingest import run_pending
+from kapiling.docs.routes import router as docs_router
 from kapiling.records.routes import router as records_router
 
 STATIC_DIR = config.ROOT / "static"
@@ -21,9 +25,29 @@ OPEN_PATHS = re.compile(
     r"|/api/emergency/[0-9]+(?:/qr\.svg)?"
 )
 
-app = FastAPI(title="Kapiling")
+worker_task: asyncio.Task | None = None
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Start the ingestion worker as a detached task with its own connection (G-C-015)."""
+    global worker_task
+    if config.settings.worker:
+        worker_task = asyncio.create_task(run_pending())
+    try:
+        yield
+    finally:
+        if worker_task is not None:
+            worker_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await worker_task
+            worker_task = None
+
+
+app = FastAPI(title="Kapiling", lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(records_router)
+app.include_router(docs_router)
 
 
 def is_open(path: str) -> bool:
