@@ -197,6 +197,7 @@ export const en = {
   },
   meds: {
     tapHint: 'tap a medicine when you take it',
+    due: 'Due',
     refillBanner: '{name}: {n} left. Please buy more this week.',
     title: 'Medicines',
     today: 'Today’s medicines',
@@ -221,6 +222,7 @@ export const en = {
     times: 'Schedule: {times}',
   },
   records: {
+    addResultSub: 'Take a photo of a lab result or an old hospital record. It is read on this phone.',
     title: 'Records',
     summary: 'Health summary',
     timeline: 'History',

@@ -199,6 +199,7 @@ export const tl: Catalogue = {
   },
   meds: {
     tapHint: 'pindutin ang gamot kapag nainom na',
+    due: 'Inumin',
     refillBanner: '{name}: {n} na lang po. Bumili na ngayong linggo.',
     title: 'Mga gamot',
     today: 'Mga gamot ngayong araw',
@@ -223,6 +224,7 @@ export const tl: Catalogue = {
     times: 'Oras: {times}',
   },
   records: {
+    addResultSub: 'Kunan ng litrato ang lab result o lumang record ng ospital. Dito lang sa phone ito binabasa.',
     title: 'Talaan',
     summary: 'Kalagayan',
     timeline: 'Kasaysayan',

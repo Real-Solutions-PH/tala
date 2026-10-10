@@ -18,15 +18,15 @@
 .chat__list { display: grid; gap: var(--s-4); padding: var(--s-3) var(--s-4) var(--s-4); align-content: start; }
 
 .chat__empty { display: grid; gap: var(--s-4); padding-top: var(--s-5); }
-.chat__greeting { font-size: calc(36px * var(--text-scale)); font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; margin: 0; }
+.chat__greeting { font-size: calc(26px * var(--text-scale)); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; margin: 0; }
 .chat__chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5em, 1fr)); gap: var(--s-2); }
 .chat__chip {
   display: flex; align-items: center; gap: var(--s-2); min-height: 56px; padding: var(--s-2) var(--s-3); text-align: left;
   border: 0; background: var(--surface); color: var(--ink); border-radius: var(--radius-card); box-shadow: var(--shadow);
   font: inherit; font-weight: 500; cursor: pointer; overflow-wrap: anywhere;
 }
-/* The icon in a grey circle, as on the reference's cards. */
-.chat__chip svg { width: 44px; height: 44px; padding: 11px; border-radius: 50%; flex: none; background: var(--bg); color: var(--ink); }
+/* The icon in a soft-blue circle, as on the prototype's quick actions. */
+.chat__chip svg { width: 44px; height: 44px; padding: 11px; border-radius: 50%; flex: none; background: var(--primary-soft); color: var(--primary); }
 .chat__chip:active { transform: scale(0.98); }
 
 .chat-skeleton { display: grid; gap: var(--s-3); }
@@ -40,8 +40,9 @@
 /* Messages */
 .msg { display: grid; gap: var(--s-3); min-width: 0; }
 .msg--user {
-  justify-self: end; max-width: 85%; background: var(--primary-fill); color: var(--on-primary);
-  padding: var(--s-3) var(--s-4); border-radius: 24px 24px 8px 24px; overflow-wrap: anywhere;
+  justify-self: end; max-width: 85%; color: var(--on-primary);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--sky) 40%, var(--primary-fill)), var(--primary-fill));
+  padding: var(--s-3) var(--s-4); border-radius: 16px 16px 4px 16px; overflow-wrap: anywhere;
 }
 .msg--user p { margin: 0; }
 .msg__thumbs { display: flex; gap: var(--s-2); flex-wrap: wrap; }
@@ -127,7 +128,7 @@
 .composer__row { display: flex; align-items: flex-end; gap: var(--s-2); }
 .composer__input {
   flex: 1 1 0; width: 0; min-width: 0; height: 56px; min-height: 56px; resize: none; padding: 14px var(--s-3); font: inherit; line-height: var(--lh);
-  color: var(--ink); background: var(--bg); border: 2px solid transparent; border-radius: 22px; overflow-y: hidden; box-sizing: border-box;
+  color: var(--ink); background: var(--surface-2); border: 2px solid transparent; border-radius: 28px; overflow-y: hidden; box-sizing: border-box;
 }
 .composer__input::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .composer__input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--primary); }
@@ -138,10 +139,10 @@
 .composer__btn svg, .composer__send svg { width: 24px; height: 24px; flex: none; }
 .composer__btn {
   flex-direction: column; gap: 0; min-width: 48px; min-height: 56px; padding: 0 2px; border-radius: var(--radius-btn);
-  background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color: var(--ink);
+  background: var(--surface-2); color: var(--ink);
 }
 .composer__btnlabel { font-size: 13px; line-height: 1.1; }
-.composer__send { min-height: 56px; min-width: 56px; background: var(--primary-fill); color: var(--on-primary); }
+.composer__send { min-height: 56px; min-width: 56px; color: var(--on-primary); background: linear-gradient(180deg, color-mix(in srgb, var(--sky) 40%, var(--primary-fill)), var(--primary-fill)); }
 .composer__voice { background: var(--primary-soft); color: var(--primary); touch-action: none; }
 .composer__voice--on { background: var(--primary-fill); color: var(--on-primary); }
 .composer__send--stop { background: var(--danger-fill); color: var(--on-danger); }

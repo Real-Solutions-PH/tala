@@ -96,7 +96,7 @@ describe('MedsPage', () => {
     await userEvent.click(btn)
     expect(await screen.findByText('Hindi po natuloy. Pakisubukan ulit.')).toBeTruthy()
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('false'))
-    expect(btn.querySelector('.dose__chip')?.textContent).toBe('Markahang nainom')
+    expect(btn.querySelector('.dose__chip')?.textContent).toBe('Inumin')
   })
 
   test('shows a refill badge when supply_left <= 7, and lists all medicines with purpose and prescriber', async () => {

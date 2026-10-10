@@ -28,7 +28,7 @@ describe('RecordsPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Talaan' })).toBeTruthy()
     expect(await screen.findByRole('heading', { name: 'Kalagayan' })).toBeTruthy()
     const add = screen.getByRole('button', { name: 'Magdagdag ng resulta' })
-    expect(add.className).toContain('btn--lg')
+    expect(add.className).toContain('scanbtn') // the prototype's dashed scan tile, 64 px or taller
     expect(await screen.findByText('Maintenance check-up')).toBeTruthy()
     // lab and document entries open the document; visits and vaccines are plain rows
     expect(screen.getByRole('link', { name: /FBS and HbA1c/ }).getAttribute('href')).toBe('/records/documents/7')

@@ -1,7 +1,7 @@
 // Medicines: today's doses grouped Umaga / Tanghali / Gabi with an optimistic "Markahang nainom" action
 // that turns into the "Nainom na" status (tap again to undo),
 // refill warnings, and the full list with purpose and prescriber.
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { localDate, periodOf, REFILL_AT, scheduleOf, slotTime, useToggleDose, type Dose, type Period } from './doses'
 import { Check, PackageOpen, Pill, Stethoscope, Sun, Sunrise, Moon, type LucideIcon } from 'lucide-react'
 import { useMeds } from '../../api/queries'
@@ -47,7 +47,7 @@ function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; on
               : slotTime(dose.slot, lang)}
           </span>
         </span>
-        <span className="dose__chip" aria-hidden="true">{t(taken ? 'meds.taken' : 'meds.markTaken')}</span>
+        <span className="dose__chip" aria-hidden="true">{t(taken ? 'meds.taken' : 'meds.due')}</span>
       </button>
     </li>
   )
@@ -66,7 +66,8 @@ export function MedsPage() {
   const t = useT()
   const [lang] = useLang()
   const { profileId } = useLock()
-  const date = useMemo(() => localDate(), [])
+  const [now] = useState(() => new Date())
+  const date = useMemo(() => localDate(now), [now])
   const meds = useMeds(profileId, date)
 
   const onToggle = useToggleDose(profileId, date, meds.data)
@@ -86,7 +87,7 @@ export function MedsPage() {
         : meds.data.meds.length === 0 ? <EmptyState icon={Pill} title={t('meds.emptyTitle')} body={t('meds.emptyBody')} />
         : (
           <>
-            <p className="muted meds__hint">{formatDate(new Date(), lang, { weekday: 'long', month: 'long', day: 'numeric' })} · {t('meds.tapHint')}</p>
+            <p className="muted meds__hint">{formatDate(now, lang, { weekday: 'long', month: 'long', day: 'numeric' })} · {t('meds.tapHint')}</p>
             {meds.data.meds.filter(m => m.supply_left != null && m.supply_left <= REFILL_AT).map(m => (
               <p key={m.id} className="refill" role="note"><PackageOpen aria-hidden="true" strokeWidth={2} />
                 <span>{t('meds.refillBanner', { name: [m.name, m.strength].filter(Boolean).join(' '), n: m.supply_left ?? 0 })}</span></p>

@@ -4,20 +4,20 @@
   display: flex; flex-direction: column; align-items: stretch; gap: var(--s-3); /* the whole pad fits a 375x812 phone without scrolling */
 }
 .lock__sos {
-  /* A compact red pill at the top right: always there, no longer a full-width bar. */
-  align-self: flex-end; display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+  /* After the prototype: a full-width soft-red pill under the keypad, reachable without unlocking. */
+  align-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
-  background: var(--danger-fill); color: var(--on-danger); text-decoration: none;
+  background: var(--danger-soft); color: var(--danger); text-decoration: none;
   font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); line-height: 1.2;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .lock__sos svg { flex: none; width: 1.3em; height: 1.3em; }
-.lock__sos:hover { filter: brightness(0.95); }
+.lock__sos:hover { filter: brightness(0.97); }
 .lock__sos:active:not(:disabled) { transform: scale(0.97); }
 button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-lg); }
 .lock__sos:disabled { opacity: 0.6; cursor: not-allowed; }
-.lock__mark { align-self: center; }
-.lock__title { font-size: calc(36px * var(--text-scale)); font-weight: 400; line-height: 1.1; letter-spacing: -0.03em; text-align: center; }
+.lock__mark { align-self: center; margin-top: var(--s-4); }
+.lock__title { font-size: calc(30px * var(--text-scale)); font-weight: 600; line-height: 1.1; letter-spacing: -0.03em; text-align: center; }
 .lock__title strong { font-weight: 600; }
 .lock__title svg { display: inline-block; width: 0.9em; height: 0.9em; margin-right: var(--s-2); vertical-align: -0.1em; color: var(--primary); }
 
@@ -43,7 +43,7 @@ button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font
 .lock__prompt { text-align: center; font-weight: 400; color: var(--muted); }
 
 .pin-dots { display: flex; justify-content: center; gap: var(--s-3); padding: var(--s-1) 0; }
-.pin-dot { width: 18px; height: 18px; border-radius: var(--radius-btn); border: 2px solid var(--muted); background: transparent; transition: background-color var(--dur) var(--ease); }
+.pin-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--primary-fill); background: transparent; transition: background-color var(--dur) var(--ease); }
 .pin-dot--on { background: var(--primary-fill); border-color: var(--primary-fill); }
 .pin-dots--shake { animation: pin-shake 360ms var(--ease); }
 @keyframes pin-shake {
@@ -61,9 +61,9 @@ button.lock__sos { border: 0; font: inherit; font-family: var(--font-head); font
 .pinpad__key {
   display: flex; align-items: center; justify-content: center; gap: var(--s-1);
   /* Phone-keypad keys: 72px at normal text size, never under 64px. */
-  width: calc(72px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: var(--radius-btn);
+  width: calc(72px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  font: inherit; font-family: var(--font-head); font-weight: 400; font-size: calc(30px * var(--text-scale)); font-variant-numeric: tabular-nums;
+  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: calc(30px * var(--text-scale)); font-variant-numeric: tabular-nums;
   cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .pinpad__key:active:not(:disabled) { transform: scale(0.96); background: var(--surface-2); }

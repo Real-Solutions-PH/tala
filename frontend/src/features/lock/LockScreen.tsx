@@ -115,18 +115,6 @@ export function LockScreen() {
   return (
     <main className="standalone lock">
       <div className="lock__inner">
-        {selected != null ? (
-          <Link to={`/emergency/${selected}`} className="lock__sos">
-            <Siren aria-hidden="true" strokeWidth={2} />
-            <span>{t('emergency.button')}</span>
-          </Link>
-        ) : (
-          <button type="button" className="lock__sos" disabled>
-            <Siren aria-hidden="true" strokeWidth={2} />
-            <span>{t('emergency.button')}</span>
-          </button>
-        )}
-
         <Mark size={56} className="lock__mark" />
         <h1 className="lock__title">{boldLast(t('lock.title'))}</h1>
 
@@ -187,6 +175,17 @@ export function LockScreen() {
         {selected != null && (
           <BiometricUnlock key={selected} profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
             disabled={blocked || busy} onUnlocked={() => navigate('/home', { replace: true })} />
+        )}
+        {selected != null ? (
+          <Link to={`/emergency/${selected}`} className="lock__sos">
+            <Siren aria-hidden="true" strokeWidth={2} />
+            <span>{t('emergency.button')}</span>
+          </Link>
+        ) : (
+          <button type="button" className="lock__sos" disabled>
+            <Siren aria-hidden="true" strokeWidth={2} />
+            <span>{t('emergency.button')}</span>
+          </button>
         )}
       </div>
     </main>

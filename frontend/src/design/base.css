@@ -432,7 +432,7 @@ strong, b { font-weight: 600; }
 .lucide { stroke-width: 1.75; }
 
 /* Section titles, as in the reference ("Blood Pressure"): plain, regular weight, ink. */
-.page section > h2, .page .meds__h2, .summary > h2 {
+.page section > h2, .page .meds__h2, .summary > h2, .summary__head h2 {
   font-family: var(--font-head); font-size: calc(20px * var(--text-scale)); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
 }
 .hero__of { font-weight: 400; color: var(--on-strong-muted); }
