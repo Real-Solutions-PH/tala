@@ -3,9 +3,6 @@
 /* ---- Health summary ---- */
 /* Separate white tiles on the page, each with a hairline border and the one soft shadow. No coloured block. */
 .summary { display: grid; gap: var(--s-3); }
-  background: var(--surface); border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow);
-  color: var(--ink); padding: var(--s-4);
-}
 /* Two columns at 375px; one when the text is 125% or larger (the minimum grows with --text-scale) or the screen is narrow. */
 .stat-tile__unit { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 400; color: var(--muted); white-space: nowrap; }
 
