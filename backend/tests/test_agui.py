@@ -143,11 +143,16 @@ def test_run_order_and_saved_id_on_finish(client, con, lola_unlocked, echo_agent
     assert runs.get(events[0]["runId"]) is None  # the registry forgets finished runs
 
 
-def test_default_agent_is_the_echo(client, con, lola_unlocked):
+def test_default_agent_is_the_real_one(client, con, lola_unlocked, monkeypatch):
+    """Task 12 replaced the echo: the default agent asks the LLM (here a one-chunk fake)."""
+    from kapiling.chat import agent
+
+    async def one(payload):
+        yield {"choices": [{"index": 0, "delta": {"content": "Opo."}}]}
+
+    monkeypatch.setattr(agent, "_llm_stream", one)
     events = sse(client.post("/api/runs", data=run_data(lola_unlocked, message="kumusta")))
-    types = [e["type"] for e in events]
-    assert "STEP_STARTED" in types and "STEP_FINISHED" in types
-    assert "".join(e["delta"] for e in events if e["type"] == "TEXT_MESSAGE_CONTENT") == "kumusta"
+    assert "".join(e["delta"] for e in events if e["type"] == "TEXT_MESSAGE_CONTENT") == "Opo."
 
 
 def test_blocks_and_sources_are_saved(client, con, lola_unlocked, monkeypatch):
@@ -186,13 +191,21 @@ def test_agent_crash_is_run_error_then_finished(client, con, lola_unlocked, monk
     assert tuple(row) == ("Kal", "failed")
 
 
-def test_composing_deadline_is_timeout_error_and_failed(client, con, lola_unlocked, slow_agent, monkeypatch):
+def test_composing_deadline_is_timeout_error_and_failed(client, con, lola_unlocked, monkeypatch):
+    """R19 (Task 12): the deadline bounds the time to the FIRST event; see test_run_task12 for the long-answer case."""
+    from kapiling.chat import agent
+
+    async def late(ctx):
+        await asyncio.sleep(0.5)
+        yield agui.text_start(ctx.message_id)
+
+    monkeypatch.setattr(agent, "stream_run", late)
     monkeypatch.setattr(runs, "COMPOSING_DEADLINE_S", 0.12)
     events = sse(client.post("/api/runs", data=run_data(lola_unlocked)))
     assert events[-2] == {"type": "RUN_ERROR", "message": "errors.timeout", "code": "timeout"}
     assert events[-1]["type"] == "RUN_FINISHED" and events[-1]["result"]["status"] == "failed"
     row = con.execute("select content, status from messages where id=?", (events[-1]["result"]["messageId"],)).fetchone()
-    assert row["status"] == "failed" and row["content"].startswith("Partial")
+    assert row["status"] == "failed" and row["content"] == ""
 
 
 def test_user_message_saved_at_start(client, con, lola_unlocked, echo_agent):

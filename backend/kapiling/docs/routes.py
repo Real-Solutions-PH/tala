@@ -162,3 +162,19 @@ def confirm_observations(doc_id: int, body: Confirm, con: Con, actor: Unlocked):
     except BaseException:
         con.rollback()
         raise
+
+
+@router.delete("/documents/{doc_id}/observations/{oid}", status_code=204)
+def reject_observation(doc_id: int, oid: int, con: Con, actor: Unlocked):
+    """Drop a value the reader proposed and the person rejected. A confirmed value is record data: 409."""
+    d = _doc_or_404(con, doc_id, actor)  # owner check via require_owner_of
+    o = con.execute("select status from observations where id=? and document_id=? and profile_id=?",
+                    (oid, doc_id, d["profile_id"])).fetchone()
+    if o is None:
+        raise HTTPException(404, "errors.notFound")
+    if o["status"] != "proposed":
+        raise HTTPException(409, "errors.alreadyConfirmed")
+    con.execute("delete from observations where id=? and status='proposed'", (oid,))
+    con.commit()
+    log_access(con, d["profile_id"], actor, "reject_observation", f"document:{doc_id}:observation:{oid}")
+    return Response(status_code=204)

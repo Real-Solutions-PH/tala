@@ -1,7 +1,10 @@
 """Kapiling API: local-first personal health record."""
 
 import asyncio
+import logging
+import os
 import re
+import threading
 from contextlib import asynccontextmanager, suppress
 from typing import Any
 
@@ -17,6 +20,7 @@ from kapiling.records.routes import router as records_router
 from kapiling.voice import tts
 
 STATIC_DIR = config.ROOT / "static"
+log = logging.getLogger("kapiling")
 COOKIE = "kapiling_k"
 # The only API paths a non-paired LAN client may reach. Everything else needs the pairing cookie.
 OPEN_PATHS = re.compile(
@@ -26,12 +30,25 @@ OPEN_PATHS = re.compile(
 )
 
 worker_task: asyncio.Task | None = None
+# Load both MMS-TTS voices at startup so the first spoken reply is not slow. Tests set KAPILING_TTS_WARM=0,
+# like KAPILING_WORKER for the ingestion worker.
+TTS_WARM = os.getenv("KAPILING_TTS_WARM", "1") == "1"
+
+
+def _warm_tts() -> None:
+    for lang in ("tl", "en"):
+        try:
+            tts.load(lang)
+        except Exception as e:  # noqa: BLE001 - a missing model only means a slower first reply
+            log.warning("tts warm-up for %s failed: %s", lang, type(e).__name__)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    """Start the ingestion worker as a detached task with its own connection (G-C-015)."""
+    """Start the ingestion worker as a detached task with its own connection (G-C-015), and warm up TTS."""
     global worker_task
+    if TTS_WARM:
+        threading.Thread(target=_warm_tts, name="tts-warmup", daemon=True).start()
     if config.settings.worker:
         worker_task = asyncio.create_task(run_pending())
     try:

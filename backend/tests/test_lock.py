@@ -245,6 +245,7 @@ HANDLER_CHECKED = {("GET", "/api/files/{card_id}/{side}"), ("GET", "/api/access-
 # Task 8: conversations are keyed by id, runs take profile_id as a form field (tested in test_agui/test_conversations).
 HANDLER_CHECKED |= {("GET", "/api/conversations/{cid}"), ("PATCH", "/api/conversations/{cid}"),
                     ("DELETE", "/api/conversations/{cid}"), ("POST", "/api/runs"), ("POST", "/api/runs/{run_id}/cancel")}
+HANDLER_CHECKED |= {("DELETE", "/api/documents/{doc_id}/observations/{oid}"), ("POST", "/api/speak")}  # Task 12: _doc_or_404 owner check; speak reads no profile data
 
 
 def test_every_route_is_public_or_locked():

@@ -1,4 +1,5 @@
 import io
+import json
 import mimetypes
 import sqlite3
 import uuid
@@ -48,6 +49,17 @@ def _card_json(c) -> dict:
 
 def _row(r) -> dict:
     return dict(r)
+
+
+def _med(m) -> dict:
+    """A medication row with `schedule` parsed from its JSON text to the list C2 promises."""
+    d = dict(m)
+    try:
+        sched = json.loads(d.get("schedule") or "[]")
+    except ValueError:
+        sched = []
+    d["schedule"] = sched if isinstance(sched, list) else []
+    return d
 
 
 def _safe_path(rel: str):
@@ -112,7 +124,7 @@ def summary(pid: int, con: Con, actor: Unlocked):
     log_access(con, pid, actor, "view_summary", "summary")
     return {"profile": _row(p), "conditions": [_row(r) for r in repo.list_conditions(con, pid)],
             "allergies": [_row(r) for r in repo.list_allergies(con, pid)],
-            "meds": [_row(r) for r in repo.list_meds(con, pid)],
+            "meds": [_med(r) for r in repo.list_meds(con, pid)],
             "latest": {k: _row(v) for k, v in repo.latest_observations(con, pid).items()},
             "contacts": [_row(r) for r in repo.list_contacts(con, pid)]}
 
@@ -225,7 +237,7 @@ class Dose(BaseModel):
 @router.get("/profiles/{pid}/meds")
 def meds(pid: int, con: Con, _a: Unlocked, date: str | None = None):
     _profile_or_404(con, pid)
-    return {"meds": [_row(m) for m in repo.list_meds(con, pid)],
+    return {"meds": [_med(m) for m in repo.list_meds(con, pid)],
             "today": repo.meds_today(con, pid, date or _date.today().isoformat())}
 
 
