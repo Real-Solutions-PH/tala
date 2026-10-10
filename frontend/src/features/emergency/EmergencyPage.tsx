@@ -109,7 +109,7 @@ export function EmergencyPage() {
     <main className="standalone ecard">
       <header className="ecard__band">
         <div className="ecard__bar">
-          <Link to={profileId != null ? '/chat' : '/lock'} className="ecard__back" title={t('common.back')}>
+          <Link to={profileId != null ? '/home' : '/lock'} className="ecard__back" title={t('common.back')}>
             <ArrowLeft aria-hidden="true" />
             <span className="sr-only">{t('common.back')}</span>
           </Link>

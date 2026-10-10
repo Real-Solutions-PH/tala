@@ -108,25 +108,19 @@ export function HealthSummary() {
 
   return (
     <section className="summary" aria-labelledby="summary-title">
-      <h2 id="summary-title">{t('records.summary')}</h2>
+      <div className="summary__head">
+        <h2 id="summary-title">{t('records.summary')}</h2>
+        {who && <p className="muted summary__sub">{t('records.summaryOf', { name: who })}</p>}
+      </div>
 
-      {/* The reference's blue panel: a white name pill, then the vitals as lighter-blue tiles. */}
-      <div className="vpanel">
-        {who && (
-          <p className="vpanel__pill">
-            {me?.photo_url ? <img className="vpanel__avatar" src={me.photo_url} alt="" /> : null}
-            <span>{t('records.summaryOf', { name: who })}</span>
-          </p>
-        )}
-        <div className="vgrid">
-          {/* BP's trend follows the systolic (top) number */}
-          <Tile name="records.tileBpLong" icon={HeartPulse} to="/records/labs/bp_systolic" latest={bpS} series={confirmed(sys.data)} flag={bpFlag}
-            value={bpS ? `${fmt(bpS)}${bpD && bpD.date === bpS.date ? `/${fmt(bpD)}` : ''}` : undefined} />
-          <Tile name="records.tileFbsLong" icon={Droplet} to="/records/labs/fbs" latest={latest.fbs} value={fmt(latest.fbs)}
-            series={confirmed(fbs.data)} flag={latest.fbs ? rangeFlag(latest.fbs) : null} />
-          <Tile name="records.tileHba1cLong" icon={FlaskConical} to="/records/labs/hba1c" latest={latest.hba1c} value={fmt(latest.hba1c)}
-            series={confirmed(a1c.data)} flag={latest.hba1c ? rangeFlag(latest.hba1c) : null} />
-        </div>
+      <div className="vgrid">
+        {/* BP's trend follows the systolic (top) number */}
+        <Tile name="records.tileBpLong" icon={HeartPulse} to="/records/labs/bp_systolic" latest={bpS} series={confirmed(sys.data)} flag={bpFlag}
+          value={bpS ? `${fmt(bpS)}${bpD && bpD.date === bpS.date ? `/${fmt(bpD)}` : ''}` : undefined} />
+        <Tile name="records.tileFbsLong" icon={Droplet} to="/records/labs/fbs" latest={latest.fbs} value={fmt(latest.fbs)}
+          series={confirmed(fbs.data)} flag={latest.fbs ? rangeFlag(latest.fbs) : null} />
+        <Tile name="records.tileHba1cLong" icon={FlaskConical} to="/records/labs/hba1c" latest={latest.hba1c} value={fmt(latest.hba1c)}
+          series={confirmed(a1c.data)} flag={latest.hba1c ? rangeFlag(latest.hba1c) : null} />
       </div>
 
       <div className="stile stile--allergy">

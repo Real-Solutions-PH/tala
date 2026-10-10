@@ -59,7 +59,7 @@ describe('LockScreen', () => {
     const init = unlockCalls(f)[0][1] as RequestInit
     expect(init.method).toBe('POST')
     expect(JSON.parse(String(init.body))).toEqual({ profile_id: 2, pin: '123456' })
-    await waitFor(() => expect(router.state.location.pathname).toBe('/chat'))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/home'))
   })
 
   test('PIN keys are labelled buttons, each digit shows a dot, and there is no biometric button', async () => {

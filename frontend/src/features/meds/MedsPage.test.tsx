@@ -79,7 +79,7 @@ describe('MedsPage', () => {
     expect(btn.getAttribute('aria-pressed')).toBe('false')
     await userEvent.click(btn)
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('true')) // optimistic: before the server answers
-    expect(btn.textContent).toBe('Nainom na') // the action became the status
+    expect(btn.querySelector('.dose__chip')?.textContent).toBe('Nainom na') // the action became the status
     expect(screen.queryByText('Nainom na po ang Losartan.')).toBeNull()
     answer(new Response(null, { status: 204 }))
     const post = f.mock.calls.find(c => String(c[0]) === '/api/profiles/1/meds/1/taken')!
@@ -96,7 +96,7 @@ describe('MedsPage', () => {
     await userEvent.click(btn)
     expect(await screen.findByText('Hindi po natuloy. Pakisubukan ulit.')).toBeTruthy()
     await waitFor(() => expect(btn.getAttribute('aria-pressed')).toBe('false'))
-    expect(btn.textContent).toBe('Markahang nainom')
+    expect(btn.querySelector('.dose__chip')?.textContent).toBe('Markahang nainom')
   })
 
   test('shows a refill badge when supply_left <= 7, and lists all medicines with purpose and prescriber', async () => {

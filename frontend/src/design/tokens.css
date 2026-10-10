@@ -3,32 +3,34 @@
    scripts/contrast.ts parses this file and fails the test run if any text pair drops below 4.5:1. */
 
 :root {
-  color-scheme: light; /* light only, like the reference: one look on every phone */
+  color-scheme: light; /* Blue, light. The phone's dark mode and the other themes are below. */
 
-  /* Colour: light. Option A palette: #0F62E6 blue, white, black, #E9F1FC ground, #DDE5EF surface-2. */
-  --bg: #E9F1FC;          /* Langit, pale blue ground */
+  /* Colour: the prototype's Medical Blue. #155EEF blue, #F5F6F8 ground, white cards, #1C1C1C ink. */
+  --bg: #F5F6F8;          /* soft grey ground (prototype) */
+  --grad-top: #E4ECFE;    /* the sky wash at the top of every screen */
   --surface: #FFFFFF;
-  --surface-2: #DDE5EF;   /* inputs, pressed secondary, skeleton base */
-  --border: #DDE5EF;
-  --ink: #000000;         /* pure black ink */
-  --muted: #475467;
-  --primary: #0F62E6;     /* Kapiling Blue */
-  --primary-fill: #0F62E6; /* buttons, bars, selected tab, the mark: same blue in both themes */
+  --surface-2: #F0F2F5;   /* inputs, pressed secondary, skeleton base */
+  --border: #E4E7EC;
+  --ink: #1C1C1C;         /* near-black ink */
+  --muted: #4D4D4D;
+  --primary: #155EEF;     /* Kapiling Blue */
+  --primary-fill: #155EEF; /* buttons, bars, selected tab, the mark: same blue in both themes */
   --on-primary: #FFFFFF;
-  --primary-soft: #E0ECFE;
+  --primary-soft: #EAF1FF;
+  --sky: #528BFF;         /* top of the blue button gradient: fill only, never behind text alone */
   --primary-strong: #0F4EB6; /* the results panel ground, a deeper blue so its brand-blue tiles stand out */
   --on-strong: #FFFFFF;
   --on-strong-muted: #F0F5FF; /* secondary text on the hero card */
   --gold: #F2A900;        /* Araw Gold: fills only, never text */
   --on-gold: #000000;     /* text on gold fills: ink in both themes */
-  --accent: #137336;      /* taken, success */
-  --accent-soft: #EEF8F1;
-  --warn: #A34B07;        /* refill soon, high */
-  --warn-soft: #FDF4E7;
+  --accent: #067647;      /* taken, success */
+  --accent-soft: #DCFAE6;
+  --warn: #B54708;        /* refill soon, high */
+  --warn-soft: #FEF0C7;
   --danger: #B42318;      /* emergency, allergy */
-  --danger-fill: #B42318; /* Emergency button, both themes */
+  --danger-fill: #D92D20; /* Emergency button, both themes */
   --on-danger: #FFFFFF;
-  --danger-soft: #FCE8E6;
+  --danger-soft: #FEE4E2;
   --shimmer: #FFFFFF;
   --scrim: rgb(0 0 0 / 0.5);
   --dock: #0E1424;        /* the dark bottom dock */
@@ -39,8 +41,8 @@
   --on-viewer: #FFFFFF;
 
   /* Type */
-  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Figtree', system-ui, sans-serif; /* SF Pro everywhere, as in the reference */
-  --font-head: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Figtree', 'Atkinson Hyperlegible Next', system-ui, sans-serif; /* SF Pro on Apple devices, self-hosted Figtree elsewhere */
+  --font-body: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; /* one typeface, as in the prototype */
+  --font-head: 'Urbanist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --text-scale: 1;        /* 1 / 1.25 / 1.5, set on <html> from Settings */
   --fs-sm: calc(15px * var(--text-scale));
   --fs-body: calc(18px * var(--text-scale));
@@ -64,17 +66,146 @@
   --tap-lg: 64px;
   --radius-xs: 6px;
   --radius-sm: 10px;
-  --radius-card: 20px;
-  --radius-sheet: 28px;
-  --radius-btn: 14px;
+  --radius-card: 16px;
+  --radius-sheet: 24px;
+  --radius-btn: 12px;
   --radius-pill: 999px;
   --focus: 3px solid var(--primary);
-  --shadow: 0 0 0 1px rgb(15 98 230 / 0.07), 0 1px 2px rgb(15 98 230 / 0.06), 0 12px 32px rgb(15 98 230 / 0.10); /* hairline edge + blue-tinted depth */
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.05), 0 8px 24px -12px rgb(16 24 40 / 0.14); /* the prototype's one soft shadow */
 
   /* Motion */
   --dur: 200ms;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* ---- Themes (Settings > Tema), after the prototype. Each lists every colour so it never mixes with another. ---- */
+/* Blue follows the phone: dark when the phone is in dark mode. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-skin]) {
+    color-scheme: dark;
+    --bg: #111318;
+    --grad-top: #16224A;
+    --surface: #1A1D24;
+    --surface-2: #232731;
+    --border: #2E333D;
+    --ink: #F5F5F5;
+    --muted: #B4B4B4;
+    --primary: #6E9BFF;
+    --primary-fill: #6E9BFF;
+    --on-primary: #0B1530;
+    --primary-soft: #1B2A52;
+    --sky: #8DB0FF;
+    --primary-strong: #1B2A52;
+    --on-strong: #F5F5F5;
+    --on-strong-muted: #C9D3E6;
+    --accent: #47CD89;
+    --accent-soft: #0E3323;
+    --warn: #FDB022;
+    --warn-soft: #3A2A0B;
+    --danger: #F97066;
+    --danger-fill: #F97066;
+    --on-danger: #1A0705;
+    --danger-soft: #3F1A17;
+    --shimmer: #2E333D;
+    --scrim: rgb(0 0 0 / 0.6);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  }
+}
+:root[data-skin="navy"] {
+  color-scheme: dark;
+  --bg: #0A1322;
+  --grad-top: #15294D;
+  --surface: #111E34;
+  --surface-2: #192944;
+  --border: #273858;
+  --ink: #EAF0FA;
+  --muted: #A5B4CA;
+  --primary: #8DB9FF;
+  --primary-fill: #8DB9FF;
+  --on-primary: #0A1A33;
+  --primary-soft: #1C3461;
+  --sky: #AECDFF;
+  --primary-strong: #1C3461;
+  --on-strong: #EAF0FA;
+  --on-strong-muted: #C4D3EA;
+  --accent: #62D69A;
+  --accent-soft: #10342A;
+  --warn: #F5BA5C;
+  --warn-soft: #3A2A10;
+  --danger: #F89B93;
+  --danger-fill: #F89B93;
+  --on-danger: #2A0A08;
+  --danger-soft: #401816;
+  --shimmer: #273858;
+  --scrim: rgb(0 0 0 / 0.6);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+:root[data-skin="mint"] {
+  color-scheme: light;
+  --bg: #F1F8F6;
+  --grad-top: #CDEDE6;
+  --surface: #FFFFFF;
+  --surface-2: #E8F3F0;
+  --border: #D3E4DF;
+  --ink: #10231F;
+  --muted: #4B5F5A;
+  --primary: #0E7564;
+  --primary-fill: #0E7564;
+  --on-primary: #FFFFFF;
+  --primary-soft: #D4EEE7;
+  --sky: #3FAE97;
+  --primary-strong: #0A5A4D;
+  --on-strong: #FFFFFF;
+  --on-strong-muted: #E6F5F1;
+  --accent: #17744B;
+  --accent-soft: #DDF2E7;
+  --warn: #935100;
+  --warn-soft: #FBEACD;
+  --danger: #B42318;
+  --danger-fill: #C2352B;
+  --on-danger: #FFFFFF;
+  --danger-soft: #FBE3E0;
+  --shimmer: #FFFFFF;
+  --scrim: rgb(16 35 31 / 0.42);
+  --shadow: 0 1px 2px rgb(16 35 31 / 0.05), 0 8px 24px -12px rgb(16 35 31 / 0.16);
+}
+:root[data-skin="contrast"] {
+  color-scheme: light;
+  --bg: #FFFFFF;
+  --grad-top: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-2: #EFEFEF;
+  --border: #000000;
+  --ink: #000000;
+  --muted: #262626;
+  --primary: #003DA8;
+  --primary-fill: #003DA8;
+  --on-primary: #FFFFFF;
+  --primary-soft: #E0E9FF;
+  --sky: #003DA8;
+  --primary-strong: #002A75;
+  --on-strong: #FFFFFF;
+  --on-strong-muted: #FFFFFF;
+  --accent: #005A2B;
+  --accent-soft: #DCF3E4;
+  --warn: #6A3800;
+  --warn-soft: #FFEFBF;
+  --danger: #9E000E;
+  --danger-fill: #9E000E;
+  --on-danger: #FFFFFF;
+  --danger-soft: #FFE2E5;
+  --shimmer: #FFFFFF;
+  --scrim: rgb(0 0 0 / 0.55);
+  --shadow: 0 0 0 2px #000000;
+}
+/* High contrast: thicker edges on every card and control. */
+:root[data-skin="contrast"] .card, :root[data-skin="contrast"] .bottomnav__tabs, :root[data-skin="contrast"] .quick__item { outline: 2px solid #000000; outline-offset: -2px; }
+
+/* Theme swatches in Settings: the theme's blue and its ground. */
+.skin__sw i:first-child { background: #155EEF; } .skin__sw i:last-child { background: #F5F6F8; }
+.skin__sw[data-skin="mint"] i:first-child { background: #0E7564; } .skin__sw[data-skin="mint"] i:last-child { background: #F1F8F6; }
+.skin__sw[data-skin="navy"] i:first-child { background: #8DB9FF; } .skin__sw[data-skin="navy"] i:last-child { background: #0A1322; }
+.skin__sw[data-skin="contrast"] i:first-child { background: #003DA8; } .skin__sw[data-skin="contrast"] i:last-child { background: #FFFFFF; }
 
 @media (prefers-reduced-motion: reduce) {
   :root { --dur: 0ms; }

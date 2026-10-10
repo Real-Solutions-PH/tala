@@ -1,17 +1,18 @@
 import { useLayoutEffect, useRef } from 'react'
 import { NavLink } from 'react-router'
-import { FileHeart, MessageCircle, Pill, WalletCards, type LucideIcon } from 'lucide-react'
+import { FileHeart, House, Mic, Pill, WalletCards, type LucideIcon } from 'lucide-react'
 import { useT, type Key } from '../i18n'
 
 const ITEMS: { to: string; label: Key; icon: LucideIcon }[] = [
-  { to: '/chat', label: 'nav.chat', icon: MessageCircle },
+  { to: '/home', label: 'nav.home', icon: House },
+  { to: '/records', label: 'nav.records', icon: FileHeart },
   { to: '/cards', label: 'nav.cards', icon: WalletCards },
   { to: '/meds', label: 'nav.meds', icon: Pill },
-  { to: '/records', label: 'nav.records', icon: FileHeart },
 ]
 
 /**
- * The bottom menu: four equal items, icon above a word, the current one marked aria-current="page".
+ * The bottom menu, after the prototype's dock: a white pill of four tabs (icon above a word) and, beside it,
+ * the round blue Kausap button. The current one is marked aria-current="page".
  * It is the last row of the shell grid (never fixed). Its measured height is published as --nav-h on
  * <html> so toasts sit just above it, whatever the text size.
  */
@@ -36,12 +37,18 @@ export function BottomNav() {
 
   return (
     <nav ref={ref} className="bottomnav" aria-label={t('nav.label')}>
-      {ITEMS.map(({ to, label, icon: Icon }) => (
-        <NavLink key={to} to={to} className="navitem">
-          <span className="navitem__icon"><Icon aria-hidden="true" strokeWidth={2} /></span>
-          <span className="navitem__label">{t(label)}</span>
-        </NavLink>
-      ))}
+      <div className="bottomnav__tabs">
+        {ITEMS.map(({ to, label, icon: Icon }) => (
+          <NavLink key={to} to={to} className="navitem">
+            <span className="navitem__icon"><Icon aria-hidden="true" strokeWidth={2} /></span>
+            <span className="navitem__label">{t(label)}</span>
+          </NavLink>
+        ))}
+      </div>
+      <NavLink to="/chat" className="navitem navitem--ask">
+        <span className="navitem__icon"><Mic aria-hidden="true" strokeWidth={2} /></span>
+        <span className="navitem__label">{t('nav.chat')}</span>
+      </NavLink>
     </nav>
   )
 }

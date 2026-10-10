@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { useT } from '../i18n'
 
 /** Round back button: returns to the previous screen, or to `fallback` when the screen was opened directly. */
-export function BackLink({ fallback = '/chat' }: { fallback?: string }) {
+export function BackLink({ fallback = '/home' }: { fallback?: string }) {
   const t = useT()
   const navigate = useNavigate()
   const canGoBack = useLocation().key !== 'default' // react-router's first entry has the key 'default'

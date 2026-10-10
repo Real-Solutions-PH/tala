@@ -66,7 +66,7 @@ export function LockScreen() {
     setBusy(true)
     try {
       await unlock(pid, value)
-      navigate('/chat', { replace: true })
+      navigate('/home', { replace: true })
     } catch (err) {
       setPin('')
       if (err instanceof ApiError && err.status === 429) {
@@ -186,7 +186,7 @@ export function LockScreen() {
 
         {selected != null && (
           <BiometricUnlock key={selected} profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
-            disabled={blocked || busy} onUnlocked={() => navigate('/chat', { replace: true })} />
+            disabled={blocked || busy} onUnlocked={() => navigate('/home', { replace: true })} />
         )}
       </div>
     </main>

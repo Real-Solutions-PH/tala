@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
-import { ArrowLeft, ChartLine, FlaskConical, Info, Table } from 'lucide-react'
+import { useParams } from 'react-router'
+import { ChartLine, FlaskConical, Info, Table } from 'lucide-react'
 import {
   Bar, BarChart, CartesianGrid, Cell, LabelList, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
@@ -141,7 +141,6 @@ export function LabDetail() {
 
   return (
     <div className="page lab">
-      <Link to="/records" className="back-link" title={t('records.title')}><ArrowLeft aria-hidden="true" /><span className="sr-only">{t('records.title')}</span></Link>
       <DisplayTitle>{name === code && !label ? t('records.labs') : name}</DisplayTitle>
       {label && label !== name && <p className="muted">{label}</p>}
 

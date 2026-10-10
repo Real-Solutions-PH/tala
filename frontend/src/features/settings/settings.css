@@ -98,3 +98,13 @@ select.field__input { appearance: auto; }
 .about p + p { margin-top: var(--s-2); }
 
 .skeleton-stack { display: grid; gap: var(--s-3); }
+
+/* Theme picker (prototype): four buttons, each a two-colour swatch over its name; the chosen one outlined in blue. */
+.skins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); }
+.skin {
+  display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--border); border-radius: var(--radius-btn); background: var(--surface); color: var(--ink);
+  font: inherit; font-weight: 600; text-align: left; cursor: pointer;
+}
+.skin[aria-pressed='true'] { border-color: var(--primary-fill); background: var(--primary-soft); color: var(--primary); }
+.skin__sw { flex: none; display: grid; grid-template-columns: 1fr 1fr; width: 36px; height: 36px; border-radius: var(--radius-sm); overflow: hidden; box-shadow: inset 0 0 0 1px var(--border); }

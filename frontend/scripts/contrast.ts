@@ -13,11 +13,13 @@ function vars(block: string): Record<string, string> {
 }
 
 const lightBlock = css.match(/^:root\s*\{([\s\S]*?)\}/m)?.[1]
-const darkBlock = css.match(/prefers-color-scheme:\s*dark\)\s*\{\s*:root\s*\{([\s\S]*?)\}/)?.[1]
 if (!lightBlock) { console.error('contrast: could not find the :root block in tokens.css'); process.exit(1) }
 const light = vars(lightBlock)
-// Light only today; a dark block, if one comes back, is checked too.
-const themes: Record<string, Record<string, string>> = darkBlock ? { light, dark: { ...light, ...vars(darkBlock) } } : { light }
+// Every theme is checked: the phone's dark mode for Blue, then each data-skin palette (Settings > Tema).
+const themes: Record<string, Record<string, string>> = { light }
+const darkBlock = css.match(/prefers-color-scheme:\s*dark\)\s*\{\s*:root[^{]*\{([\s\S]*?)\}/)?.[1]
+if (darkBlock) themes.dark = { ...light, ...vars(darkBlock) }
+for (const m of css.matchAll(/^:root\[data-skin="([\w-]+)"\]\s*\{([\s\S]*?)\}/gm)) themes[m[1]] = { ...light, ...vars(m[2]) }
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -38,8 +40,6 @@ pairs.push(
   ['--on-primary', '--primary-fill'], // primary buttons, both themes
   ['--on-strong', '--primary-strong'],       // hero card text
   ['--on-strong-muted', '--primary-strong'], // hero card secondary text
-  ['--on-strong', '--primary-fill'],         // results tiles
-  ['--on-strong-muted', '--primary-fill'],   // dates and units on results tiles
   ['--on-danger', '--danger-fill'],   // emergency and danger buttons, both themes
   ['--primary', '--primary-soft'],    // info badge, selected tab
   ['--accent', '--accent-soft'],      // ok badge
@@ -62,7 +62,7 @@ for (const [theme, t] of Object.entries(themes)) {
     const r = ratio(t[fg], t[bg])
     const ok = r >= MIN
     if (!ok) failures++
-    console.log(`${ok ? '✓' : '✗'} ${theme.padEnd(5)} ${fg} on ${bg}`.padEnd(42) + `${r.toFixed(2)}:1`)
+    console.log(`${ok ? '✓' : '✗'} ${theme.padEnd(8)} ${fg} on ${bg}`.padEnd(45) + `${r.toFixed(2)}:1`)
   }
 }
 

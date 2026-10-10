@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
-import { ArrowLeft, BookOpenText, FileWarning, ZoomIn, ZoomOut } from 'lucide-react'
+import { useLocation, useParams, useSearchParams } from 'react-router'
+import { BookOpenText, FileWarning, ZoomIn, ZoomOut } from 'lucide-react'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { ApiError } from '../../api/client'
@@ -83,8 +83,6 @@ export function DocumentViewer() {
   // A citation opens this page as ?chunk=<id>, carrying its before/match/after quote in the router state.
   const chunk = Number(params.get('chunk'))
   const source = (location.state as { source?: Quote & { chunk_id?: number } } | null)?.source
-  const from = (location.state as { from?: string } | null)?.from
-  const navigate = useNavigate()
   const quote = chunk && source && (source.chunk_id == null || source.chunk_id === chunk) ? source : null
   const doc = q.data
   const highlight = useMemo(() => findHighlight(doc?.transcript_md, quote), [doc?.transcript_md, quote])
@@ -96,8 +94,6 @@ export function DocumentViewer() {
 
   return (
     <div className="page document">
-      <Link to={from ?? '/records'} className="back-link" title={t('records.title')}
-        onClick={e => { if (from) { e.preventDefault(); navigate(-1) } }}><ArrowLeft aria-hidden="true" /><span className="sr-only">{t('records.title')}</span></Link>
       <h1 className="document__title">{doc?.title ?? t('records.documents')}</h1>
       {meta && <p className="muted">{meta}</p>}
 

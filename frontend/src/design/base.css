@@ -2,6 +2,31 @@
 @import './tokens.css';
 
 /* Self-hosted fonts (public/fonts) so the app works offline. */
+/* Urbanist: the prototype's one typeface, self-hosted so the app works offline. */
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('/fonts/urbanist-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-400-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('/fonts/urbanist-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-500-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('/fonts/urbanist-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-600-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('/fonts/urbanist-latin-700-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Urbanist'; font-style: normal; font-weight: 700; font-display: swap;
+  src: url('/fonts/urbanist-latin-ext-700-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
 @font-face { font-family: 'Atkinson Hyperlegible Next'; font-style: normal; font-weight: 400; font-display: swap;
   src: url('/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
@@ -41,7 +66,7 @@ a, button, [role='button'], summary { touch-action: manipulation; cursor: pointe
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26rem) no-repeat, var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: var(--fs-body);
@@ -50,7 +75,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 500; line-height: var(--lh-head); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: var(--lh-head); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
 h1 { font-size: var(--fs-2xl); }
 h2 { font-size: var(--fs-xl); }
 h3 { font-size: var(--fs-lg); font-weight: 600; }
@@ -76,15 +101,15 @@ p { margin: 0; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap); min-width: var(--tap); padding: var(--s-2) var(--s-5);
-  border: 2px solid transparent; border-radius: var(--radius-btn);
-  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-body); line-height: 1.2;
+  border: 2px solid transparent; border-radius: var(--radius-pill);
+  font: inherit; font-family: var(--font-head); font-weight: 600; font-size: var(--fs-body); line-height: 1.2;
   text-align: center; cursor: pointer; user-select: none;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .btn svg { flex: none; width: 1.25em; height: 1.25em; }
 .btn--lg { min-height: var(--tap-lg); padding: var(--s-3) var(--s-6); font-size: var(--fs-lg); }
 .btn--block { width: 100%; }
-.btn--primary { background: var(--primary-fill); color: var(--on-primary); }
+.btn--primary { background: linear-gradient(180deg, color-mix(in srgb, var(--sky) 40%, var(--primary-fill)), var(--primary-fill)); color: var(--on-primary); }
 .btn--secondary { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .btn--danger { background: var(--danger-fill); color: var(--on-danger); }
 .btn--ghost { background: transparent; color: var(--primary); }
@@ -320,88 +345,95 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   height: 100vh; height: 100dvh; overflow: hidden;
   padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
   /* A soft blue light from the top right: the screen feels lit, the cards stay solid white. */
-  background: radial-gradient(90% 50% at 100% 0%, color-mix(in srgb, var(--primary-fill) 16%, transparent), transparent 70%), var(--bg);
+  /* The prototype's sky wash: pale blue at the top fading into the grey ground. */
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26%);
 }
 .shell__main { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
 .topbar {
-  /* One row at normal text size. At larger sizes the profile keeps its room (flex-basis in em) and the
-     Emergency and Settings controls wrap to a second row instead of squeezing the name. */
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-width: 0;
+  /* After the prototype. Home: the person and a greeting, Settings on the right. Other screens: a title bar
+     (round back, centred name, the person's avatar). */
+  display: flex; align-items: center; gap: var(--s-3); min-width: 0;
   padding: calc(var(--s-3) + env(safe-area-inset-top)) var(--s-4) var(--s-2);
   background: transparent;
 }
-.topbar__profile {
-  flex: 1 1 auto; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-2);
-  padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1); border: 0; border-radius: var(--radius-btn);
-  background: transparent; color: var(--ink); font: inherit; font-weight: 600; text-align: left; cursor: pointer;
+.topbar--title { display: grid; grid-template-columns: var(--tap-lg) 1fr var(--tap-lg); }
+.topbar__title { margin: 0; text-align: center; font-family: var(--font-head); font-size: calc(20px * var(--text-scale)); font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
+.topbar__hello, .topbar__profile {
+  display: flex; align-items: center; gap: var(--s-3); min-width: 0; min-height: var(--tap);
+  padding: 0; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--ink);
+  font: inherit; text-align: left; cursor: pointer;
 }
-.topbar__profile:active { background: var(--surface-2); }
-/* The Emergency control: 64px tall, red, icon above the word (DESIGN.md: emergency is colour + icon + word). */
-.topbar__sos, .topbar__iconlink {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  min-height: var(--tap-lg); min-width: var(--tap-lg); padding: var(--s-1) var(--s-3);
-  border-radius: var(--radius-btn); text-decoration: none;
-  font-family: var(--font-head); font-weight: 600; line-height: 1.15; text-align: center;
-  transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
+.topbar__hello { flex: 1 1 auto; }
+.topbar__profile { justify-self: end; justify-content: center; width: var(--tap-lg); height: var(--tap-lg); }
+.topbar__hello:active, .topbar__profile:active { transform: scale(0.98); }
+.topbar__who { display: grid; min-width: 0; line-height: 1.25; }
+.topbar__greet { font-size: var(--fs-sm); color: var(--muted); }
+.topbar__name { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; overflow-wrap: anywhere; }
+.topbar__iconlink {
+  display: grid; place-items: center; flex: none; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%;
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow); text-decoration: none;
+  transition: transform var(--dur) var(--ease);
 }
-/* Header, after the reference: avatar on the left, light round Settings and red round Emergency on the right. */
-.topbar__sos, .topbar__iconlink { width: var(--tap-lg); height: var(--tap-lg); padding: 0; border-radius: 50%; flex: none; }
-.topbar__sos { background: var(--danger-fill); color: var(--on-danger); box-shadow: 0 8px 20px color-mix(in srgb, var(--danger-fill) 30%, transparent); }
-.topbar__sos svg, .topbar__iconlink svg { width: 26px; height: 26px; }
-.topbar__sos:hover { filter: brightness(0.95); }
-.topbar__sos:active { transform: scale(0.97); }
-.topbar__iconlink { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.topbar__iconlink svg { width: 26px; height: 26px; }
+.topbar__iconlink:active { transform: scale(0.95); background: var(--surface-2); }
 
-.topbar__iconlink:active { background: var(--surface-2); }
-
-.avatar { flex: none; border-radius: var(--radius-btn); object-fit: cover; background: var(--surface-2); }
-.topbar .avatar { border-radius: 50%; background: var(--primary-fill); box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--primary-fill); }
-.avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 600; }
+.avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.topbar .avatar { background: var(--primary-fill); box-shadow: 0 0 0 3px var(--surface); }
+.avatar--initial { display: grid; place-items: center; background: var(--primary-fill); color: var(--on-primary); font-family: var(--font-head); font-weight: 600; }
 
 .bottomnav {
-  /* After the reference: a floating white capsule on the pale ground, round icon buttons, the current one a
-     solid blue circle. Unlike the reference every icon keeps its word under it (Principle 3). Still a row
-     of the shell grid, never fixed over content. */
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: stretch;
-  margin: 0 var(--s-4) calc(var(--s-3) + env(safe-area-inset-bottom)); padding: var(--s-2);
-  background: var(--surface); border-radius: var(--radius-sheet); box-shadow: var(--shadow);
+  /* The prototype's dock: a white pill of four tabs and, beside it, the round blue Kausap button. Every icon
+     keeps its word (Principle 3). Still a row of the shell grid, never fixed over content. */
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-2) var(--s-3) calc(var(--s-3) + env(safe-area-inset-bottom));
+}
+.bottomnav__tabs {
+  flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0;
+  padding: 4px; border-radius: var(--radius-pill); background: var(--surface); box-shadow: var(--shadow);
 }
 .bottomnav .navitem {
-  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  min-width: 0; min-height: var(--tap-lg); padding: 0 2px; margin: 0; border-radius: var(--radius-btn);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-width: 0; min-height: var(--tap-lg); padding: var(--s-1) 2px; margin: 0;
+  border: 1.5px solid transparent; border-radius: var(--radius-pill);
   background: none; box-shadow: none; color: var(--muted); font-size: 15px; font-weight: 500; line-height: 1.1;
+  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
-.bottomnav .navitem__icon {
-  display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%;
-  background: var(--bg); color: var(--ink); transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
+.bottomnav .navitem__icon { display: grid; place-items: center; background: none; box-shadow: none; }
 .bottomnav .navitem svg { width: 24px; height: 24px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
 .bottomnav .navitem__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bottomnav .navitem[aria-current='page'] { color: var(--primary); font-weight: 600; }
-.bottomnav .navitem[aria-current='page'] .navitem__icon { background: var(--primary-fill); color: var(--on-primary); }
-.bottomnav .navitem[aria-current='page'] svg { color: var(--on-primary); background: none; }
-.bottomnav .navitem:active .navitem__icon { transform: scale(0.94); }
-.bottomnav .navitem:active svg { background: none; }
+/* The current tab: an outlined soft-blue pill. */
+.bottomnav__tabs .navitem[aria-current='page'] { background: var(--primary-soft); border-color: var(--primary-fill); color: var(--primary); font-weight: 600; }
+.bottomnav__tabs .navitem[aria-current='page'] svg { color: var(--primary); }
+.bottomnav .navitem:active { transform: scale(0.96); }
+/* Kausap: a round blue button with its word underneath. */
+.bottomnav .navitem--ask { flex: none; padding: 0; border: 0; color: var(--primary); font-weight: 600; }
+.navitem--ask .navitem__icon {
+  width: 56px; height: 56px; border-radius: 50%; color: var(--on-primary) !important;
+  background: linear-gradient(180deg, var(--sky), var(--primary-fill)) !important;
+  box-shadow: 0 10px 22px -8px var(--primary-fill) !important;
+}
+.navitem--ask .navitem__icon svg { color: var(--on-primary); width: 26px; height: 26px; }
+.navitem--ask[aria-current='page'] .navitem__icon { box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--primary-soft) !important; }
 
 /* Back: a light round button with an arrow, after the reference. */
 .back-link { justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); color: var(--ink); }
 .back-link svg { width: 26px; height: 26px; }
 .back-link:active { transform: scale(0.95); }
 
-.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-5) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
+.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-2) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); align-content: start; }
 /* Every screen title is a display line: big, tight, calm. */
-.page > h1 { font-size: calc(44px * var(--text-scale)); line-height: 1.08; letter-spacing: -0.03em; }
+.page > h1 { font-size: calc(26px * var(--text-scale)); font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
 /* Display titles: regular words, one bold word, like "Mga **gamot**". */
-.display-title { font-weight: 400; }
-.display-title strong { font-weight: 600; }
+/* One weight per title, as in the prototype. */
+.display-title, .display-title strong { font-weight: 600; }
 strong, b { font-weight: 600; }
 /* Thin icon strokes, as in the reference. */
 .lucide { stroke-width: 1.75; }
 
 /* Section titles, as in the reference ("Blood Pressure"): plain, regular weight, ink. */
 .page section > h2, .page .meds__h2, .summary > h2 {
-  font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
+  font-family: var(--font-head); font-size: calc(20px * var(--text-scale)); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
 }
 .hero__of { font-weight: 400; color: var(--on-strong-muted); }
 
@@ -409,7 +441,8 @@ strong, b { font-weight: 600; }
 .standalone {
   min-height: 100vh; min-height: 100dvh;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  background: radial-gradient(90% 50% at 100% 0%, color-mix(in srgb, var(--primary-fill) 16%, transparent), transparent 70%), var(--bg);
+  /* The prototype's sky wash: pale blue at the top fading into the grey ground. */
+  background: linear-gradient(180deg, var(--grad-top) 0%, var(--bg) 26%);
 }
 .standalone__back { justify-self: start; margin-left: calc(-1 * var(--s-3)); padding-inline: var(--s-3); text-decoration: none; }
 .emergency__title { display: flex; align-items: center; gap: var(--s-2); color: var(--danger); }

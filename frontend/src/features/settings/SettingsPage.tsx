@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import {
-  ALargeSmall, FingerprintPattern, IdCard, Info, KeyRound, Languages, Lock, ScrollText, ShieldCheck,
+  ALargeSmall, FingerprintPattern, Palette, IdCard, Info, KeyRound, Languages, Lock, ScrollText, ShieldCheck,
   UserPlus, UserRound, Users,
 } from 'lucide-react'
 import { api } from '../../api/client'
@@ -24,8 +24,8 @@ import { ConfirmSheet } from './ConfirmSheet'
 import { errorKey } from './errorKey'
 import { Field, FormError, Section } from './parts'
 import { applyTextScale, readTextScale, SCALES, type Scale } from './textScale'
+import { applyTheme, readTheme, THEMES, type Theme } from './theme'
 import './settings.css'
-import { BackLink } from '../../components/BackLink'
 import { DisplayTitle } from '../../components/DisplayTitle'
 
 const SCALE_LABEL: Record<Scale, Key> = { 1: 'settings.textNormal', 1.25: 'settings.textLarge', 1.5: 'settings.textLarger' }
@@ -87,6 +87,29 @@ function TextSizeSection() {
         ))}
       </div>
       <p className="text-preview">{t('settings.textPreview')}</p>
+    </Section>
+  )
+}
+
+// --- theme -------------------------------------------------------------------------------------------------
+
+const THEME_LABEL: Record<Theme, Key> = { blue: 'settings.themeBlue', mint: 'settings.themeMint', navy: 'settings.themeNavy', contrast: 'settings.themeContrast' }
+
+/** Four looks from the prototype. Each button shows its two colours (data-skin on the swatch) and its name. */
+function ThemeSection() {
+  const t = useT()
+  const [theme, setTheme] = useState<Theme>(readTheme)
+  const choose = (th: Theme) => { applyTheme(th); setTheme(th) }
+  return (
+    <Section icon={Palette} title={t('settings.theme')}>
+      <div className="skins">
+        {THEMES.map(th => (
+          <button key={th} type="button" className="skin" aria-pressed={theme === th} onClick={() => choose(th)}>
+            <span className="skin__sw" data-skin={th} aria-hidden="true"><i /><i /></span>
+            <span>{t(THEME_LABEL[th])}</span>
+          </button>
+        ))}
+      </div>
     </Section>
   )
 }
@@ -424,11 +447,11 @@ export function SettingsPage() {
 
   return (
     <div className="page">
-      <BackLink />
       <DisplayTitle>{t('settings.title')}</DisplayTitle>
       {info.data && <p className="muted">{t('settings.signedInAs', { name: info.data.actor })}</p>}
       <LanguageSection profileId={profileId} />
       <TextSizeSection />
+      <ThemeSection />
       <Button variant="secondary" size="lg" block icon={UserRound} onClick={() => navigate('/profile')}>{t('settings.openProfile')}</Button>
       {info.isPending && <div className="skeleton-stack" aria-busy="true"><Skeleton height={180} radius={20} /><Skeleton height={140} radius={20} /></div>}
       {info.isError && <ErrorState onRetry={() => { info.refetch() }} />}
