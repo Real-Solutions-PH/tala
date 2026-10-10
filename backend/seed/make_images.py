@@ -315,6 +315,61 @@ def make_prescription():
     _photograph(sheet, 6).save(ASSETS / "prescription.jpg", quality=85)
 
 
+def make_intake_form():
+    """A blank patient-information sheet (18 fields) for the fill-a-form demo. A clean scan, not a desk photo."""
+    sheet, d = _sheet(2000)
+    _header(d, persona.CLINIC, "Out-Patient Department  |  Tel. 02-8000-0000 (dummy)", "PATIENT INFORMATION SHEET")
+    f, fb, small = font(30), font(30, bold=True), font(24)
+    ink, line = (20, 20, 20), (90, 90, 90)
+
+    def section(y, title):
+        d.rectangle((70, y, 1430, y + 50), fill=(222, 230, 242))
+        d.text((84, y + 9), title, font=fb, fill=ink)
+        return y + 80
+
+    def blank(x, y, label, end):
+        d.text((x, y), label, font=f, fill=ink)
+        lx = x + d.textlength(label, font=f) + 14
+        d.line((lx, y + 36, end, y + 36), fill=line, width=2)
+
+    def boxes(x, y, label, options):
+        d.text((x, y), label, font=f, fill=ink)
+        bx = x + d.textlength(label, font=f) + 24
+        for o in options:
+            d.rectangle((bx, y + 4, bx + 28, y + 32), outline=line, width=3)
+            d.text((bx + 40, y), o, font=f, fill=ink)
+            bx += 40 + d.textlength(o, font=f) + 40
+
+    y = section(290, "I. PERSONAL INFORMATION")
+    blank(70, y, "Last name:", 730); blank(760, y, "First name:", 1430); y += 80  # noqa: E702
+    blank(70, y, "Middle name:", 730); blank(760, y, "Date of birth (YYYY-MM-DD):", 1430); y += 80  # noqa: E702
+    blank(70, y, "Age:", 330); boxes(360, y, "Sex:", ["Male", "Female"]); y += 80  # noqa: E702
+    boxes(70, y, "Civil status:", ["Single", "Married", "Widowed", "Separated"]); y += 80  # noqa: E702
+    blank(70, y, "Home address:", 1430); y += 80  # noqa: E702
+    blank(70, y, "Contact number:", 730); blank(760, y, "PhilHealth no.:", 1430); y += 80  # noqa: E702
+    blank(70, y, "Blood type:", 730); y += 100  # noqa: E702
+
+    y = section(y, "II. IN CASE OF EMERGENCY")
+    blank(70, y, "Contact person:", 1430); y += 80  # noqa: E702
+    blank(70, y, "Relationship:", 730); blank(760, y, "Mobile number:", 1430); y += 100  # noqa: E702
+
+    y = section(y, "III. MEDICAL HISTORY")
+    blank(70, y, "Known allergies:", 1430); y += 80  # noqa: E702
+    blank(70, y, "Current medications:", 1430); y += 80  # noqa: E702
+    boxes(70, y, "Hypertension?", ["Yes", "No"]); y += 80  # noqa: E702
+    boxes(70, y, "Diabetes?", ["Yes", "No"]); y += 80  # noqa: E702
+    boxes(70, y, "Do you smoke?", ["Yes", "No"]); y += 110  # noqa: E702
+
+    d.text((70, y), "I certify that the information above is true and correct.", font=small, fill=(70, 70, 70))
+    d.line((900, y + 120, 1430, y + 120), fill=line, width=2)
+    d.text((960, y + 130), "Signature over printed name", font=small, fill=(70, 70, 70))
+    d.rectangle((70, y + 60, 700, y + 170), outline=(150, 150, 150), width=2)
+    d.text((84, y + 70), "FOR CLINIC USE ONLY", font=small, fill=(120, 120, 120))
+    d.text((84, y + 105), "Patient no.: ________   Seen by: ________", font=small, fill=(120, 120, 120))
+    d.text((70, y + 210), "SAMPLE form – fictional clinic, for the Kapiling demo.", font=small, fill=(120, 120, 120))
+    sheet.crop((0, 0, 1500, y + 270)).save(ASSETS / "intake_form.png")
+
+
 def main():
     ASSETS.mkdir(parents=True, exist_ok=True)
     make_cards()
@@ -322,6 +377,7 @@ def main():
     make_labs()
     make_discharge()
     make_prescription()
+    make_intake_form()
     print(f"wrote {len(list(ASSETS.glob('*.png'))) + len(list(ASSETS.glob('*.jpg')))} images to {ASSETS}")
 
 
