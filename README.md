@@ -1,73 +1,98 @@
-# Tala
+# Kapiling
 
-**Free, offline store assistant for sari-sari stores and small shops. Just say what you sold.**
+**Your health, always by your side.** (*Laging kapiling ang kalusugan mo.*)
 
-Most of the Philippines' small stores still keep sales, stock and *utang* in a notebook, one that tears, gets wet in a typhoon, and never tells the owner what to restock. Bookkeeping apps exist, but typing every sale into a form is slower than the notebook, so owners go back to pen and paper.
+Kapiling (ka-PI-ling, "by your side") is a personal health record you talk to. It keeps a person's profile, allergies, conditions, maintenance medicines, vaccines, ID and insurance cards, and photos and scans of old records on their own device. When a nurse or doctor asks for something, you ask Kapiling: it finds the PhilHealth card, reads the last blood sugar result, says it out loud, or fills in the clinic intake form from what is on record. It is a companion, not a doctor: it never diagnoses, never advises on medicines, and every recommendation carries a fixed disclaimer.
 
-Tala replaces the typing with talking. The owner says *"2 Coke, 1 canton, tapos 3 Kopiko"*, snaps a photo of the handwritten *listahan*, or a supplier receipt, and a local AI records the sales and updates the stock. Ask *"Ano ang best seller ko this week?"* or *"Kumusta ang tindahan?"* and it answers with real charts from the store's own records and one practical tip, out loud if you want.
+The mark is two rounded forms side by side, a large circle (the person) and a smaller one leaning in (the companion), with a sun-gold lens where they overlap.
 
-## Features
-
-- **Record sales by voice, chat or photo**: Taglish, any order ("2 Coke, 1 canton"), handwritten sales lists.
-- **Inventory that updates itself**: restocks by voice or supplier receipt ("dumating ang 2 box ng Coke, 24 each"), low-stock alerts the moment you sell.
-- **Insights in charts, not paragraphs**: sales, profit (*kita*) and pieces by day, week, product or category; best sellers; items not selling.
-- **Talk mode**: hands-free turns (listen, think, speak, listen) with a camera button to show Tala a shelf or receipt.
-- **A phone app with nothing to install**: the laptop runs the AI; any iPhone or Android opens the app by scanning a QR.
-
-## On your phone (iPhone or Android, nothing to install)
-
-The laptop runs the AI; the phone is the app. `./run.sh` prints a QR code (also under **Open on your phone** on the laptop page).
-
-1. Put the phone and laptop on the same Wi-Fi, or connect the laptop to the phone's hotspot (mobile data can stay off; no internet is needed).
-2. Scan the QR with the camera and accept the one-time certificate warning (the laptop signs its own HTTPS certificate; phones only allow the microphone over HTTPS).
-3. Optional: Share → **Add to Home Screen** for a full-screen app.
-
-Only devices that scanned the QR (it carries a random pairing key, new on every start) can open Tala; anyone else on the network gets a 403.
+> **Name note.** The product is Kapiling, but the repository and folder are still called `tala` (the earlier store assistant this was built from). Renaming the GitHub repository is the owner's call and has not been done.
 
 ## Why local
 
-- **Free to run, so it can be free to use.** No cloud AI bill per sale recorded, the only way a tool for ₱20-margin stores can stay free.
-- **Works with no signal or load.** Stores run in places and weeks (typhoons) without data.
-- **The store's numbers stay in the store.** Sales and margins never leave the owner's own devices.
+Why does this product benefit from running AI locally?
 
-## What runs where
+- **Health records are sensitive.** Under the Data Privacy Act (RA 10173), health information is sensitive personal information. Kapiling keeps it on the person's own device and sends it nowhere. There is no cloud AI API to leak it to.
+- **Hospitals have weak signal.** Clinics and wards are often dead zones. The record has to open at the counter, not when the signal returns.
+- **Emergencies.** The emergency card (allergies, blood type, conditions, contacts) opens from a QR code without unlocking the phone, with no network.
+- **Cost.** No per-question cloud bill, so a lola's family can use it for free.
 
-| Part | Runs | Model / tool |
+## What runs where, and what needs internet
+
+Everything runs on the laptop: chat and vision, document reading, search, speech to text, text to speech, storage. **Nothing needs internet after the one-time model download** (about 1.4 GB of retrieval and voice models, plus the chat model, plus 669 MB of Docling models). `run.sh` sets `HF_HUB_OFFLINE=1`. No cloud AI API is used anywhere.
+
+```
+ Phone / laptop browser (React + Vite PWA, push-to-talk, camera)
+              |  HTTPS on the LAN, pairing QR
+              v
+ FastAPI app (backend/kapiling)  --  SQLite + sqlite-vec + FTS5 (one file)
+   |        |           |                |
+   |        |           |                +-- Docling ingestion worker (layout + TableFormer) -> chunks -> embeddings
+   |        |           +-- MMS-TTS (Tagalog / English voice, in process)
+   |        +-- whisper.cpp server :8081   (speech to text)
+   +-- llama.cpp servers: chat+vision :8080, embeddings :8082, reranker :8083
+```
+
+## Models and licences
+
+| Model | Used for | Licence |
 |---|---|---|
-| Chat agent + tool calling | Local | Qwen3-VL-8B-Instruct, Q4_K_M GGUF, via llama.cpp `llama-server` |
-| Receipt / photo reading | Local | same model (vision projector `mmproj-Qwen3VL-8B-Instruct-Q8_0`) |
-| Voice dictation + Talk mode | Local | whisper.cpp `whisper-server`, `ggml-large-v3-turbo` |
-| Spoken replies (Tagalog voice) | Local | Meta MMS-TTS `facebook/mms-tts-tgl` (VITS) on the laptop CPU, sentence by sentence; falls back to the phone's own on-device voice |
-| PDF supplier statements | Local | pypdf text extraction → agent |
-| Storage | Local | SQLite |
-| Charts, fonts | Local | Chart.js 4.4.1, Lexend + Source Sans 3 (vendored, no CDN) |
+| Qwen3-VL-8B-Instruct (Q4_K_M GGUF, with mmproj) | chat, tool calling, reading photos | Apache-2.0 |
+| Qwen3-Embedding-0.6B (Q8_0 GGUF) | document search embeddings | Apache-2.0 |
+| bge-reranker-v2-m3 (Q8_0 GGUF) | reranking search results | Apache-2.0 |
+| Whisper large-v3-turbo (ggml) | speech to text | MIT |
+| Meta MMS-TTS `mms-tts-tgl` and `mms-tts-eng` | spoken replies in Tagalog and English | CC-BY-NC 4.0 (non-commercial) |
+| Docling layout (heron) and TableFormer models | PDF layout and table reading | Apache-2.0 |
+| Silero VAD (via `@ricky0123/vad-web`) | detecting when you stop speaking, in the browser | MIT |
 
-**Requires internet:** only the one-time model download. No cloud AI API is used at runtime.
+Check each model card for the current licence terms before you redistribute anything.
 
-The agent never writes numbers itself: every total and chart comes from a SQL query run by a tool (`store.py`), so it cannot invent figures.
-
-## Run it (macOS, Apple Silicon)
+## Setup (macOS, Apple Silicon)
 
 ```sh
-brew install llama.cpp whisper-cpp ffmpeg
-# uv: https://docs.astral.sh/uv/
+brew install llama.cpp whisper-cpp ffmpeg      # plus uv and bun
+# Chat + vision model and whisper (one time):
 mkdir -p ~/models && cd ~/models
 curl -LO https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/main/Qwen3VL-8B-Instruct-Q4_K_M.gguf
 curl -LO https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/main/mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf
 curl -LO https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin
-cd -  # back to this repo
-uv sync
+cd -   # back to this repo
+./scripts/fetch_models.sh     # embeddings, reranker, tokenizer, MMS-TTS voices, Docling models
 ./run.sh
 ```
 
-Open http://127.0.0.1:8787 in Chrome (allow the microphone for voice). First run seeds a sample sari-sari store with 8 weeks of sales (`uv run python seed.py` resets it). Needs ~8 GB free RAM.
+Open http://127.0.0.1:8787. `run.sh` starts the four model servers and the app, seeds the demo data on first start, and stops everything on Ctrl-C. A smaller, faster chat model works with `LLM=... MMPROJ=... ./run.sh`. Backend tests: `cd backend && uv run pytest -q`.
 
-Tests: `uv run python test_tools.py`.
+### On a phone
+
+`run.sh` prints a QR code. Put the phone and laptop on the same Wi-Fi (or the laptop on the phone's hotspot; no internet is needed), scan it, and accept the one-time certificate warning (the laptop signs its own HTTPS certificate; phones only allow the microphone over HTTPS). Only devices that scanned the QR can open the app; it carries a random pairing key, new on every start.
+
+## Demo PINs (fictional)
+
+All data in the demo is **fictional**: invented people, invented card numbers, generated images. Do not enter real health information in a demo.
+
+| Who | PIN |
+|---|---|
+| Owner (Lola Remy and Mika) | `123456` |
+| Representative (Ana Dela Cruz, for Lola Remy) | `246810` |
+
+## Cloud demo (optional, not deployed by this repository)
+
+`Dockerfile` and `deploy/compose.yaml` package the same app for a GPU VM: three llama.cpp servers (chat and vision, embeddings, reranker), a whisper.cpp server, the app image, and Caddy for TLS on your domain. It still uses self-hosted open models only. `KAPILING_DEMO=1` shows a "Fictional data" banner flag (`GET /api/demo`), enables `POST /api/demo/reset` (wipes and reseeds only the demo data folder; a 404 otherwise) and turns off pairing. uvicorn runs with `--proxy-headers` behind Caddy, which secure cookies and the WebAuthn origin need.
+
+```sh
+export KAPILING_DOMAIN=demo.example.com MODELS=/path/to/models   # filled by scripts/fetch_models.sh
+docker compose -f deploy/compose.yaml up -d --build
+```
+
+Settings are environment variables (`LLM_URL`, `EMBED_URL`, `RERANK_URL`, `WHISPER_URL`, `KAPILING_DATA`, `KAPILING_KEY`, `KAPILING_DEMO`, `DOCLING_ARTIFACTS`), so the same build runs locally and in the cloud.
 
 ## Disclosures
 
-- **Models:** Qwen3-VL-8B-Instruct (Alibaba Qwen, Apache-2.0); Whisper large-v3-turbo (OpenAI, MIT) in ggml format; MMS-TTS Tagalog `facebook/mms-tts-tgl` (Meta, CC-BY-NC 4.0, downloaded from Hugging Face on first run).
-- **Frameworks / libraries:** llama.cpp, whisper.cpp, FastAPI, uvicorn, httpx, pypdf, SQLite, PyTorch, Hugging Face Transformers, num2words, Chart.js, Lexend and Source Sans 3 fonts (OFL), Lucide icon shapes (ISC), macOS system voices via the Web Speech API.
-- **APIs / cloud services:** none at runtime.
-- **Existing code / assets:** none; this repository was started at the hackathon. No code was reused from earlier projects.
-- **AI development tools:** Claude Code (Claude Opus).
+- **Models:** see the table above. All run locally.
+- **Frameworks and libraries:** FastAPI, llama.cpp, whisper.cpp, Docling, LangChain-core, sqlite-vec, React, Vite (also uvicorn, httpx, Transformers, PyTorch, SQLite).
+- **Cloud AI APIs:** none. No request leaves the machine at runtime.
+- **Internet:** only for the one-time model download.
+- **Existing code reused:** parts of the earlier Tala store assistant (the local llama.cpp and whisper.cpp serving, `run.sh`, the streaming chat plumbing and the voice pipeline) were reused and reworked for Kapiling.
+- **AI development tools:** Claude Code.
+- **Not medical advice.** Kapiling stores and retrieves records. It does not diagnose or advise on medicines.
