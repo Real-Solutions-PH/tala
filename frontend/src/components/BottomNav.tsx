@@ -37,9 +37,9 @@ export function BottomNav() {
   return (
     <nav ref={ref} className="bottomnav" aria-label={t('nav.label')}>
       {ITEMS.map(({ to, label, icon: Icon }) => (
-        <NavLink key={to} to={to} className="navitem" title={t(label)}>
-          <Icon aria-hidden="true" strokeWidth={2} />
-          <span className="sr-only">{t(label)}</span>
+        <NavLink key={to} to={to} className="navitem">
+          <span className="navitem__icon"><Icon aria-hidden="true" strokeWidth={2} /></span>
+          <span className="navitem__label">{t(label)}</span>
         </NavLink>
       ))}
     </nav>

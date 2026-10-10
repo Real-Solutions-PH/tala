@@ -43,6 +43,7 @@ export function useRun({ profileId, lang, onThread, onDone }: Opts) {
       await startRun(form, e => {
         if (!mine()) return // stopped: late frames are ignored
         if (e.type === 'RUN_STARTED') { active.current!.runId = e.runId; cbs.current.onThread(e.threadId) }
+        if (e.type === 'RUN_FINISHED' && e.threadId) cbs.current.onThread(e.threadId)
         if (e.type === 'RUN_ERROR' && e.code === 'cancelled') return // a quiet stop, not a failure
         if (e.type === 'RUN_ERROR' || e.type === 'RUN_FINISHED') terminal = true
         patch(key, s => runReducer(s, e))

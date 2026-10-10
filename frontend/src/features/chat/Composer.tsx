@@ -16,7 +16,7 @@ const MAX_LINES = 4
 
 const objectUrl = (f: Blob) => (typeof URL.createObjectURL === 'function' ? URL.createObjectURL(f) : '')
 
-/** One plane above the bottom menu: text, photos, push-to-talk (Boses) and Send, which becomes Stop. */
+/** One row above the bottom menu: camera, a one-line field, and one primary button that is Boses (empty), Ipadala (text or photo) or Itigil (streaming). */
 export function Composer({ streaming, onSend, onStop, ref }: Props) {
   const t = useT()
   const [text, setText] = useState('')
@@ -36,6 +36,7 @@ export function Composer({ streaming, onSend, onStop, ref }: Props) {
     const el = area.current
     if (!el) return
     el.style.height = 'auto'
+    if (!el.value) { el.style.height = ''; el.style.overflowY = 'hidden'; return }
     const lh = parseFloat(getComputedStyle(el).lineHeight) || 24
     const pad = parseFloat(getComputedStyle(el).paddingTop || '0') * 2
     const max = lh * MAX_LINES + pad
@@ -43,7 +44,8 @@ export function Composer({ streaming, onSend, onStop, ref }: Props) {
     el.style.overflowY = el.scrollHeight > max ? 'auto' : 'hidden'
   }, [text])
 
-  const canSend = !streaming && (text.trim().length > 0 || files.length > 0)
+  const hasContent = text.trim().length > 0 || files.length > 0
+  const canSend = !streaming && hasContent
 
   const submit = () => {
     if (!canSend) return
@@ -93,30 +95,30 @@ export function Composer({ streaming, onSend, onStop, ref }: Props) {
         </ul>
       )}
       {recording && <p className="composer__recording" role="status">{t('chat.recording')}</p>}
+      <input ref={picker} type="file" accept="image/*" multiple hidden
+        onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) setFiles(p => [...p, ...fs]); e.target.value = '' }} />
       <div className="composer__row">
+        <button type="button" className="composer__btn" onClick={() => picker.current?.click()} disabled={streaming}
+          aria-label={t('chat.photo')}>
+          <Camera aria-hidden="true" strokeWidth={2} /><span className="composer__btnlabel" aria-hidden="true">{t('chat.photoShort')}</span>
+        </button>
         <textarea ref={area} className="composer__input" rows={1} value={text} aria-label={t('chat.placeholder')}
-          placeholder={t('chat.placeholder')} onChange={e => setText(e.target.value)}
+          placeholder={t('chat.placeholderShort')} onChange={e => setText(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit() } }} />
-      </div>
-      <div className="composer__actions">
-        <input ref={picker} type="file" accept="image/*" multiple hidden
-          onChange={e => { const fs = Array.from(e.target.files ?? []); if (fs.length) setFiles(p => [...p, ...fs]); e.target.value = '' }} />
-        <button type="button" className="composer__btn" onClick={() => picker.current?.click()} disabled={streaming}>
-          <Camera aria-hidden="true" strokeWidth={2} /><span>{t('chat.photo')}</span>
-        </button>
-        <button type="button" className={recording ? 'composer__voice composer__voice--on' : 'composer__voice'} disabled={streaming}
-          aria-pressed={recording} onPointerDown={startVoice} onPointerUp={stopVoice} onPointerLeave={stopVoice}
-          onKeyDown={e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); void startVoice() } }}
-          onKeyUp={e => { if (e.key === ' ' || e.key === 'Enter') stopVoice() }}>
-          <Mic aria-hidden="true" strokeWidth={2} /><span>{t('chat.voice')}</span>
-        </button>
         {streaming ? (
           <button type="button" className="composer__send composer__send--stop" onClick={onStop}>
             <Square aria-hidden="true" strokeWidth={2} /><span>{t('chat.stop')}</span>
           </button>
-        ) : (
-          <button type="submit" className="composer__send" disabled={!canSend} aria-disabled={!canSend}>
+        ) : hasContent ? (
+          <button type="submit" className="composer__send">
             <Send aria-hidden="true" strokeWidth={2} /><span>{t('chat.send')}</span>
+          </button>
+        ) : (
+          <button type="button" className={recording ? 'composer__send composer__voice composer__voice--on' : 'composer__send composer__voice'}
+            aria-pressed={recording} onPointerDown={startVoice} onPointerUp={stopVoice} onPointerLeave={stopVoice}
+            onKeyDown={e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); void startVoice() } }}
+            onKeyUp={e => { if (e.key === ' ' || e.key === 'Enter') stopVoice() }}>
+            <Mic aria-hidden="true" strokeWidth={2} /><span>{t('chat.voice')}</span>
           </button>
         )}
       </div>
