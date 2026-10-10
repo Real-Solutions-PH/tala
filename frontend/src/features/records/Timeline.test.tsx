@@ -26,11 +26,13 @@ describe('Timeline', () => {
       'GET /api/profiles/1/timeline': ({ url }) => json(url.includes('kind=vaccine') ? [TIMELINE[2]] : TIMELINE),
     })
     renderRoutes(routes, '/records')
-    const select = await screen.findByRole('combobox', { name: /Ipakita/ }) as HTMLSelectElement
-    expect([...select.options].map(o => o.textContent)).toEqual(['Lahat', 'Laboratoryo', 'Bakuna', 'Pagpapatingin', 'Dokumento'])
-    expect(select.selectedOptions[0].textContent).toBe('Lahat')
-    await userEvent.selectOptions(select, 'Bakuna')
-    expect(select.selectedOptions[0].textContent).toBe('Bakuna')
+    const pill = await screen.findByRole('button', { name: /Ipakita.*Lahat/ })
+    await userEvent.click(pill)
+    const options = screen.getAllByRole('button', { hidden: true }).filter(b => b.classList.contains('filter-option'))
+    expect(options.map(b => b.textContent)).toEqual(['Lahat', 'Laboratoryo', 'Bakuna', 'Pagpapatingin', 'Dokumento'])
+    expect(options[0].getAttribute('aria-pressed')).toBe('true')
+    await userEvent.click(options[2])
+    expect(await screen.findByRole('button', { name: /Ipakita.*Bakuna/ })).toBeTruthy()
     await waitFor(() => expect(calls.some(c => c.url.endsWith('/timeline?kind=vaccine'))).toBe(true))
     await waitFor(() => expect(screen.queryByText('Maintenance check-up')).toBeNull())
     expect(screen.getByText('Influenza Annual')).toBeTruthy()

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { CalendarCheck, ChevronDown, ChevronRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
+import { CalendarCheck, Check, ChevronDown, ChevronRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
 import { useTimeline } from '../../api/queries'
 import type { TimelineItem, TimelineKind } from '../../api/types'
 import { ErrorState } from '../../components/ErrorState'
+import { Sheet } from '../../components/Sheet'
 import { Skeleton } from '../../components/Skeleton'
 import { formatDate, useLang, useT, type Key } from '../../i18n'
 import { useLock } from '../lock/useLock'
@@ -48,19 +49,29 @@ export function Timeline() {
   const t = useT()
   const { profileId } = useLock()
   const [kind, setKind] = useState<TimelineKind | undefined>()
+  const [choosing, setChoosing] = useState(false)
+  const current = FILTERS.find(f => f.kind === kind) ?? FILTERS[0]
   const q = useTimeline(profileId, kind)
 
   return (
     <section className="timeline" aria-labelledby="timeline-title">
       <h2 id="timeline-title">{t('records.timeline')}</h2>
-      {/* One pill dropdown instead of five chips: a native select, so it is accessible and large to tap. */}
-      <label className="tl-filter">
-        <span className="sr-only">{t('records.filterLabel')}</span>
-        <select value={kind ?? ''} onChange={e => setKind((e.target.value || undefined) as TimelineKind | undefined)}>
-          {FILTERS.map(f => <option key={f.label} value={f.kind ?? ''}>{t(f.label)}</option>)}
-        </select>
-        <ChevronDown aria-hidden="true" />
-      </label>
+      {/* One pill instead of five chips; it opens our bottom sheet of large choices, not the phone's picker. */}
+      <button type="button" className="tl-filter" aria-haspopup="dialog" onClick={() => setChoosing(true)}>
+        <span className="sr-only">{t('records.filterLabel')}: </span>{t(current.label)}<ChevronDown aria-hidden="true" />
+      </button>
+      <Sheet open={choosing} onClose={() => setChoosing(false)} title={t('records.filterLabel')}>
+        <ul className="filter-list">
+          {FILTERS.map(f => (
+            <li key={f.label}>
+              <button type="button" className="filter-option" aria-pressed={kind === f.kind}
+                onClick={() => { setKind(f.kind); setChoosing(false) }}>
+                <span>{t(f.label)}</span>{kind === f.kind && <Check aria-hidden="true" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Sheet>
       {q.isPending
         ? <ul className="tl-list" aria-busy="true">{[0, 1, 2].map(i => (
             // Placeholder rows shaped like the real ones: an icon circle and two lines of text.
