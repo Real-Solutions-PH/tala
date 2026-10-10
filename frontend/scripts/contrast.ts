@@ -14,9 +14,10 @@ function vars(block: string): Record<string, string> {
 
 const lightBlock = css.match(/^:root\s*\{([\s\S]*?)\}/m)?.[1]
 const darkBlock = css.match(/prefers-color-scheme:\s*dark\)\s*\{\s*:root\s*\{([\s\S]*?)\}/)?.[1]
-if (!lightBlock || !darkBlock) { console.error('contrast: could not find light and dark :root blocks in tokens.css'); process.exit(1) }
+if (!lightBlock) { console.error('contrast: could not find the :root block in tokens.css'); process.exit(1) }
 const light = vars(lightBlock)
-const themes = { light, dark: { ...light, ...vars(darkBlock) } }
+// Light only today; a dark block, if one comes back, is checked too.
+const themes: Record<string, Record<string, string>> = darkBlock ? { light, dark: { ...light, ...vars(darkBlock) } } : { light }
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
@@ -34,8 +35,10 @@ for (const fg of ['--ink', '--muted', '--primary', '--accent', '--warn', '--dang
   for (const bg of ['--bg', '--surface']) pairs.push([fg, bg])
 pairs.push(
   ['--on-gold', '--gold'],            // gold fills always carry dark ink text (both themes)
-  ['--on-primary', '--primary'],      // primary buttons
-  ['--on-danger', '--danger'],        // emergency and danger buttons
+  ['--on-primary', '--primary-fill'], // primary buttons, both themes
+  ['--on-strong', '--primary-strong'],       // hero card text
+  ['--on-strong-muted', '--primary-strong'], // hero card secondary text
+  ['--on-danger', '--danger-fill'],   // emergency and danger buttons, both themes
   ['--primary', '--primary-soft'],    // info badge, selected tab
   ['--accent', '--accent-soft'],      // ok badge
   ['--warn', '--warn-soft'],          // warn badge

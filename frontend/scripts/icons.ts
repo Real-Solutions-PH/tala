@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import { COMPANION, LENS, PERSON } from '../src/brand/geometry.ts'
 
 const root = join(import.meta.dirname, '..')
-const BLUE = '#1F4E8C' // Kapiling Blue
+const BLUE = '#2D59F0' // Kapiling Blue
 const GOLD = '#F2A900' // Araw Gold
 const WHITE = '#FFFFFF'
 

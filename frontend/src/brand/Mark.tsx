@@ -19,14 +19,14 @@ export function Mark({ size = 32, eyes = false, state = 'idle', title, className
     <svg className={cls} width={size} height={size} viewBox={VIEWBOX} role={title ? 'img' : undefined}
       aria-label={title} aria-hidden={title ? undefined : true} focusable="false">
       <g className="mark__person">
-        <circle {...PERSON} fill="var(--primary)" />
+        <circle {...PERSON} fill="var(--primary-fill)" />
         {eyes && (
           <g className="mark__eyes" fill="var(--on-primary)">
             {EYES.map((e, i) => <circle key={i} {...e} />)}
           </g>
         )}
       </g>
-      <circle {...COMPANION} fill="var(--primary)" />
+      <circle {...COMPANION} fill="var(--primary-fill)" />
       <path d={LENS} fill="var(--gold)" />
     </svg>
   )

@@ -16,7 +16,7 @@ card without unlocking the phone.
 
 What earns their trust:
 
-- **It keeps them company, it doesn't examine them.** Warm paper, a calm blue, one sun-gold accent. Not a hospital system.
+- **It keeps them company, it doesn't examine them.** Blue and white, one sun-gold accent, nothing cold. Not a hospital system.
 - **Every button says what it does,** in their language.
 - **Nothing surprises them.** No hidden gestures, nothing floating over the content, no tiny text.
 - **It respects them.** Kapiling says *po* and *opo*. It never talks down and never plays doctor.
@@ -32,7 +32,7 @@ remembers for you, so you never have to recite your history from memory or carry
 | Element | Decision |
 |---|---|
 | Mark | Two circles: a large one (the person) and a smaller one leaning in from the upper right (the companion). Their overlap is a small Araw Gold lens, the shared memory. Flat, two colours, no strokes, on a 24×24 grid (`frontend/src/brand/geometry.ts`), legible at 16 px. |
-| Usap | In talk mode the large circle becomes the character: two calm eye dots, no mouth. States are a small scale or opacity change (listening, thinking, speaking) and stop under reduced motion. |
+| Usap | In talk mode the large circle becomes the character: two calm eye dots, no mouth. States are a small scale or opacity change (listening, thinking, speaking); while listening, two solid signal rings breathe around it (`.mark-rings`). All stop under reduced motion. |
 | App icon | White mark with the gold lens on a Kapiling Blue square. 180 (apple-touch, full bleed), 192 and 512 (rounded), a maskable 512 with 20% padding, and `favicon.svg`. Regenerate with `bun scripts/icons.ts`. |
 | Voice | Warm, plain, respectful. "Heto po ang PhilHealth card ninyo." It speaks as a helper, never as a doctor. It says *litrato*, *record*, *itago*, never "AI", "data" or "upload". |
 
@@ -57,47 +57,52 @@ Technical claims belong only on the laptop's demo panel and in the README.
 
 ## Colour
 
-Light by default; dark follows the system. Ratios are WCAG contrast on `--bg` / `--surface`, as printed by `contrast.ts`.
+**Option A palette: `#2D59F0` blue, `#FFFFFF`, `#000000`, `#E9F1FC`, `#DDE5EF`.** A pale-blue ground, white cards,
+black ink, and one vivid-blue hero card per screen. Clean healthcare at a glance, held to contrast older eyes can
+read. Light only, like the reference: every phone shows the same pale-blue and white look. Ratios are WCAG contrast on `--bg` / `--surface`, as printed by `contrast.ts`.
 
-| Token | Light | Dark | Contrast light · dark | Use |
-|---|---|---|---|---|
-| `--bg` (Papel) | `#FBF8F3` | `#14120F` | | Warm paper ground, cuts glare |
-| `--surface` | `#FFFFFF` | `#1F1C18` | | Cards, header, menu, sheets |
-| `--surface-2` | `#F3EEE6` | `#2A2621` | | Inputs, pressed state, skeleton |
-| `--border` | `#D6CFC4` | `#3D3832` | | Edges (not text) |
-| `--ink` | `#1C1917` | `#F5F1EA` | 16.5 / 17.5 · 16.6 / 15.1 | Main text |
-| `--muted` | `#57534E` | `#B8B0A4` | 7.2 / 7.6 · 8.7 / 7.9 | Secondary text. Nothing lighter carries text |
-| `--primary` (Kapiling Blue) | `#1F4E8C` | `#8CB4F0` | 7.9 / 8.3 · 8.8 / 8.0 | Buttons, links, selected tab, the mark |
-| `--on-primary` | `#FFFFFF` | `#14120F` | 8.3 · 8.8 on primary | Text on primary |
-| `--gold` (Araw Gold) | `#F2A900` | `#F2A900` | **never text** (2.0:1 on white) | Fills: mark lens, today, selected chip |
-| `--on-gold` | `#1C1917` | `#1C1917` | 8.7 on gold | Text on gold, both themes |
-| `--accent` | `#15803D` | `#4ADE80` | 4.7 / 5.0 · 10.7 / 9.7 | Taken, success |
-| `--warn` | `#B45309` | `#FBBF24` | 4.7 / 5.0 · 11.2 / 10.2 | Refill soon, high |
-| `--danger` | `#B42318` | `#F87171` | 6.2 / 6.6 · 6.8 / 6.1 | Emergency, allergy, errors |
-| `--on-danger` | `#FFFFFF` | `#14120F` | 6.6 · 6.8 on danger | Text on the Emergency button |
-| `--primary-soft` / `--accent-soft` / `--warn-soft` / `--danger-soft` | tints | tints | tone on its tint ≥ 4.6 | Badge and icon backgrounds, selected tab |
+| Token | Light | Contrast | Use |
+|---|---|---|---|
+| `--bg` (Langit) | `#E9F1FC` | | Pale blue ground |
+| `--surface` | `#FFFFFF` | | Cards, header, menu, sheets |
+| `--surface-2` / `--border` | `#DDE5EF` | | Inputs, pressed state, skeleton, edges |
+| `--ink` | `#000000` | 18.5 / 21 | Main text |
+| `--muted` | `#475467` | 6.8 / 7.7 | Secondary text. Nothing lighter carries text |
+| `--primary` / `--primary-fill` (Kapiling Blue) | `#2D59F0` | 4.9 / 5.5 | Buttons, links, selected tab, the mark |
+| `--on-primary` | `#FFFFFF` | 5.5 on primary | Text on primary |
+| `--primary-strong` | `#2D59F0` | | The hero card, once per screen |
+| `--on-strong` / `--on-strong-muted` | `#FFFFFF` / `#F0F5FF` | 5.5 / 5.1 on hero | Text on the hero |
+| `--gold` (Araw Gold) | `#F2A900` | **never text** (2.0:1 on white) | Fills: mark lens, today, selected chip |
+| `--on-gold` | `#000000` | 10.5 on gold | Text on gold |
+| `--accent` | `#137336` | 5.2 / 5.9 | Taken, success |
+| `--warn` | `#A34B07` | 5.2 / 5.9 | Refill soon, high |
+| `--danger` | `#B42318` | 5.8 / 6.6 | Emergency, allergy, errors |
+| `--on-danger` | `#FFFFFF` | 6.6 on danger | Text on the Emergency button |
+| `--primary-soft` / `--accent-soft` / `--warn-soft` / `--danger-soft` | tints | tone on its tint ≥ 4.5 | Badge and icon backgrounds |
 
-Dark `--ink` is light, so text on gold uses `--on-gold` (dark ink) in both themes; the spec's "ink on gold
-8.7:1" holds for the light ink value, which is what `--on-gold` is.
+`--muted`, `--accent` and `--warn` are a shade darker than the usual Tailwind values so they hold 4.5:1 on the
+blue ground. Gold reads only 3:1 against the vivid blue, so the hero's progress marks are white, not gold.
 
 ## Type
 
 | Role | Face | Sizes |
 |---|---|---|
+| Display, headings, buttons | **SF Pro** (system, on iPhone and Mac) → self-hosted **Figtree** 400/600/700 elsewhere | display 40 (regular with one bold word), 34 / 28 / 22 |
 | Body, numbers | **Atkinson Hyperlegible Next** 400/700 | 18 body, 15 small; tabular figures for numbers |
-| Headings, buttons | **Figtree** 600/700 | 34 / 28 / 22 |
 
-Atkinson Hyperlegible Next was designed by the Braille Institute for low-vision readers: 1/l/I and 0/O
-never look alike, which matters for medicine names and lab values. It covers Tagalog diacritics. Both
-faces are self-hosted from `frontend/public/fonts` (latin + latin-ext woff2, `font-display: swap`), so the
-app never needs the internet for them. All sizes multiply by `--text-scale`.
+SF Pro is Apple's system face: it is used through `-apple-system`, never shipped, because its licence covers
+Apple platforms only. On Android, Lola's usual phone, Figtree stands in. Thin and Light weights are not used:
+they vanish for older eyes. Atkinson Hyperlegible Next stays for reading text because 1/l/I and 0/O never look
+alike, which matters for medicine names and lab values. All faces work offline. All sizes multiply by `--text-scale`.
 
 ## Shape, space and motion
 
-- Radius: 20 px for cards and sheets, 14 px for buttons, fully round for chips and badges.
+- Radius: 32 px for cards, sheets and the hero card, 16 px for toasts and the disclaimer, fully round (pill) for buttons, chips, badges and icon discs.
 - Spacing scale: 4, 8, 12, 16, 24, 32, 48.
 - Touch: `--tap` 48 px, `--tap-lg` 64 px.
-- One shadow level (`--shadow`). Flat cards on paper; no gradients, no glass.
+- One shadow level (`--shadow`), tinted navy so depth reads blue, not grey. No gradients, no glass.
+- Layout: calm by default. Three things above the menu: a display greeting, one hero card, two quiet borderless cards under an `.eyebrow`. 28 px between sections, 20 px gutters. Charts and lists live one tap deeper.
+- Headings track tight (-0.02em); hero numbers -0.03em.
 - Focus ring: 3 px solid `--primary` with a 3 px offset, always visible on keyboard focus.
 - Motion: `--dur` 200 ms with an ease-out curve; zero under `prefers-reduced-motion`.
 
@@ -108,7 +113,13 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | Component | Rule |
 |---|---|
 | `Button` | Variants primary, secondary, danger, ghost. `md` ≥ 48 px, `lg` ≥ 64 px. Optional Lucide icon beside the word. Pressed state scales to 0.97. `loading` shows a spinner, disables the button and sets `aria-busy`. |
-| `Card` | Surface, 1 px border, 20 px radius, one shadow. `flat` drops the shadow. |
+| `Card` | White surface, no border, 32 px radius, one blue-tinted shadow. `flat` drops the shadow. |
+| Hero card (`.hero`) | One per screen, one idea, one action. On Kausap it is Usap (`.hero--center`): the talking mark in a white `.orb` with white signal rings, one question, one white Magsalita pill. |
+| Meter (`.meter`) | One capsule per dose, filled `--primary-fill` when taken (white on the hero). |
+| List card (`.list`) | One white card of quiet rows: icon disc, title, small grey line, chevron or status badge; hairlines between rows. |
+| Screens | Kausap: Usap hero + Ngayon. Card: PhilHealth hero + one list. Gamot: next-dose hero + taken list. Talaan: no hero; blood type and allergies, one trend, three latest entries. |
+| Bars (`.bars`) | Capsule bar chart for a reading over time: 14 px round-ended bars in `--primary`, dates under each, latest value labelled. |
+| Icon disc (`.icon-disc`) | 48 px round icon holder, always beside or above a word. |
 | `Badge` | Tone ok, warn, danger, info: tone-coloured word (plus icon) on its soft tint. Never colour alone. |
 | `Chip` | 48 px pill. Quick actions carry an icon. As a toggle (`selected`), the selected chip is gold with dark ink text. |
 | `Sheet` | Bottom sheet on the native modal `<dialog>`: focus trapped, Escape and the labelled Close button dismiss it. |
@@ -118,7 +129,7 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue, on a warn tint with an icon. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | Four equal items, icon above a word: Kausap · Card · Gamot · Talaan (Chat · Cards · Meds · Records). The current one gets a soft blue fill and blue text. The red Emergency button sits in the header on every screen. |
+| Bottom menu | Four equal items, icon above a word: Kausap · Card · Gamot · Talaan (Chat · Cards · Meds · Records). Each icon sits in a 48 px white circle; the current one is filled blue, its word in blue. The red Emergency button sits in the header on every screen. |
 
 States: every fetching view has a skeleton, an empty state with a next action, and an error state with Retry.
 

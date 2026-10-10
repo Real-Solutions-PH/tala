@@ -158,7 +158,7 @@ export default function App() {
       </main>
 
       <nav aria-label={t('nav.label')} style={{ position: 'sticky', bottom: 0, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-        background: 'var(--surface)', borderTop: '1px solid var(--border)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        background: 'var(--bg)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {([['chat', MessageCircle], ['cards', CreditCard], ['meds', Pill], ['records', FileText]] as const).map(([k, Icon], i) => (
           <a key={k} href="#" aria-current={i === 0 ? 'page' : undefined} className="navitem">
             <Icon aria-hidden="true" strokeWidth={2} />
