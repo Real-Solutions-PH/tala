@@ -300,7 +300,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .navitem svg { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); }
 .navitem[aria-current='page'] { color: var(--primary); }
 .navitem[aria-current='page'] svg { background: var(--primary-fill); color: var(--on-primary); }
-.navitem:active { background: var(--surface-2); }
+.navitem:active svg { background: var(--surface-2); }
 .navitem:focus-visible { outline-offset: -3px; }
 
 /* ---- App shell: one plane ----
@@ -318,11 +318,11 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   /* One row at normal text size. At larger sizes the profile keeps its room (flex-basis in em) and the
      Emergency and Settings controls wrap to a second row instead of squeezing the name. */
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); min-width: 0;
-  padding: calc(var(--s-2) + env(safe-area-inset-top)) var(--s-3) var(--s-2);
-  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: calc(var(--s-3) + env(safe-area-inset-top)) var(--s-4) var(--s-2);
+  background: var(--bg);
 }
 .topbar__profile {
-  flex: 1 1 7.5em; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-2);
+  flex: 1 1 5em; min-width: 0; min-height: var(--tap); display: flex; align-items: center; gap: var(--s-2);
   padding: var(--s-1) var(--s-2) var(--s-1) var(--s-1); border: 0; border-radius: var(--radius-btn);
   background: transparent; color: var(--ink); font: inherit; font-weight: 700; text-align: left; cursor: pointer;
 }
@@ -339,25 +339,27 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   font-family: var(--font-head); font-weight: 700; line-height: 1.15; text-align: center;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
-.topbar__sos { flex: 1 0 auto; max-width: 12em; background: var(--danger); color: var(--on-danger); font-size: var(--fs-body); }
-.topbar__sos svg { width: 1.5em; height: 1.5em; }
+.topbar__sos { flex: 0 1 auto; flex-direction: row; gap: var(--s-2); padding-inline: var(--s-3); border-radius: var(--radius-pill); background: var(--danger-fill); color: var(--on-danger); font-size: var(--fs-body); }
+.topbar__sos svg { width: 1.3em; height: 1.3em; }
 .topbar__sos:hover { filter: brightness(0.95); }
 .topbar__sos:active { transform: scale(0.97); }
 .topbar__iconlink { flex: none; padding-inline: var(--s-1); color: var(--primary); font-size: var(--fs-sm); }
-.topbar__iconlink svg { width: 26px; height: 26px; }
-.topbar__iconlink:active { background: var(--surface-2); }
+.topbar__iconlink svg { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--surface); box-shadow: var(--shadow); }
+.topbar__iconlink:active svg { background: var(--surface-2); }
 
 .avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
 .avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 700; }
 
 .bottomnav {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-1);
-  padding: 0 var(--s-1) env(safe-area-inset-bottom);
-  background: var(--surface); border-top: 1px solid var(--border);
+  padding: var(--s-2) var(--s-1) env(safe-area-inset-bottom);
+  background: var(--bg);
 }
 .bottomnav .navitem { border-radius: var(--radius-btn); margin-block: var(--s-1); text-align: center; line-height: 1.2; }
 
-.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-5) var(--s-4) var(--s-6); display: grid; gap: var(--s-4); align-content: start; }
+.page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-5) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
+/* Every screen title is a display line: big, tight, calm. */
+.page > h1 { font-size: calc(40px * var(--text-scale)); line-height: 1.08; letter-spacing: -0.03em; }
 
 /* Pages outside the shell (lock, emergency, dev preview) scroll with the document. */
 .standalone {
@@ -372,7 +374,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .profile-list { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-2); }
 .profile-list__item {
   width: 100%; display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
-  border: 2px solid var(--border); border-radius: var(--radius-btn); background: var(--surface); color: var(--ink);
+  border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink);
   font: inherit; font-weight: 700; text-align: left; cursor: pointer;
 }
 .profile-list__item[aria-current='true'] { border-color: var(--primary); background: var(--primary-soft); }

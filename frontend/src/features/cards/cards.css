@@ -8,7 +8,7 @@
 .wallet__link:active .wallet__thumb { transform: scale(0.985); }
 .wallet__thumb {
   display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover;
-  border-radius: var(--radius-card); border: 1px solid var(--border); background: var(--surface-2);
+  border-radius: var(--radius-card); border: 0; background: var(--surface-2);
   box-shadow: var(--shadow); transition: transform var(--dur) var(--ease);
 }
 .wallet__thumb--none { display: grid; place-items: center; color: var(--primary); }

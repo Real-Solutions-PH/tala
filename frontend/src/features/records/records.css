@@ -13,15 +13,16 @@
 .stat-tile {
   display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-1);
   min-height: var(--tap-lg); padding: var(--s-3) var(--s-4);
-  border: 2px solid var(--border); border-radius: var(--radius-btn); background: var(--surface);
+  border: 0; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow);
   color: var(--ink); text-decoration: none;
   transition: transform var(--dur) var(--ease);
 }
-a.stat-tile:hover { border-color: var(--primary); }
 a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
-.stat-tile--empty { background: var(--surface-2); }
-.stat-tile__name { font-family: var(--font-head); font-weight: 700; color: var(--muted); }
-.stat-tile__value { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-xl); line-height: 1.15; }
+.stat-tile--empty { background: var(--surface-2); box-shadow: none; }
+/* Inside the white summary card the tiles go flat on the pale ground: no card inside a card. */
+.summary .stat-tile { background: var(--bg); box-shadow: none; }
+.stat-tile__name { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.stat-tile__value { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-2xl); line-height: 1.1; letter-spacing: -0.03em; }
 .stat-tile__unit { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
 
 .trend { display: inline-flex; align-items: center; gap: var(--s-1); font-weight: 700; color: var(--ink); }
@@ -30,20 +31,20 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 
 /* ---- Timeline ---- */
 .timeline { display: grid; gap: var(--s-3); }
-.tl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+/* One white list card: rows split by hairlines, no boxes inside boxes. */
+.tl-list { list-style: none; margin: 0; padding: var(--s-1) var(--s-5); display: grid; background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); }
+.tl-list > li + li { border-top: 1px solid var(--surface-2); }
 .tl-row {
-  display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-3);
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-btn);
+  display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-3) 0;
   color: var(--ink); text-decoration: none;
 }
-.tl-row--link:hover { border-color: var(--primary); }
-.tl-row--link:active { background: var(--surface-2); }
-.tl-row__icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); }
+.tl-row--link:active { opacity: 0.7; }
+.tl-row__icon { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%; background: var(--surface-2); color: var(--primary); }
 .tl-row__icon svg { width: 24px; height: 24px; }
 .tl-row__icon--vaccine { background: var(--accent-soft); color: var(--accent); }
 .tl-row__text { flex: 1; min-width: 0; display: grid; }
 .tl-row__title { font-weight: 700; overflow-wrap: anywhere; }
-.tl-row__go { flex: none; color: var(--primary); width: 1.4em; height: 1.4em; }
+.tl-row__go { flex: none; color: var(--muted); width: 1.3em; height: 1.3em; }
 .timeline__empty { padding: var(--s-3) 0; }
 
 /* ---- Upload sheet ---- */
@@ -103,8 +104,8 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 }
 .doc-page__scroll img { display: block; max-width: none; height: auto; }
 .transcript {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card);
-  padding: var(--s-4); overflow-x: auto; display: grid; gap: var(--s-3);
+  background: var(--surface); border: 0; border-radius: var(--radius-card); box-shadow: var(--shadow);
+  padding: var(--s-5); overflow-x: auto; display: grid; gap: var(--s-3);
 }
 .transcript h1 { font-size: var(--fs-xl); }
 .transcript h2 { font-size: var(--fs-lg); }

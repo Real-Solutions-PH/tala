@@ -5,8 +5,8 @@
 }
 .lock__sos {
   display: flex; align-items: center; justify-content: center; gap: var(--s-2);
-  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-btn);
-  background: var(--danger); color: var(--on-danger); text-decoration: none;
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
+  background: var(--danger-fill); color: var(--on-danger); text-decoration: none;
   font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); line-height: 1.2;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
@@ -15,14 +15,14 @@
 .lock__sos:active:not(:disabled) { transform: scale(0.97); }
 button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
 .lock__sos:disabled { opacity: 0.6; cursor: not-allowed; }
-.lock__title { font-size: var(--fs-xl); text-align: center; }
+.lock__title { font-size: var(--fs-2xl); letter-spacing: -0.03em; text-align: center; }
 .lock__title svg { display: inline-block; width: 0.9em; height: 0.9em; margin-right: var(--s-2); vertical-align: -0.1em; color: var(--primary); }
 
 .lock__profiles { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-3); }
 .lock-avatar {
   display: flex; flex-direction: column; align-items: center; gap: var(--s-1);
   min-width: 96px; max-width: 10em; min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
-  border: 2px solid var(--border); border-radius: var(--radius-card); background: var(--surface); color: var(--ink);
+  border: 2px solid transparent; border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow); color: var(--ink);
   font: inherit; font-weight: 700; line-height: 1.25; text-align: center; cursor: pointer;
   transition: transform var(--dur) var(--ease);
 }
@@ -52,15 +52,16 @@ button.lock__sos { width: 100%; border: 0; font: inherit; font-family: var(--fon
 .lock__msg--error { color: var(--danger); }
 .lock__countdown { font-variant-numeric: tabular-nums; }
 
-.pinpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); }
+.pinpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-4) var(--s-3); justify-items: center; }
 .pinpad__key {
   display: flex; align-items: center; justify-content: center; gap: var(--s-1);
-  min-height: var(--tap-lg); border: 2px solid var(--border); border-radius: var(--radius-btn);
+  /* Round keys, like a phone keypad: 76px circles at normal text size, never under 64px. */
+  width: calc(76px * var(--text-scale)); max-width: 100%; aspect-ratio: 1; min-height: var(--tap-lg); border: 0; border-radius: 50%;
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
   font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-xl); font-variant-numeric: tabular-nums;
   cursor: pointer; transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .pinpad__key:active:not(:disabled) { transform: scale(0.96); background: var(--surface-2); }
 .pinpad__key:disabled { cursor: not-allowed; opacity: 0.55; }
-.pinpad__key--del { font-size: var(--fs-sm); color: var(--primary); flex-direction: column; gap: 0; box-shadow: none; }
+.pinpad__key--del { font-size: var(--fs-sm); color: var(--primary); flex-direction: column; gap: 0; box-shadow: none; background: transparent; }
 .pinpad__key--del svg { width: 26px; height: 26px; }
