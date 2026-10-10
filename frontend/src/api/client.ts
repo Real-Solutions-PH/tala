@@ -5,11 +5,14 @@ export class ApiError extends Error {
   status: number
   /** The server's `detail`, usually an i18n key such as "errors.notYourProfile". */
   detail: string | null
-  constructor(status: number, detail: string | null) {
+  /** Seconds from the Retry-After header (a 429 from /unlock), when the server sent one. */
+  retryAfter: number | null
+  constructor(status: number, detail: string | null, retryAfter: number | null = null) {
     super(detail ?? `HTTP ${status}`)
     this.name = 'ApiError'
     this.status = status
     this.detail = detail
+    this.retryAfter = retryAfter
   }
 }
 
@@ -32,7 +35,8 @@ async function errorFrom(res: Response): Promise<ApiError> {
     const body = await res.json()
     if (body && typeof body.detail === 'string') detail = body.detail
   } catch { /* not JSON */ }
-  return new ApiError(res.status, detail)
+  const retry = Number(res.headers.get('retry-after'))
+  return new ApiError(res.status, detail, Number.isFinite(retry) && retry > 0 ? retry : null)
 }
 
 /** Throws ApiError for any non-2xx answer, after triggering the /lock redirect on a 401. */

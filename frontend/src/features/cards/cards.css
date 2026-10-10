@@ -1,0 +1,66 @@
+/* ID wallet and the full-screen card viewer. Colours come only from tokens.css. */
+.wallet { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-5); }
+.wallet__item { display: grid; gap: var(--s-2); justify-items: start; }
+.wallet__link {
+  display: grid; gap: var(--s-2); width: 100%; color: var(--ink); text-decoration: none;
+  border-radius: var(--radius-card);
+}
+.wallet__link:active .wallet__thumb { transform: scale(0.985); }
+.wallet__thumb {
+  display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover;
+  border-radius: var(--radius-card); border: 1px solid var(--border); background: var(--surface-2);
+  box-shadow: var(--shadow); transition: transform var(--dur) var(--ease);
+}
+.wallet__thumb--none { display: grid; place-items: center; color: var(--primary); }
+.wallet__thumb--none svg { width: 30%; height: auto; }
+.wallet__label { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); line-height: var(--lh-head); overflow-wrap: anywhere; }
+
+/* Add card form */
+.addcard { display: grid; gap: var(--s-4); }
+.field { display: grid; gap: var(--s-1); }
+.field__label { font-weight: 700; }
+.field__input {
+  min-height: var(--tap); width: 100%; padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--border); border-radius: var(--radius-btn);
+  background: var(--surface-2); color: var(--ink); font: inherit;
+}
+.field__input:focus-visible { border-color: var(--primary); }
+.field__file {
+  display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap-lg); padding: var(--s-2) var(--s-4);
+  border: 2px dashed var(--primary); border-radius: var(--radius-btn); background: var(--surface);
+  color: var(--primary); font-family: var(--font-head); font-weight: 700; cursor: pointer; overflow-wrap: anywhere;
+}
+.field__file svg { flex: none; width: 1.4em; height: 1.4em; }
+.field--file:focus-within .field__file { outline: var(--focus); outline-offset: 3px; }
+.addcard__error { color: var(--danger); font-weight: 700; }
+
+/* Full-screen viewer: above the shell, black in both themes. */
+.viewer {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; grid-template-rows: auto 1fr auto;
+  background: var(--viewer-bg); color: var(--on-viewer);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.viewer__bar { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4); }
+.viewer__title { flex: 1; min-width: 0; color: var(--on-viewer); font-size: var(--fs-lg); overflow-wrap: anywhere; }
+.viewer__close, .viewer__side {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-btn);
+  border: 2px solid var(--on-viewer); background: transparent; color: var(--on-viewer);
+  font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-body); cursor: pointer;
+}
+.viewer__close svg { width: 1.3em; height: 1.3em; }
+.viewer__close:focus-visible, .viewer__side:focus-visible { outline-color: var(--on-viewer); }
+.viewer__stage {
+  min-height: 0; display: grid; place-items: center; overflow: hidden; padding: var(--s-3);
+  touch-action: none; user-select: none;
+}
+.viewer__img {
+  max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--s-3);
+  transform-origin: center; will-change: transform;
+}
+.viewer__foot { display: grid; gap: var(--s-3); padding: var(--s-3) var(--s-4) var(--s-4); justify-items: center; text-align: center; }
+.viewer__number { font-size: var(--fs-lg); font-weight: 700; letter-spacing: 0.05em; }
+.viewer__sides { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); width: 100%; max-width: 420px; }
+.viewer__side[aria-pressed='true'] { background: var(--on-viewer); color: var(--viewer-bg); }
+.viewer__hint { font-size: var(--fs-sm); }

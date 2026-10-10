@@ -7,9 +7,13 @@ import { ErrorState } from './components/ErrorState'
 import { TopBar } from './components/TopBar'
 import { useLock } from './features/lock/useLock'
 import {
-  CardDetailPage, CardsPage, ChatPage, DocumentPage, EmergencyPage, LabPage, LockPage, MedsPage, ProfilePage,
+  ChatPage, DocumentPage, LabPage, ProfilePage,
   RecordsPage, SettingsPage,
 } from './pages/placeholders'
+import { CardDetailPage, CardsPage } from './features/cards/CardsPage'
+import { EmergencyPage } from './features/emergency/EmergencyPage'
+import { LockScreen } from './features/lock/LockScreen'
+import { MedsPage } from './features/meds/MedsPage'
 
 /** Router root: any 401 from the API forgets the profile and goes to /lock. */
 function Root() {
@@ -51,7 +55,7 @@ export const routes: RouteObject[] = [
   {
     element: <Root />,
     children: [
-      { path: '/lock', element: <LockPage /> },
+      { path: '/lock', element: <LockScreen /> },
       { path: '/emergency/:pid', element: <EmergencyPage /> },
       {
         element: <Shell />,

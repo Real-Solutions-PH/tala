@@ -26,6 +26,8 @@
   --danger-soft: #FBE7E5;
   --shimmer: #FFFFFF;
   --scrim: rgb(28 25 23 / 0.5);
+  --viewer-bg: #000000;   /* full-screen card viewer, both themes */
+  --on-viewer: #FFFFFF;
 
   /* Type */
   --font-body: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
