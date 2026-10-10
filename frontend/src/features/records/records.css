@@ -42,9 +42,9 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .summary .stat-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 8em), 1fr)); gap: var(--s-2); }
 .summary .stat-tile {
   display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-4); min-height: 150px; padding: var(--s-4);
-  background: color-mix(in srgb, var(--primary-strong) 94%, var(--on-strong)); border-radius: 22px; box-shadow: none; color: var(--on-strong);
+  background: color-mix(in srgb, var(--primary-strong) 97%, var(--on-strong)); border-radius: 22px; box-shadow: none; color: var(--on-strong);
 }
-.summary .stat-tile--empty { background: color-mix(in srgb, var(--primary-strong) 97%, var(--on-strong)); }
+.summary .stat-tile--empty { background: color-mix(in srgb, var(--primary-strong) 98%, var(--on-strong)); }
 .summary a.stat-tile:active { background: color-mix(in srgb, var(--primary-strong) 88%, var(--dock)); }
 .stat-tile__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-2); width: 100%; }
 .stat-tile__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 50%; background: var(--surface); color: var(--primary-fill); }
@@ -67,6 +67,8 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .timeline { display: grid; gap: var(--s-3); }
 /* Filters: one segmented pill that scrolls sideways, never a wall of chips. */
 .timeline .chip-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: var(--s-1); padding: var(--s-1); background: var(--surface); border-radius: var(--radius-pill); box-shadow: var(--shadow); }
+/* Inside the segmented pill the chips are flat: no ring inside a ring. */
+.timeline .chip { box-shadow: none; }
 .timeline .chip:not([aria-pressed='true']) { border-color: transparent; background: transparent; }
 .timeline .chip-row::-webkit-scrollbar { display: none; }
 .timeline .chip { flex: none; }
@@ -82,6 +84,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .tl-row__icon svg { width: 24px; height: 24px; }
 .tl-row__icon--vaccine { background: var(--accent-soft); color: var(--accent); }
 .tl-row__text { flex: 1; min-width: 0; display: grid; }
+.tl-row__text--skeleton { gap: var(--s-2); }
 .tl-row__title { font-weight: 500; overflow-wrap: anywhere; }
 .tl-row__go { flex: none; width: 1.3em; height: 1.3em; color: var(--muted); }
 .timeline__empty { padding: var(--s-3) 0; }

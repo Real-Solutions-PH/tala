@@ -5,18 +5,18 @@
 :root {
   color-scheme: light; /* light only, like the reference: one look on every phone */
 
-  /* Colour: light. Option A palette: #2D59F0 blue, white, black, #E9F1FC ground, #DDE5EF surface-2. */
+  /* Colour: light. Option A palette: #0F62E6 blue, white, black, #E9F1FC ground, #DDE5EF surface-2. */
   --bg: #E9F1FC;          /* Langit, pale blue ground */
   --surface: #FFFFFF;
   --surface-2: #DDE5EF;   /* inputs, pressed secondary, skeleton base */
   --border: #DDE5EF;
   --ink: #000000;         /* pure black ink */
   --muted: #475467;
-  --primary: #2D59F0;     /* Kapiling Blue */
-  --primary-fill: #2D59F0; /* buttons, bars, selected tab, the mark: same blue in both themes */
+  --primary: #0F62E6;     /* Kapiling Blue */
+  --primary-fill: #0F62E6; /* buttons, bars, selected tab, the mark: same blue in both themes */
   --on-primary: #FFFFFF;
-  --primary-soft: #E2EAFD;
-  --primary-strong: #2D59F0; /* the hero card ground */
+  --primary-soft: #E0ECFE;
+  --primary-strong: #0F62E6; /* the hero card ground */
   --on-strong: #FFFFFF;
   --on-strong-muted: #F0F5FF; /* secondary text on the hero card */
   --gold: #F2A900;        /* Araw Gold: fills only, never text */
@@ -34,7 +34,7 @@
   --dock: #0E1424;        /* the dark bottom dock */
   --dock-icon: #7D879C;   /* inactive dock icons, 5.1:1 on --dock */
   --dock-active: #FFFFFF; /* the current tab's icon */
-  --dock-dot: #6C8BFF;    /* the dot under the current tab, 5.9:1 on --dock */
+  --dock-dot: #5B9BFF;    /* the dot under the current tab, 5.9:1 on --dock */
   --viewer-bg: #000000;   /* full-screen card viewer */
   --on-viewer: #FFFFFF;
 
@@ -66,7 +66,7 @@
   --radius-btn: 16px;
   --radius-pill: 999px;
   --focus: 3px solid var(--primary);
-  --shadow: 0 0 0 1px rgb(45 89 240 / 0.07), 0 1px 2px rgb(45 89 240 / 0.06), 0 12px 32px rgb(45 89 240 / 0.10); /* hairline edge + blue-tinted depth */
+  --shadow: 0 0 0 1px rgb(15 98 230 / 0.07), 0 1px 2px rgb(15 98 230 / 0.06), 0 12px 32px rgb(15 98 230 / 0.10); /* hairline edge + blue-tinted depth */
 
   /* Motion */
   --dur: 200ms;

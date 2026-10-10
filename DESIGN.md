@@ -57,7 +57,7 @@ Technical claims belong only on the laptop's demo panel and in the README.
 
 ## Colour
 
-**Option A palette: `#2D59F0` blue, `#FFFFFF`, `#000000`, `#E9F1FC`, `#DDE5EF`.** A pale-blue ground, white cards,
+**Option A palette: `#0F62E6` blue, `#FFFFFF`, `#000000`, `#E9F1FC`, `#DDE5EF`.** A pale-blue ground, white cards,
 black ink, and one vivid-blue hero card per screen. Clean healthcare at a glance, held to contrast older eyes can
 read. Light only, like the reference: every phone shows the same pale-blue and white look. Ratios are WCAG contrast on `--bg` / `--surface`, as printed by `contrast.ts`.
 
@@ -68,9 +68,9 @@ read. Light only, like the reference: every phone shows the same pale-blue and w
 | `--surface-2` / `--border` | `#DDE5EF` | | Inputs, pressed state, skeleton, edges |
 | `--ink` | `#000000` | 18.5 / 21 | Main text |
 | `--muted` | `#475467` | 6.8 / 7.7 | Secondary text. Nothing lighter carries text |
-| `--primary` / `--primary-fill` (Kapiling Blue) | `#2D59F0` | 4.9 / 5.5 | Buttons, links, selected tab, the mark |
+| `--primary` / `--primary-fill` (Kapiling Blue) | `#0F62E6` | 4.9 / 5.5 | Buttons, links, selected tab, the mark |
 | `--on-primary` | `#FFFFFF` | 5.5 on primary | Text on primary |
-| `--primary-strong` | `#2D59F0` | | The hero card, once per screen |
+| `--primary-strong` | `#0F62E6` | | The hero card, once per screen |
 | `--on-strong` / `--on-strong-muted` | `#FFFFFF` / `#F0F5FF` | 5.5 / 5.1 on hero | Text on the hero |
 | `--gold` (Araw Gold) | `#F2A900` | **never text** (2.0:1 on white) | Fills: mark lens, today |
 | `--on-gold` | `#000000` | 10.5 on gold | Text on gold |

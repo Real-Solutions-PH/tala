@@ -87,7 +87,7 @@ export function HealthSummary() {
   const me = useProfiles().data?.find(p => p.id === profileId)
 
   if (summary.isPending) {
-    return <Card as="section" className="summary"><Skeleton height={28} width="50%" /><Skeleton height={96} /><Skeleton height={96} /></Card>
+    return <Card as="section" className="summary"><Skeleton height={24} width="40%" /><Skeleton height={340} radius={32} /><Skeleton height={140} radius={32} /></Card>
   }
   if (summary.isError) return <ErrorState onRetry={() => { summary.refetch() }} />
 

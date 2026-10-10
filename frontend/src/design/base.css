@@ -190,9 +190,9 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .chip svg { width: 1.2em; height: 1.2em; flex: none; color: var(--primary); }
 .chip:hover { border-color: var(--primary-soft); }
 .chip:active { transform: scale(0.97); background: var(--surface-2); }
-/* Selected: the dark dock pill, like the bottom menu. */
-.chip[aria-pressed='true'] { background: var(--dock); border-color: var(--dock); color: var(--dock-active); box-shadow: none; }
-.chip[aria-pressed='true'] svg { color: var(--dock-active); }
+/* Selected: the brand blue pill. */
+.chip[aria-pressed='true'] { background: var(--primary-fill); border-color: var(--primary-fill); color: var(--on-primary); box-shadow: none; }
+.chip[aria-pressed='true'] svg { color: var(--on-primary); }
 .chip-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 
 /* ---- Skeleton ---- */
