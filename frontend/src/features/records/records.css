@@ -3,7 +3,14 @@
 .back-link { justify-self: start; margin-left: calc(-1 * var(--s-3)); padding-inline: var(--s-3); text-decoration: none; }
 
 /* ---- Health summary ---- */
-.summary { display: grid; gap: var(--s-4); }
+/* The summary is not one big card: the blue results panel leads, the rest are quiet white cards. */
+.summary.card { background: transparent; box-shadow: none; padding: 0; border-radius: 0; }
+.summary { display: grid; gap: var(--s-3); }
+.summary > h2 { order: -2; }
+.summary__group:has(.stat-grid) { order: -1; }
+.summary__group:not(:has(.stat-grid)) { background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); padding: var(--s-5); }
+.summary__group > h3 { font-size: var(--fs-lg); }
+.summary__group:has(.stat-grid) > h3 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .summary__group { display: grid; gap: var(--s-2); }
 .summary__list { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s-1); }
 .summary__badges { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
@@ -19,8 +26,19 @@
 }
 a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .stat-tile--empty { background: var(--surface-2); box-shadow: none; }
-/* Inside the white summary card the tiles go flat on the pale ground: no card inside a card. */
-.summary .stat-tile { background: var(--bg); box-shadow: none; }
+/* The results panel: the one vivid-blue block on Talaan, tiles a lighter blue inside it, all text white. */
+.summary .stat-grid { background: var(--primary-strong); border-radius: var(--radius-card); padding: var(--s-3); gap: var(--s-2);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8em), 1fr)); }
+.summary .stat-tile:first-child { grid-column: 1 / -1; }
+.summary .stat-tile .badge { white-space: normal; }
+.summary .stat-tile { background: rgb(255 255 255 / 0.1); box-shadow: none; border-radius: calc(var(--radius-card) - var(--s-2)); color: var(--on-strong); }
+.summary .stat-tile__name, .summary .stat-tile__unit, .summary .stat-tile .muted, .summary .stat-tile .trend, .summary .stat-tile .trend svg { color: var(--on-strong); }
+.summary .stat-tile--empty { background: rgb(255 255 255 / 0.06); }
+.stat-tile__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2); width: 100%; }
+.stat-tile__head .stat-tile__name { order: 3; flex-basis: 100%; }
+.stat-tile__head .icon-disc { width: 40px; height: 40px; }
+.stat-tile__head .icon-disc svg { width: 20px; height: 20px; }
+.stat-tile__go { flex: none; width: 36px; height: 36px; padding: 8px; border-radius: 50%; background: rgb(255 255 255 / 0.16); color: var(--on-strong); }
 .stat-tile__name { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
 .stat-tile__value { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-2xl); line-height: 1.1; letter-spacing: -0.03em; }
 .stat-tile__unit { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
@@ -31,6 +49,11 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 
 /* ---- Timeline ---- */
 .timeline { display: grid; gap: var(--s-3); }
+/* Filters: one segmented pill that scrolls sideways, never a wall of chips. */
+.timeline .chip-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: var(--s-1); padding: var(--s-1); background: var(--surface); border-radius: var(--radius-pill); box-shadow: var(--shadow); }
+.timeline .chip:not([aria-pressed='true']) { border-color: transparent; background: transparent; }
+.timeline .chip-row::-webkit-scrollbar { display: none; }
+.timeline .chip { flex: none; }
 /* One white list card: rows split by hairlines, no boxes inside boxes. */
 .tl-list { list-style: none; margin: 0; padding: var(--s-1) var(--s-5); display: grid; background: var(--surface); border-radius: var(--radius-card); box-shadow: var(--shadow); }
 .tl-list > li + li { border-top: 1px solid var(--surface-2); }
@@ -39,12 +62,12 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
   color: var(--ink); text-decoration: none;
 }
 .tl-row--link:active { opacity: 0.7; }
-.tl-row__icon { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%; background: var(--surface-2); color: var(--primary); }
+.tl-row__icon { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: var(--surface-2); color: var(--primary); }
 .tl-row__icon svg { width: 24px; height: 24px; }
 .tl-row__icon--vaccine { background: var(--accent-soft); color: var(--accent); }
 .tl-row__text { flex: 1; min-width: 0; display: grid; }
 .tl-row__title { font-weight: 700; overflow-wrap: anywhere; }
-.tl-row__go { flex: none; color: var(--muted); width: 1.3em; height: 1.3em; }
+.tl-row__go { flex: none; width: 40px; height: 40px; padding: 10px; border-radius: 50%; background: var(--surface-2); color: var(--ink); }
 .timeline__empty { padding: var(--s-3) 0; }
 
 /* ---- Upload sheet ---- */

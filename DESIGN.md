@@ -129,7 +129,13 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue, on a warn tint with an icon. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | Four equal items, icon above a word: Kausap · Card · Gamot · Talaan (Chat · Cards · Meds · Records). Each icon sits in a 48 px white circle; the current one is filled blue, its word in blue. The red Emergency button sits in the header on every screen. |
+| Bottom menu | A floating white capsule of four items, icon above a word: Kausap · Card · Gamot · Talaan. The current one is a filled blue pill with white icon and word. |
+| Header | Avatar with a soft ring and a two-line greeting ("Kumusta po," / **name**) that opens the profile sheet (switch profile, Profile, Settings); the red Emergency pill on the right, 64 px tall, on every screen. |
+| Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
+| Metric tile | Icon disc and ↗ circle on top, label, big number with a small unit, trend word, range badge. On Talaan they form the blue results bento. |
+| CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
+| List row | Rounded-square icon thumbnail, title, small grey line, ↗ circle. |
+| Segmented filter | One white pill holding the filter chips, scrolls sideways. |
 
 States: every fetching view has a skeleton, an empty state with a next action, and an error state with Retry.
 

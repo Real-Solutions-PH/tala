@@ -62,7 +62,7 @@
   --radius-btn: 16px;
   --radius-pill: 999px;
   --focus: 3px solid var(--primary);
-  --shadow: 0 1px 2px rgb(45 89 240 / 0.06), 0 12px 32px rgb(45 89 240 / 0.10); /* blue-tinted depth */
+  --shadow: 0 0 0 1px rgb(45 89 240 / 0.07), 0 1px 2px rgb(45 89 240 / 0.06), 0 12px 32px rgb(45 89 240 / 0.10); /* hairline edge + blue-tinted depth */
 
   /* Motion */
   --dur: 200ms;

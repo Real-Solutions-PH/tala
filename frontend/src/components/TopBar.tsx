@@ -37,17 +37,15 @@ export function TopBar() {
       <button type="button" className="topbar__profile" onClick={() => setOpen(true)} aria-haspopup="dialog"
         aria-label={name ? `${name}, ${t('common.switchProfile')}` : t('common.switchProfile')}>
         <Avatar p={me} />
-        <span className="topbar__name">{name}</span>
+        <span className="topbar__who">
+          <span className="topbar__hello" aria-hidden="true">{t('common.hello')}</span>
+          <span className="topbar__name">{name}</span>
+        </span>
       </button>
 
       <Link to={`/emergency/${profileId}`} className="topbar__sos">
         <Siren aria-hidden="true" strokeWidth={2} />
         <span>{t('emergency.button')}</span>
-      </Link>
-
-      <Link to="/settings" className="topbar__iconlink">
-        <Settings aria-hidden="true" strokeWidth={2} />
-        <span>{t('nav.settings')}</span>
       </Link>
 
       <Sheet open={open} onClose={() => setOpen(false)} title={t('common.switchProfile')}>
@@ -62,7 +60,13 @@ export function TopBar() {
             </li>
           ))}
         </ul>}
-        <Button variant="secondary" block icon={UserRound} onClick={() => { setOpen(false); navigate('/profile') }}>{t('common.profile')}</Button>
+        <div className="profile-actions">
+          <Button variant="secondary" block icon={UserRound} onClick={() => { setOpen(false); navigate('/profile') }}>{t('common.profile')}</Button>
+          <Link to="/settings" className="btn btn--secondary btn--block" onClick={() => setOpen(false)}>
+            <Settings aria-hidden="true" strokeWidth={2} />
+            <span>{t('nav.settings')}</span>
+          </Link>
+        </div>
       </Sheet>
     </header>
   )

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { CalendarCheck, ChevronRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
+import { CalendarCheck, ArrowUpRight, FileText, FlaskConical, Syringe, type LucideIcon } from 'lucide-react'
 import { useTimeline } from '../../api/queries'
 import type { TimelineItem, TimelineKind } from '../../api/types'
 import { Chip } from '../../components/Chip'
@@ -40,7 +40,7 @@ function Row({ item }: { item: TimelineItem }) {
   )
   // Lab results and documents are stored documents, so they open the viewer; visits and vaccines have no page.
   return item.kind === 'lab' || item.kind === 'document'
-    ? <Link to={`/records/documents/${item.ref_id}`} className="tl-row tl-row--link">{body}<ChevronRight className="tl-row__go" aria-hidden="true" /></Link>
+    ? <Link to={`/records/documents/${item.ref_id}`} className="tl-row tl-row--link">{body}<ArrowUpRight className="tl-row__go" aria-hidden="true" /></Link>
     : <div className="tl-row">{body}</div>
 }
 

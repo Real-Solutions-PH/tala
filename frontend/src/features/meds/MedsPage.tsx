@@ -8,6 +8,7 @@ import { api } from '../../api/client'
 import { keys, useMeds } from '../../api/queries'
 import type { Med, MedsDay } from '../../api/types'
 import { Badge } from '../../components/Badge'
+import { DisplayTitle } from '../../components/DisplayTitle'
 import { EmptyState } from '../../components/EmptyState'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
@@ -64,6 +65,24 @@ function RefillBadge({ med }: { med: Med | undefined }) {
   const t = useT()
   if (med?.supply_left == null || med.supply_left > REFILL_AT) return null
   return <Badge tone="warn" icon={PackageOpen}>{t('meds.refillSoon', { n: med.supply_left })}</Badge>
+}
+
+/** The one blue block on Gamot: doses taken today as a big number and a meter, and what is due next. */
+function TodayHero({ doses, byId }: { doses: Dose[]; byId: Map<number, Med> }) {
+  const t = useT()
+  const [lang] = useLang()
+  if (doses.length === 0) return null
+  const taken = doses.filter(d => d.taken_at != null).length
+  const next = doses.find(d => d.taken_at == null)
+  const nextName = next ? (next.name ?? byId.get(next.med_id)?.name ?? '') : ''
+  return (
+    <section className="hero" aria-label={t('meds.progress', { taken, total: doses.length })}>
+      <p className="hero__meta" aria-hidden="true">{t('meds.taken')}</p>
+      <p className="hero__value" aria-hidden="true">{taken}<span className="hero__of"> / {doses.length}</span></p>
+      <div className="meter" aria-hidden="true">{doses.map((d, i) => <span key={i} className={d.taken_at != null ? 'is-on' : undefined} />)}</div>
+      <p>{next ? t('meds.next', { name: nextName, time: slotTime(next.slot, lang) }) : t('meds.allTaken')}</p>
+    </section>
+  )
 }
 
 function DoseRow({ dose, med, onToggle }: { dose: Dose; med: Med | undefined; onToggle: (d: Dose) => void }) {
@@ -145,12 +164,13 @@ export function MedsPage() {
 
   return (
     <div className="page meds">
-      <h1>{t('meds.title')}</h1>
+      <DisplayTitle>{t('meds.title')}</DisplayTitle>
       {meds.isPending ? <MedsSkeleton />
         : meds.isError ? <ErrorState message={errorKey(meds.error)} onRetry={() => { meds.refetch() }} />
         : meds.data.meds.length === 0 ? <EmptyState icon={Pill} title={t('meds.emptyTitle')} body={t('meds.emptyBody')} />
         : (
           <>
+            <TodayHero doses={(meds.data.today ?? []) as Dose[]} byId={byId} />
             <section className="meds__section" aria-labelledby="meds-today">
               <h2 id="meds-today" className="meds__h2">{t('meds.todayHeading')}</h2>
               {PERIODS.filter(p => groups[p.id].length > 0).map(({ id, label, icon: Icon }) => (

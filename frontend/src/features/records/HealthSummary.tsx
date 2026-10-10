@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { ArrowDown, ArrowRight, ArrowUp, TriangleAlert, type LucideIcon } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Droplet, FlaskConical, HeartPulse, TriangleAlert, type LucideIcon } from 'lucide-react'
 import { useObservations, useSummary } from '../../api/queries'
 import type { Observation } from '../../api/types'
 import { Badge } from '../../components/Badge'
@@ -43,9 +43,9 @@ const previous = (series: Observation[], latest: Observation) => {
   return before[before.length - 1]
 }
 
-type TileProps = { name: Key; to: string; latest?: Observation; value?: string; series?: Observation[]; flag: 'high' | 'low' | null }
+type TileProps = { name: Key; icon: LucideIcon; to: string; latest?: Observation; value?: string; series?: Observation[]; flag: 'high' | 'low' | null }
 
-function Tile({ name, to, latest, value, series, flag }: TileProps) {
+function Tile({ name, icon: Icon, to, latest, value, series, flag }: TileProps) {
   const t = useT()
   const [lang] = useLang()
   if (!latest) {
@@ -58,7 +58,11 @@ function Tile({ name, to, latest, value, series, flag }: TileProps) {
   }
   return (
     <Link to={to} className="stat-tile">
-      <span className="stat-tile__name">{t(name)}</span>
+      <span className="stat-tile__head">
+        <span className="icon-disc" aria-hidden="true"><Icon strokeWidth={2} /></span>
+        <span className="stat-tile__name">{t(name)}</span>
+        <ArrowUpRight className="stat-tile__go" aria-hidden="true" strokeWidth={2} />
+      </span>
       <span className="stat-tile__value"><span className="num">{value}</span> <span className="stat-tile__unit">{latest.unit}</span></span>
       <time className="stat-tile__date small muted" dateTime={latest.date}>{formatDate(latest.date, lang)}</time>
       {series && <TrendWord trend={trendBetween(previous(series, latest), latest)} />}
@@ -115,11 +119,11 @@ export function HealthSummary() {
         <h3>{t('records.latestResults')}</h3>
         <div className="stat-grid">
           {/* BP's trend follows the systolic (top) number */}
-          <Tile name="records.tileBp" to="/records/labs/bp_systolic" latest={bpS} series={confirmed(sys.data)} flag={bpFlag}
+          <Tile name="records.tileBp" icon={HeartPulse} to="/records/labs/bp_systolic" latest={bpS} series={confirmed(sys.data)} flag={bpFlag}
             value={bpS ? `${fmt(bpS)}${bpD && bpD.date === bpS.date ? `/${fmt(bpD)}` : ''}` : undefined} />
-          <Tile name="records.tileFbs" to="/records/labs/fbs" latest={latest.fbs} value={fmt(latest.fbs)}
+          <Tile name="records.tileFbs" icon={Droplet} to="/records/labs/fbs" latest={latest.fbs} value={fmt(latest.fbs)}
             series={confirmed(fbs.data)} flag={latest.fbs ? rangeFlag(latest.fbs) : null} />
-          <Tile name="records.tileHba1c" to="/records/labs/hba1c" latest={latest.hba1c} value={fmt(latest.hba1c)}
+          <Tile name="records.tileHba1c" icon={FlaskConical} to="/records/labs/hba1c" latest={latest.hba1c} value={fmt(latest.hba1c)}
             series={confirmed(a1c.data)} flag={latest.hba1c ? rangeFlag(latest.hba1c) : null} />
         </div>
       </div>

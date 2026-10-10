@@ -5,6 +5,7 @@ import type { Catalogue } from './index'
 export const tl: Catalogue = {
   common: {
     appName: 'Kapiling',
+    hello: 'Kumusta po,',
     tagline: 'Laging kapiling ang kalusugan mo.',
     save: 'I-save',
     cancel: 'Huwag na',
@@ -154,6 +155,9 @@ export const tl: Catalogue = {
     emptyTitle: 'Wala pa pong gamot',
     emptyBody: 'Idagdag ang mga maintenance ninyo para mapaalalahanan kayo ng Kapiling.',
     todayHeading: 'Ngayong araw',
+    progress: '{taken} sa {total} na gamot ngayong araw ang nainom na',
+    next: 'Susunod: {name}, {time}',
+    allTaken: 'Nainom na po lahat ngayong araw.',
     untaken: 'Hindi na po markadong nainom ang {name}.',
     times: 'Oras: {times}',
   },
