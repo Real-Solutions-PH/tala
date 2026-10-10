@@ -1,5 +1,5 @@
 // The lock screen: pick whose record, enter the 6-digit PIN. The red Emergency button reaches the public
-// emergency card without unlocking (spec section 3). Biometric unlock is added by Task 15.
+// emergency card without unlocking (spec section 3). Biometric unlock sits under the pad.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Delete, Lock, Siren } from 'lucide-react'
@@ -9,6 +9,7 @@ import type { ProfileListItem } from '../../api/types'
 import { ErrorState } from '../../components/ErrorState'
 import { Skeleton } from '../../components/Skeleton'
 import { useT } from '../../i18n'
+import { BiometricUnlock } from './BiometricUnlock'
 import { errorKey } from './errorKey'
 import { useLock } from './useLock'
 import './lock.css'
@@ -180,6 +181,11 @@ export function LockScreen() {
             <span aria-hidden="true">{t('common.delete')}</span>
           </button>
         </div>
+
+        {selected != null && (
+          <BiometricUnlock key={selected} profileId={selected} hasBiometric={list.find(p => p.id === selected)?.has_biometric ?? false}
+            disabled={blocked || busy} onUnlocked={() => navigate('/chat', { replace: true })} />
+        )}
       </div>
     </main>
   )

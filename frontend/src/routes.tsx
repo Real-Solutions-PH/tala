@@ -6,9 +6,7 @@ import { BottomNav } from './components/BottomNav'
 import { ErrorState } from './components/ErrorState'
 import { TopBar } from './components/TopBar'
 import { useLock } from './features/lock/useLock'
-import {
-  ChatPage, ProfilePage, SettingsPage,
-} from './pages/placeholders'
+import { ChatPage } from './features/chat/ChatPage'
 import { CardDetailPage, CardsPage } from './features/cards/CardsPage'
 import { EmergencyPage } from './features/emergency/EmergencyPage'
 import { LockScreen } from './features/lock/LockScreen'
@@ -16,6 +14,8 @@ import { MedsPage } from './features/meds/MedsPage'
 import { DocumentViewer } from './features/records/DocumentViewer'
 import { LabDetail } from './features/records/LabDetail'
 import { RecordsPage } from './features/records/RecordsPage'
+import { ProfilePage } from './features/settings/ProfilePage'
+import { SettingsPage } from './features/settings/SettingsPage'
 
 /** Router root: any 401 from the API forgets the profile and goes to /lock. */
 function Root() {

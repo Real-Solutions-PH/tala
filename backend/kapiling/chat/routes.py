@@ -1,7 +1,6 @@
 """Chat REST: conversations, the AG-UI run stream and cancel."""
 
 import asyncio
-import contextlib
 import logging
 import sqlite3
 import uuid
@@ -18,6 +17,8 @@ from kapiling.auth.deps import Actor, require_owner_of, require_unlocked
 from kapiling.chat import agent, agui, conversations, runs
 from kapiling.db import get_con
 from kapiling.records.routes import _read_image
+from kapiling.voice import tts
+from kapiling.voice.timing import TurnTimer
 
 router = APIRouter(prefix="/api")
 Con = Annotated[sqlite3.Connection, Depends(get_con)]
@@ -29,6 +30,9 @@ MODES = {"text", "voice", "usap", "listen"}
 MAX_AUDIO = 25 * 1024 * 1024
 SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
 BAD_INPUT = "errors.bad_input"
+SPEAK_MAX = 400
+# Seconds to wait for a cancelled agent to unwind before the run moves on without it.
+PUMP_GRACE_S = 2.0
 
 
 def _conversation_or_404(con: sqlite3.Connection, cid: str, actor: Actor) -> None:
@@ -126,7 +130,8 @@ async def post_run(
     prep = await run_in_threadpool(_prepare, con, profile_id, conversation_id, message, lang, mode, files or [], audio)
     run = runs.start(profile_id)
     ctx = agent.RunCtx(con=None, run=run, profile_id=profile_id, conversation_id=prep.conversation_id, lang=lang,
-                       mode=mode, speak=bool(speak), user_text=prep.text, images=prep.images, audio=prep.audio)
+                       mode=mode, speak=bool(speak), user_text=prep.text, images=prep.images, audio=prep.audio,
+                       message_id=uuid.uuid4().hex, timer=TurnTimer())
     queue: asyncio.Queue[dict] = asyncio.Queue()
     # Its own task (EZ-D-017): a client disconnect ends the relay below, never the run.
     run.task = asyncio.create_task(_drive(run, ctx, queue))
@@ -197,59 +202,98 @@ async def _pump(ctx: agent.RunCtx, reply: _Reply, put) -> None:
 
 
 async def _compose(run: runs.Run, ctx: agent.RunCtx, reply: _Reply, put) -> tuple[str, dict | None]:
-    """Run the agent against the cancel event and the composing deadline. Returns (status, error event)."""
-    pump = asyncio.create_task(_pump(ctx, reply, put))
+    """Run the agent against the cancel event and the composing deadline. Returns (status, error event).
+
+    The deadline (R19) bounds the time to the FIRST streamed event (token, step or block): a long answer that is
+    still streaming when it passes runs to the end."""
+    first = asyncio.Event()
+
+    def put_first(ev: dict) -> None:
+        first.set()
+        put(ev)
+
+    pump = asyncio.create_task(_pump(ctx, reply, put_first))
     stop = asyncio.create_task(run.cancel.wait())
-    done, _ = await asyncio.wait({pump, stop}, timeout=run.deadline_s, return_when=asyncio.FIRST_COMPLETED)
-    stop.cancel()
-    if pump in done:
-        exc = pump.exception()
-        if exc is not None:
-            log.error("run %s: agent raised %s", run.id, type(exc).__name__)
-            return "failed", agui.run_error("errors.internal", "internal")
-        return ("failed" if reply.errored else "complete"), None
-    pump.cancel()
-    with contextlib.suppress(BaseException):
-        await pump
-    if stop in done:
+    started = asyncio.create_task(first.wait())
+    try:
+        await asyncio.wait({pump, stop, started}, timeout=run.deadline_s, return_when=asyncio.FIRST_COMPLETED)
+        if not first.is_set() and not pump.done() and not stop.done():
+            log.warning("run %s: nothing streamed within the composing deadline of %ss", run.id, run.deadline_s)
+            return "failed", agui.run_error("errors.timeout", "timeout")
+        await asyncio.wait({pump, stop}, return_when=asyncio.FIRST_COMPLETED)
+        if pump.done() and not run.cancel.is_set():
+            exc = pump.exception()
+            if exc is not None:
+                log.error("run %s: agent raised %s", run.id, type(exc).__name__)
+                return "failed", agui.run_error("errors.internal", "internal")
+            return ("failed" if reply.errored else "complete"), None
         return "stopped", agui.run_error("errors.cancelled", "cancelled")
-    log.warning("run %s: composing deadline of %ss passed", run.id, run.deadline_s)
-    return "failed", agui.run_error("errors.timeout", "timeout")
+    finally:
+        # Also on our own cancellation: never leave the agent running. The wait is bounded, and asyncio.wait
+        # neither raises the pump's exception nor swallows a cancellation of this task.
+        for t in (stop, started):
+            t.cancel()
+        if not pump.done():
+            pump.cancel()
+            await asyncio.wait({pump}, timeout=PUMP_GRACE_S)
 
 
 async def _drive(run: runs.Run, ctx: agent.RunCtx, queue: asyncio.Queue) -> None:
-    """The run task. It always ends the stream with RUN_FINISHED, after the assistant message is saved."""
+    """The run task. It always ends the stream with RUN_FINISHED, after the assistant message is saved; the
+    connection is closed and the run forgotten even when this task is cancelled."""
     put = queue.put_nowait
     cid = ctx.conversation_id
     reply = _Reply()
     con = None
+    status, saved_id = "failed", None
     try:
-        put(agui.run_started(cid, run.id))
-        # Its own connection: the request's connection is closed once the response starts streaming.
-        con = ctx.con = await run_in_threadpool(db.connect)
-        status, error = await _compose(run, ctx, reply, put)
-    except Exception as e:  # noqa: BLE001 - the stream must still finish
-        log.error("run %s: %s", run.id, type(e).__name__)
-        status, error = "failed", agui.run_error("errors.internal", "internal")
-    if reply.open_message:
-        put(agui.text_end(reply.open_message))
-    if error:
-        put(error)
-    mid = reply.message_id or uuid.uuid4().hex
-    try:
-        # Saved BEFORE RUN_FINISHED, which carries this id (VCAC-G-022). Partial text is kept.
-        if con is None:
-            con = await run_in_threadpool(db.connect)
-        await run_in_threadpool(conversations.append, con, cid, "assistant", "".join(reply.text), id=mid,
-                                mode=ctx.mode, status=status, blocks=reply.blocks, steps=reply.steps,
-                                sources=reply.sources)
-    except Exception as e:  # noqa: BLE001
-        log.error("run %s: saving the reply failed: %s", run.id, type(e).__name__)
-        if not error:
-            put(agui.run_error("errors.internal", "internal"))
-        status = "failed"
+        try:
+            put(agui.run_started(cid, run.id))
+            # Its own connection: the request's connection is closed once the response starts streaming.
+            con = ctx.con = await run_in_threadpool(db.connect)
+            status, error = await _compose(run, ctx, reply, put)
+        except Exception as e:  # noqa: BLE001 - the stream must still finish
+            log.error("run %s: %s", run.id, type(e).__name__)
+            status, error = "failed", agui.run_error("errors.internal", "internal")
+        if reply.open_message:
+            put(agui.text_end(reply.open_message))
+        if error:
+            put(error)
+        mid = reply.message_id or ctx.message_id
+        try:
+            # Saved BEFORE RUN_FINISHED, which carries this id (VCAC-G-022). Partial text is kept.
+            if con is None:
+                con = await run_in_threadpool(db.connect)
+            await run_in_threadpool(conversations.append, con, cid, "assistant", "".join(reply.text), id=mid,
+                                    mode=ctx.mode, status=status, blocks=reply.blocks, steps=reply.steps,
+                                    sources=reply.sources)
+            saved_id = mid
+        except Exception as e:  # noqa: BLE001
+            log.error("run %s: saving the reply failed: %s", run.id, type(e).__name__)
+            if not error:
+                put(agui.run_error("errors.internal", "internal"))
+            status = "failed"
+        if saved_id and ctx.timer is not None:
+            try:
+                await run_in_threadpool(ctx.timer.save, con, saved_id)
+            except Exception as e:  # noqa: BLE001 - timings are diagnostics only
+                log.warning("run %s: saving timings failed: %s", run.id, type(e).__name__)
     finally:
-        put(agui.run_finished(cid, run.id, mid, status))
-        if con is not None:
-            con.close()
-        runs.finish(run.id)
+        put(agui.run_finished(cid, run.id, saved_id, status))
+        try:
+            if con is not None:
+                await run_in_threadpool(con.close)
+        finally:
+            runs.finish(run.id)
+
+
+# --- speech --------------------------------------------------------------------------------
+
+@router.post("/speak")
+async def speak(_a: Unlocked, text: Annotated[str, Form()], lang: Annotated[str, Form()]):
+    """Read a reply aloud on demand (the speaker button). No profile data is read, so no owner check."""
+    text = text.strip()
+    if not text or len(text) > SPEAK_MAX or lang not in LANGS:
+        raise HTTPException(400, BAD_INPUT)
+    wav = await run_in_threadpool(tts.speak, text, lang)
+    return Response(wav, media_type="audio/wav", headers={"Cache-Control": "no-store"})

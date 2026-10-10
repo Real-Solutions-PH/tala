@@ -39,7 +39,7 @@ export type AgUiEvent =
 
 // ---- REST ----
 
-export type ProfileListItem = { id: number; nickname: string | null; full_name: string; photo_url: string | null }
+export type ProfileListItem = { id: number; nickname: string | null; full_name: string; photo_url: string | null; has_biometric?: boolean }
 
 export type Profile = {
   id: number; full_name: string; nickname: string | null; birth_date: string; sex: 'F' | 'M' | null

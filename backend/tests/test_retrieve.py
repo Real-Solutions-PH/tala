@@ -95,7 +95,7 @@ def test_lola_blood_sugar_ranks_fbs_first(con, lola, indexed_chunks, models):
 
 
 def test_floor_drops_irrelevant(con, lola, indexed_chunks, models):
-    assert RERANK_FLOOR == 0.0
+    assert RERANK_FLOOR == -3.0  # provisional (Task 12); -5 is still below it
     models.scores = {"pancit": -5.0}
     hits = search(con, lola, "pancit noodles blood sugar")
     ids = {h.document_id for h in hits}

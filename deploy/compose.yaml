@@ -1,0 +1,88 @@
+# Cloud demo on a GPU VM. Fictional data only; self-hosted open models only (no cloud AI API).
+# Not deployed by the repository. Set KAPILING_DOMAIN and MODELS (a host folder filled by scripts/fetch_models.sh), then:
+#   docker compose -f deploy/compose.yaml up -d --build
+name: kapiling-demo
+
+x-gpu: &gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+
+services:
+  llm:  # chat and vision: Qwen3-VL-8B
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    <<: *gpu
+    restart: unless-stopped
+    volumes: ["${MODELS:-./models}:/models:ro"]
+    command: >
+      -m /models/Qwen3VL-8B-Instruct-Q4_K_M.gguf --mmproj /models/mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf
+      --jinja -c 16384 -ngl 99 --host 0.0.0.0 --port 8080
+
+  embed:  # Qwen3-Embedding-0.6B
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    <<: *gpu
+    restart: unless-stopped
+    volumes: ["${MODELS:-./models}:/models:ro"]
+    command: >
+      -m /models/Qwen3-Embedding-0.6B-Q8_0.gguf --embedding --pooling last -c 8192 -ub 8192 -ngl 99
+      --host 0.0.0.0 --port 8082
+
+  rerank:  # bge-reranker-v2-m3
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    <<: *gpu
+    restart: unless-stopped
+    volumes: ["${MODELS:-./models}:/models:ro"]
+    command: >
+      -m /models/bge-reranker-v2-m3-Q8_0.gguf --reranking -c 8192 -ub 8192 -ngl 99
+      --host 0.0.0.0 --port 8083
+
+  whisper:  # whisper.cpp server, large-v3-turbo
+    image: ghcr.io/ggml-org/whisper.cpp:main-cuda
+    <<: *gpu
+    restart: unless-stopped
+    volumes: ["${MODELS:-./models}:/models:ro"]
+    entrypoint: ["whisper-server"]
+    command: >
+      -m /models/ggml-large-v3-turbo.bin -l auto --convert --host 0.0.0.0 --port 8081
+
+  app:
+    build: { context: .., dockerfile: Dockerfile }
+    restart: unless-stopped
+    depends_on: [llm, embed, rerank, whisper]
+    environment:
+      KAPILING_DEMO: "1"          # banner flag, POST /api/demo/reset, pairing off
+      KAPILING_DATA: /data
+      LLM_URL: http://llm:8080
+      EMBED_URL: http://embed:8082
+      RERANK_URL: http://rerank:8083
+      WHISPER_URL: http://whisper:8081
+      DOCLING_ARTIFACTS: /models/docling
+      HF_HOME: /models/hf
+      HF_HUB_OFFLINE: "1"
+    volumes:
+      - demo-data:/data
+      - ${MODELS:-./models}:/models:ro
+    # The Dockerfile CMD already runs uvicorn with --proxy-headers (secure cookies, WebAuthn origin behind Caddy).
+    command: ["uvicorn", "kapiling.main:app", "--host", "0.0.0.0", "--port", "8787", "--proxy-headers", "--forwarded-allow-ips", "*"]
+    expose: ["8787"]
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443"]
+    environment:
+      KAPILING_DOMAIN: ${KAPILING_DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  demo-data:
+  caddy-data:
+  caddy-config:

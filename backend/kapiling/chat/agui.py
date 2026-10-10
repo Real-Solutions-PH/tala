@@ -50,5 +50,6 @@ def run_error(key: str, code: str) -> dict:
     return {"type": "RUN_ERROR", "message": key, "code": code}
 
 
-def run_finished(tid: str, rid: str, mid: str, status: str) -> dict:
+def run_finished(tid: str, rid: str, mid: str | None, status: str) -> dict:
+    """`mid` is the saved assistant message id, or None when saving it failed."""
     return {"type": "RUN_FINISHED", "threadId": tid, "runId": rid, "result": {"messageId": mid, "status": status}}

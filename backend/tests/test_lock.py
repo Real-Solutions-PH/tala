@@ -167,8 +167,8 @@ def test_access_log_owner_only(client, con, lola):
     assert r.status_code == 200
     rows = r.json()
     assert set(rows[0]) == {"actor", "action", "target", "at"}
-    assert [(x["actor"], x["action"]) for x in rows][:3] == [
-        ("Lola Remy", "unlock"), ("Ana Dela Cruz", "unlock"), ("unknown", "unlock_failed")]
+    assert [(x["actor"], x["action"]) for x in rows][:4] == [  # Task 15: the refused read is logged too
+        ("Lola Remy", "unlock"), ("Ana Dela Cruz", "denied"), ("Ana Dela Cruz", "unlock"), ("unknown", "unlock_failed")]
 
 
 def test_access_log_requires_session(client, lola):
@@ -180,7 +180,7 @@ def test_profiles_list_is_public(client, lola, mika):
     assert r.status_code == 200
     rows = {p["id"]: p for p in r.json()}
     assert set(rows) == {lola, mika}
-    assert set(rows[lola]) == {"id", "nickname", "full_name", "photo_url"}
+    assert set(rows[lola]) == {"id", "nickname", "full_name", "photo_url", "has_biometric"}
     assert rows[lola]["nickname"] == "Lola Remy"
 
 
@@ -236,15 +236,23 @@ def test_is_open_matching():
 
 PUBLIC_ROUTES = {("GET", "/api/health"), ("GET", "/api/profiles"), ("POST", "/api/unlock"), ("POST", "/api/lock"),
                  ("GET", "/api/profiles/{pid}/photo"), ("GET", "/api/emergency/{pid}"),
-                 ("GET", "/api/emergency/{pid}/qr.svg")}
+                 ("GET", "/api/emergency/{pid}/qr.svg"),
+                 # Task 15: biometric unlock starts from the lock screen, like POST /unlock.
+                 ("POST", "/api/webauthn/login/options"), ("POST", "/api/webauthn/login/verify"),
+                 # Task 21: cloud demo status and reset (reset is a 404 unless KAPILING_DEMO=1).
+                 ("GET", "/api/demo"), ("POST", "/api/demo/reset")}
 # Locked routes whose path has no {pid}: the handler must compare the actor's profile itself (tested above).
 HANDLER_CHECKED = {("GET", "/api/files/{card_id}/{side}"), ("GET", "/api/access-log"),
                    ("GET", "/api/documents/{doc_id}"), ("GET", "/api/documents/{doc_id}/file"),
                    ("GET", "/api/documents/{doc_id}/page/{n}.png"),
-                   ("POST", "/api/documents/{doc_id}/observations/confirm")}
+                   ("POST", "/api/documents/{doc_id}/observations/confirm"),
+                   # Task 15: these act only on the session's own profile and are owner-only (test_webauthn.py).
+                   ("POST", "/api/webauthn/register/options"), ("POST", "/api/webauthn/register/verify"),
+                   ("DELETE", "/api/webauthn/credentials")}
 # Task 8: conversations are keyed by id, runs take profile_id as a form field (tested in test_agui/test_conversations).
 HANDLER_CHECKED |= {("GET", "/api/conversations/{cid}"), ("PATCH", "/api/conversations/{cid}"),
                     ("DELETE", "/api/conversations/{cid}"), ("POST", "/api/runs"), ("POST", "/api/runs/{run_id}/cancel")}
+HANDLER_CHECKED |= {("DELETE", "/api/documents/{doc_id}/observations/{oid}"), ("POST", "/api/speak")}  # Task 12: _doc_or_404 owner check; speak reads no profile data
 
 
 def test_every_route_is_public_or_locked():
