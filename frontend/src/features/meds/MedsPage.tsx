@@ -67,20 +67,30 @@ function RefillBadge({ med }: { med: Med | undefined }) {
   return <Badge tone="warn" icon={PackageOpen}>{t('meds.refillSoon', { n: med.supply_left })}</Badge>
 }
 
-/** The one blue block on Gamot: doses taken today as a big number and a meter, and what is due next. */
-function TodayHero({ doses, byId }: { doses: Dose[]; byId: Map<number, Med> }) {
+/** Today at a glance, after the reference's top card: doses taken as a value, one bar per dose, and the next dose. */
+function TodayHero({ doses }: { doses: Dose[] }) {
   const t = useT()
   const [lang] = useLang()
   if (doses.length === 0) return null
   const taken = doses.filter(d => d.taken_at != null).length
   const next = doses.find(d => d.taken_at == null)
-  const nextName = next ? (next.name ?? byId.get(next.med_id)?.name ?? '') : ''
   return (
-    <section className="hero" aria-label={t('meds.progress', { taken, total: doses.length })}>
-      <p className="hero__meta" aria-hidden="true">{t('meds.taken')}</p>
-      <p className="hero__value" aria-hidden="true">{taken}<span className="hero__of"> / {doses.length}</span></p>
-      <div className="meter" aria-hidden="true">{doses.map((d, i) => <span key={i} className={d.taken_at != null ? 'is-on' : undefined} />)}</div>
-      <p>{next ? t('meds.next', { name: nextName, time: slotTime(next.slot, lang) }) : t('meds.allTaken')}</p>
+    <section className="today card" aria-label={t('meds.progress', { taken, total: doses.length })}>
+      <div className="today__top" aria-hidden="true">
+        <span className="icon-disc"><Pill /></span>
+        <span className="today__what">
+          <span className="today__label">{t('meds.taken')}</span>
+          <span className="today__value">{taken}<span className="today__of"> / {doses.length}</span></span>
+        </span>
+        <span className="today__chip">{t('meds.todayHeading')}</span>
+      </div>
+      <div className="today__panel" aria-hidden="true">
+        <span className="today__bars">{doses.map((d, i) => <span key={i} className={d.taken_at != null ? 'is-on' : undefined} />)}</span>
+        <span className="today__next">
+          {next ? <><span className="today__value">{slotTime(next.slot, lang)}</span><span className="today__label">{t('common.next')}</span></>
+            : <span className="today__label">{t('meds.allTaken')}</span>}
+        </span>
+      </div>
     </section>
   )
 }
@@ -171,7 +181,7 @@ export function MedsPage() {
         : meds.data.meds.length === 0 ? <EmptyState icon={Pill} title={t('meds.emptyTitle')} body={t('meds.emptyBody')} />
         : (
           <>
-            <TodayHero doses={(meds.data.today ?? []) as Dose[]} byId={byId} />
+            <TodayHero doses={(meds.data.today ?? []) as Dose[]} />
             <section className="meds__section" aria-labelledby="meds-today">
               <h2 id="meds-today" className="meds__h2">{t('meds.todayHeading')}</h2>
               {PERIODS.filter(p => groups[p.id].length > 0).map(({ id, label, icon: Icon }) => (

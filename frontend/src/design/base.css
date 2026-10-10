@@ -36,6 +36,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* UI/UX Pro Max tap-delay: no 300 ms double-tap wait on buttons and links. */
+a, button, [role='button'], summary { touch-action: manipulation; cursor: pointer; }
 
 body {
   margin: 0;
@@ -48,7 +50,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: var(--lh-head); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 500; line-height: var(--lh-head); letter-spacing: -0.02em; margin: 0; color: var(--ink); }
 h1 { font-size: var(--fs-2xl); }
 h2 { font-size: var(--fs-xl); }
 h3 { font-size: var(--fs-lg); font-weight: 600; }
@@ -75,16 +77,13 @@ p { margin: 0; }
   display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2);
   min-height: var(--tap); min-width: var(--tap); padding: var(--s-2) var(--s-5);
   border: 2px solid transparent; border-radius: var(--radius-pill);
-  font: inherit; font-family: var(--font-head); font-weight: 700; font-size: var(--fs-body); line-height: 1.2;
+  font: inherit; font-family: var(--font-head); font-weight: 500; font-size: var(--fs-body); line-height: 1.2;
   text-align: center; cursor: pointer; user-select: none;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .btn svg { flex: none; width: 1.25em; height: 1.25em; }
 .btn--lg { min-height: var(--tap-lg); padding: var(--s-3) var(--s-6); font-size: var(--fs-lg); }
 .btn--block { width: 100%; }
-/* CTA pill: the word leads, the icon sits at the end in its own white circle. */
-.btn--cta { flex-direction: row-reverse; justify-content: space-between; padding: var(--s-2) var(--s-2) var(--s-2) var(--s-6); text-align: left; }
-.btn--cta svg { width: 48px; height: 48px; padding: 12px; border-radius: 50%; background: var(--on-primary); color: var(--primary-fill); }
 .btn--primary { background: var(--primary-fill); color: var(--on-primary); }
 .btn--secondary { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .btn--danger { background: var(--danger-fill); color: var(--on-danger); }
@@ -155,11 +154,11 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 
 /* Round icon disc beside or above a word (never alone). */
 .icon-disc {
-  display: inline-grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); border-radius: 14px;
-  background: var(--surface); color: var(--primary);
+  display: inline-grid; place-items: center; flex: none; width: var(--tap); height: var(--tap); border-radius: 50%;
+  background: var(--surface); color: var(--ink);
 }
 .icon-disc svg { width: 24px; height: 24px; }
-.card .icon-disc { background: var(--surface-2); }
+.card .icon-disc, .list .icon-disc { background: var(--bg); }
 
 /* Capsule bar chart: one rounded bar per reading, the latest labelled. */
 .bars { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-2); height: 140px; }
@@ -185,7 +184,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   min-height: var(--tap); padding: var(--s-2) var(--s-4);
   border: 2px solid transparent; border-radius: var(--radius-pill);
   background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
-  font: inherit; font-weight: 700; cursor: pointer;
+  font: inherit; font-weight: 500; cursor: pointer;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .chip svg { width: 1.2em; height: 1.2em; flex: none; color: var(--primary); }
@@ -341,7 +340,7 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   font-family: var(--font-head); font-weight: 700; line-height: 1.15; text-align: center;
   transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
-/* One round action in the header, after Orionix: Emergency, red, with its glow. */
+/* Header, after the reference: avatar on the left, light round Settings and red round Emergency on the right. */
 .topbar__sos, .topbar__iconlink { width: var(--tap-lg); height: var(--tap-lg); padding: 0; border-radius: 50%; flex: none; }
 .topbar__sos { background: var(--danger-fill); color: var(--on-danger); box-shadow: 0 8px 20px color-mix(in srgb, var(--danger-fill) 30%, transparent); }
 .topbar__sos svg, .topbar__iconlink svg { width: 26px; height: 26px; }
@@ -352,46 +351,37 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .topbar__iconlink:active { background: var(--surface-2); }
 
 .avatar { flex: none; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
-.topbar .avatar { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px color-mix(in srgb, var(--primary-fill) 30%, transparent); }
-/* Two-line greeting, after Orionix: a quiet hello above the bold name. */
-.topbar__who { min-width: 0; display: flex; flex-direction: column; }
-.topbar__hello { font-size: var(--fs-sm); font-weight: 400; color: var(--muted); line-height: 1.2; white-space: nowrap; }
-.topbar__name { font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar .avatar { background: var(--primary-fill); box-shadow: 0 0 0 3px var(--primary-fill); }
 .avatar--initial { display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); font-family: var(--font-head); font-weight: 700; }
 
 .bottomnav {
-  /* The dock, after Orionix and Scanova: one dark capsule, centred, icons only, the current tab lit. */
-  display: flex; align-items: center; gap: var(--s-1);
-  justify-self: center; margin: 0 0 calc(var(--s-4) + env(safe-area-inset-bottom)); padding: var(--s-2);
-  background: var(--dock); border-radius: var(--radius-pill);
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--dock) 35%, transparent);
+  /* Floating round buttons, after the reference: no bar, white circles, the current tab a bigger blue one. */
+  display: flex; justify-content: center; align-items: center; gap: var(--s-3);
+  margin: 0; padding: var(--s-2) var(--s-4) calc(var(--s-4) + env(safe-area-inset-bottom));
+  background: transparent;
 }
 .bottomnav .navitem {
-  position: relative; flex: none; width: var(--tap-lg); height: 56px; min-height: 0; padding: 0; margin: 0;
-  border-radius: var(--radius-pill); background: transparent; color: var(--dock-icon); box-shadow: none;
-  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  flex: none; width: var(--tap-lg); height: var(--tap-lg); min-height: 0; padding: 0; margin: 0; border-radius: 50%;
+  background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
+  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .bottomnav .navitem svg { width: 26px; height: 26px; padding: 0; background: none; box-shadow: none; border-radius: 0; }
-.bottomnav .navitem[aria-current='page'] { color: var(--dock-active); background: color-mix(in srgb, var(--dock-dot) 18%, transparent); }
-.bottomnav .navitem[aria-current='page'] svg { background: none; color: var(--dock-active); }
-/* The lit tab: a small glowing dot under the icon. */
-.bottomnav .navitem[aria-current='page']::after {
-  content: ''; position: absolute; bottom: 7px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%;
-  background: var(--dock-dot); box-shadow: 0 0 8px var(--dock-dot);
-}
-.bottomnav .navitem:active:not([aria-current='page']) { color: var(--dock-active); }
+.bottomnav .navitem[aria-current='page'] { width: 72px; height: 72px; background: var(--primary-fill); color: var(--on-primary); box-shadow: 0 10px 24px color-mix(in srgb, var(--primary-fill) 35%, transparent); }
+.bottomnav .navitem[aria-current='page'] svg { color: var(--on-primary); }
 
 .page { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--s-4) var(--s-5) var(--s-7); display: grid; gap: var(--s-6); align-content: start; }
 /* Every screen title is a display line: big, tight, calm. */
-.page > h1 { font-size: calc(40px * var(--text-scale)); line-height: 1.08; letter-spacing: -0.03em; }
+.page > h1 { font-size: calc(44px * var(--text-scale)); line-height: 1.08; letter-spacing: -0.03em; }
 /* Display titles: regular words, one bold word, like "Mga **gamot**". */
 .display-title { font-weight: 400; }
-.display-title strong { font-weight: 700; }
+.display-title strong { font-weight: 600; }
+strong, b { font-weight: 600; }
+/* Thin icon strokes, as in the reference. */
+.lucide { stroke-width: 1.75; }
 
-/* Section labels: small, uppercase, quiet, so the page title and the numbers lead. */
+/* Section titles, as in the reference ("Blood Pressure"): plain, regular weight, ink. */
 .page section > h2, .page .meds__h2, .summary > h2 {
-  font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 700; line-height: 1.4;
-  letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink);
 }
 .hero__of { font-weight: 400; color: var(--on-strong-muted); }
 
@@ -406,7 +396,6 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
 .emergency__title svg { flex: none; width: 1em; height: 1em; }
 .emergency__name { font-family: var(--font-head); font-weight: 700; font-size: var(--fs-lg); }
 
-.profile-actions { display: grid; gap: var(--s-2); }
 .profile-list { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-2); }
 .profile-list__item {
   width: 100%; display: flex; align-items: center; gap: var(--s-3); min-height: var(--tap-lg); padding: var(--s-2) var(--s-3);
@@ -422,3 +411,15 @@ button.card:active { transform: scale(0.985); background: var(--surface-2); }
   .btn:hover:not(:disabled) { transform: translateY(-1px); }
   button.card:hover, a.stat-tile:hover, .wallet__link:hover .wallet__thumb { transform: translateY(-2px); }
 }
+
+/* UI/UX Pro Max scale-feedback: the nav buttons press in. */
+.bottomnav .navitem:active, .topbar__iconlink:active { transform: scale(0.95); }
+
+/* UI/UX Pro Max stagger-sequence: page sections rise in 40 ms apart, transform + opacity only.
+   Reduced motion turns it off with every other animation. */
+@keyframes rise-in { from { opacity: 0; transform: translateY(12px); } }
+.page > * { animation: rise-in 320ms var(--ease) both; }
+.page > :nth-child(2) { animation-delay: 40ms; }
+.page > :nth-child(3) { animation-delay: 80ms; }
+.page > :nth-child(4) { animation-delay: 120ms; }
+.page > :nth-child(n + 5) { animation-delay: 160ms; }

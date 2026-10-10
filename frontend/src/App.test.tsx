@@ -105,7 +105,7 @@ describe('shell', () => {
     expect(within(nav).getByRole('link', { name: 'Talaan' }).getAttribute('aria-current')).toBe('page')
   })
 
-  test('the header has the profile name and a large red Emergency button; Settings sits in the profile sheet', async () => {
+  test('the header has the profile name, a large red Emergency button and Settings', async () => {
     renderAt('/chat')
     const header = await screen.findByRole('banner')
     expect(await within(header).findByText('Lola Remy')).toBeTruthy()
@@ -118,7 +118,7 @@ describe('shell', () => {
     expect(css.match(/\n\.topbar__sos, \.topbar__iconlink\s*\{([^}]*)\}/)?.[1]).toMatch(/min-height:\s*var\(--tap-lg\)/)
     expect(css.match(/\n\.topbar__sos\s*\{([^}]*)\}/)?.[1]).toMatch(/background:\s*var\(--danger(-fill)?\)/)
     expect(sos.getAttribute('href')).toBe('/emergency/1')
-    expect(within(header).getByRole('link', { name: /Settings/, hidden: true }).closest('dialog')).toBeTruthy()
+    expect(within(header).getByRole('link', { name: /Settings/ })).toBeTruthy()
   })
 
   test('one plane: header, main and nav are the only rows of the shell, main is the only scroller', async () => {

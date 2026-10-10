@@ -39,7 +39,7 @@
   --on-viewer: #FFFFFF;
 
   /* Type */
-  --font-body: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Figtree', system-ui, sans-serif; /* SF Pro everywhere, as in the reference */
   --font-head: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Figtree', 'Atkinson Hyperlegible Next', system-ui, sans-serif; /* SF Pro on Apple devices, self-hosted Figtree elsewhere */
   --text-scale: 1;        /* 1 / 1.25 / 1.5, set on <html> from Settings */
   --fs-sm: calc(15px * var(--text-scale));

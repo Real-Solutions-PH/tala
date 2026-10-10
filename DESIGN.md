@@ -85,15 +85,16 @@ blue ground. Gold reads only 3:1 against the vivid blue, so the hero's progress 
 
 ## Type
 
-| Role | Face | Sizes |
-|---|---|---|
-| Display, headings, buttons | **SF Pro** (system, on iPhone and Mac) → self-hosted **Figtree** 400/600/700 elsewhere | display 40 (regular with one bold word), 34 / 28 / 22 |
-| Body, numbers | **Atkinson Hyperlegible Next** 400/700 | 18 body, 15 small; tabular figures for numbers |
+The reference (the blue health shot) is set in **SF Pro** throughout, in light weights, and Kapiling follows it.
 
-SF Pro is Apple's system face: it is used through `-apple-system`, never shipped, because its licence covers
-Apple platforms only. On Android, Lola's usual phone, Figtree stands in. Thin and Light weights are not used:
-they vanish for older eyes. Atkinson Hyperlegible Next stays for reading text because 1/l/I and 0/O never look
-alike, which matters for medicine names and lab values. All faces work offline. All sizes multiply by `--text-scale`.
+| Role | Face | Weights |
+|---|---|---|
+| Everything | **SF Pro** via `-apple-system` on iPhone and Mac, self-hosted **Figtree** elsewhere (Android) | 400 text and labels, 500 values and buttons, 600 the one bold word of a title |
+
+- Screen titles are 44 px display lines: regular words, one bold word (`DisplayTitle`).
+- Section titles are 22 px, weight 500, sentence case ("Kalagayan", "Ngayong araw").
+- Icons are Lucide at a 1.75 stroke.
+- Atkinson Hyperlegible Next is no longer used for reading text (a deliberate trade for the reference look). Its files stay in `public/fonts` if we switch back.
 
 ## Shape, space and motion
 
@@ -129,10 +130,10 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | `ErrorState` | Plain-words message and a Retry button (`role="alert"`). |
 | `Disclaimer` | The fixed safety reminder from the catalogue on a soft amber card; its icon sits in a white rounded square. No coloured side bar. Never model wording. |
 | `Mark` | The brand mark inline (follows the theme). `eyes` turns it into Usap; `state` is idle, listening, thinking or speaking. |
-| Bottom menu | The dock, after Orionix and Scanova (Behance): one dark `--dock` capsule centred above the home indicator, four icons (Kausap · Card · Gamot · Talaan). Inactive icons `--dock-icon` grey, the current one white on a faint blue pill with a glowing `--dock-dot` under it. Words are screen-reader labels and tooltips. |
-| Header | A 48 px ringed avatar and a two-line greeting ("Kumusta po," / **name**) that opens the profile sheet (switch profile, Profile, Settings); one red round Emergency button on the right, 64 px, on every screen. |
+| Bottom menu | After the reference: four floating 64 px white circles, no bar; the current tab is a 72 px blue circle with a white icon. Words are screen-reader labels and tooltips (the reference has none; UI/UX Pro Max `nav-label-icon` flags this as a known trade). |
+| Header | After the reference: a 56 px avatar on a blue ring (opens the profile sheet) on the left; a light-grey Settings circle and a red Emergency circle, 64 px, on the right. No visible words. |
 | Display title | `DisplayTitle`: regular words, the last word bold ("Mga **gamot**"). |
-| Metric tile | After the dataviz stat-tile contract: rounded-square icon, label, semibold value in proportional figures with a small unit, a sparkline of up to 12 past readings (latest as the one solid dot), date, trend word, range badge; the whole tile is the link. On Talaan they form the blue results bento. |
+| Metric tile | After the reference's blue panel: a white name pill on top, then 2 x 2 lighter-blue tiles; each has a white circle icon top-left, the reading small top-right (short date, value, a white ⚠ Mataas when out of range) and the name large bottom-left. The 4th tile is Allergies. |
 | CTA (`.btn--cta`) | Full-width pill, the word leading and the icon at the end in a white circle. |
 | List row | Rounded-square icon thumbnail, title, small grey line, a quiet chevron. Dose rows add the time as a small chip and the taken action as a full-width tinted bar. |
 | Segmented filter | One white pill holding the filter chips, scrolls sideways. |
@@ -147,3 +148,7 @@ States: every fetching view has a skeleton, an empty state with a next action, a
 - Errors say what to do next: "Hindi ko po narinig. Pakiulit po."
 - Fixed safety text (disclaimer, refusals, emergency labels) comes from the catalogue, never from the model.
 - Avoid with users: AI, model, data, upload, sync, cloud.
+
+## Process
+
+UI/UX Pro Max (`ui-ux-pro-max`) is the QA checklist: accessibility, touch, tap delay (`touch-action: manipulation`), press scale, staggered entrance (40 ms, transform and opacity only, off under reduced motion), one primary CTA per screen. Where the reference and the checklist disagree (icon-only nav), the reference wins and the trade is written down here.
