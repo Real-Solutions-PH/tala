@@ -98,7 +98,7 @@ The reference (the blue health shot) is set in **SF Pro** throughout, in light w
 
 ## Shape, space and motion
 
-- Radius: 32 px for cards, sheets and the hero card, 16 px for toasts and the disclaimer, fully round (pill) for buttons, chips, badges and icon discs.
+- Radius: a calm scale, never bubbly. 6 px for tiny badges and chart tooltips, 10 px for inputs inside cards, tags and thumbnails, 14 px for buttons, chips, text fields and segmented controls, 20 px for cards, tiles and stat tiles, 28 px for the top corners of sheets and dialogs. The pill (999 px) and circles are only for avatars, status and count badges, toggle tracks and the round Emergency button.
 - Spacing scale: 4, 8, 12, 16, 24, 32, 48.
 - Touch: `--tap` 48 px, `--tap-lg` 64 px.
 - One shadow level (`--shadow`), tinted navy so depth reads blue, not grey. No gradients, no glass.
@@ -114,7 +114,7 @@ All live in `frontend/src/components/` and use tokens only (the contrast script 
 | Component | Rule |
 |---|---|
 | `Button` | Variants primary (blue fill), secondary (tinted: soft blue fill, blue text, no outline), danger, ghost. Lifts 1 px on hover where there is a mouse. `md` ≥ 48 px, `lg` ≥ 64 px. Optional Lucide icon beside the word. Pressed state scales to 0.97. `loading` shows a spinner, disables the button and sets `aria-busy`. |
-| `Card` | White surface, no border, 32 px radius, one blue-tinted shadow. `flat` drops the shadow. |
+| `Card` | White surface, no border, 20 px radius, one blue-tinted shadow. `flat` drops the shadow. |
 | Hero card (`.hero`) | One per screen, one idea, one action. On Kausap it is Usap (`.hero--center`): the talking mark in a white `.orb` with white signal rings, one question, one white Magsalita pill. |
 | Meter (`.meter`) | One capsule per dose, filled `--primary-fill` when taken (white on the hero). |
 | List card (`.list`) | One white card of quiet rows: icon disc, title, small grey line, chevron or status badge; hairlines between rows. |

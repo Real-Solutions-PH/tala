@@ -10,7 +10,7 @@
 .ecard__back {
   /* Round back button, after the reference, as a light disc on the red band. */
   justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg);
-  border-radius: 50%; background: color-mix(in srgb, var(--on-danger) 18%, transparent); color: var(--on-danger);
+  border-radius: var(--radius-btn); background: color-mix(in srgb, var(--on-danger) 18%, transparent); color: var(--on-danger);
 }
 .ecard__back svg { width: 26px; height: 26px; }
 .ecard__back:focus-visible { outline-color: var(--on-danger); }
@@ -18,7 +18,7 @@
 .ecard__title svg { flex: none; width: 1em; height: 1em; }
 .ecard__who { display: flex; align-items: center; gap: var(--s-4); }
 .ecard__photo {
-  flex: none; width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+  flex: none; width: 88px; height: 88px; border-radius: var(--radius-btn); object-fit: cover;
   border: 3px solid var(--on-danger); background: var(--surface);
 }
 .ecard__photo--none { display: grid; place-items: center; color: var(--danger); }
@@ -55,7 +55,7 @@
 .ecard__contact { display: grid; gap: var(--s-1); }
 .ecard__call {
   display: flex; align-items: center; justify-content: center; gap: var(--s-2); margin-top: var(--s-2);
-  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill);
+  min-height: var(--tap-lg); padding: var(--s-2) var(--s-4); border-radius: var(--radius-btn);
   background: var(--primary-fill); color: var(--on-primary); text-decoration: none;
   font-family: var(--font-head); font-weight: 600; font-size: var(--fs-lg); line-height: 1.2; text-align: center;
 }
@@ -64,5 +64,5 @@
 
 .ecard__qrbox { display: grid; justify-items: center; gap: var(--s-3); padding-bottom: var(--s-3); }
 /* The QR stays black on white in both themes so any camera reads it. */
-.ecard__qr { width: min(100%, 300px); aspect-ratio: 1; background: var(--on-viewer); padding: var(--s-2); border-radius: var(--s-2); }
+.ecard__qr { width: min(100%, 300px); aspect-ratio: 1; background: var(--on-viewer); padding: var(--s-2); border-radius: var(--radius-sm); }
 .ecard__qrhint { text-align: center; font-weight: 600; color: var(--ink); }

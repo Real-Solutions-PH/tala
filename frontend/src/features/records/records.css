@@ -1,7 +1,7 @@
 /* Records screens. Colours come only from tokens.css. */
 
 /* Back: a light round button with an arrow, after the reference. */
-.back-link { justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg); border-radius: 50%; background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color: var(--ink); }
+.back-link { justify-self: start; display: grid; place-items: center; width: var(--tap-lg); height: var(--tap-lg); border-radius: var(--radius-btn); background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color: var(--ink); }
 .back-link svg { width: 26px; height: 26px; }
 .back-link:active { transform: scale(0.95); }
 
@@ -38,16 +38,16 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .summary__group:has(.stat-grid) { background: var(--primary-strong); border-radius: var(--radius-card); padding: var(--s-3); gap: var(--s-3); box-shadow: 0 16px 40px color-mix(in srgb, var(--primary-fill) 30%, transparent); }
 .panel__top { display: flex; align-items: center; justify-content: space-between; }
 .name-pill { display: inline-flex; align-items: center; gap: var(--s-3); padding: 6px var(--s-5) 6px 6px; border-radius: var(--radius-pill); background: var(--surface); color: var(--ink); font-family: var(--font-head); font-size: var(--fs-lg); font-weight: 500; }
-.name-pill img, .name-pill__dot { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--primary-soft); }
+.name-pill img, .name-pill__dot { width: 44px; height: 44px; border-radius: var(--radius-btn); object-fit: cover; background: var(--primary-soft); }
 .summary .stat-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 8em), 1fr)); gap: var(--s-2); }
 .summary .stat-tile {
   display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-4); min-height: 150px; padding: var(--s-4);
-  background: color-mix(in srgb, var(--primary-strong) 97%, var(--on-strong)); border-radius: 22px; box-shadow: none; color: var(--on-strong);
+  background: color-mix(in srgb, var(--primary-strong) 97%, var(--on-strong)); border-radius: var(--radius-card); box-shadow: none; color: var(--on-strong);
 }
 .summary .stat-tile--empty { background: color-mix(in srgb, var(--primary-strong) 98%, var(--on-strong)); }
 .summary a.stat-tile:active { background: color-mix(in srgb, var(--primary-strong) 88%, var(--dock)); }
 .stat-tile__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-2); width: 100%; }
-.stat-tile__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 50%; background: var(--surface); color: var(--primary-fill); }
+.stat-tile__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: var(--radius-btn); background: var(--surface); color: var(--primary-fill); }
 .stat-tile__icon svg { width: 22px; height: 22px; }
 .stat-tile__icon--danger { color: var(--danger); }
 .stat-tile__now { display: flex; flex-direction: column; align-items: flex-end; text-align: right; font-size: var(--fs-sm); line-height: 1.3; color: var(--on-strong-muted); }
@@ -66,7 +66,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 /* ---- Timeline ---- */
 .timeline { display: grid; gap: var(--s-3); }
 /* Filters: one segmented pill that scrolls sideways, never a wall of chips. */
-.timeline .chip-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: var(--s-1); padding: var(--s-1); background: var(--surface); border-radius: var(--radius-pill); box-shadow: var(--shadow); }
+.timeline .chip-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: var(--s-1); padding: var(--s-1); background: var(--surface); border-radius: var(--radius-btn); box-shadow: var(--shadow); }
 /* Inside the segmented pill the chips are flat: no ring inside a ring. */
 .timeline .chip { box-shadow: none; }
 .timeline .chip:not([aria-pressed='true']) { border-color: transparent; background: transparent; }
@@ -83,7 +83,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
   color: var(--ink); text-decoration: none;
 }
 .tl-row--link:active { opacity: 0.7; }
-.tl-row__icon { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: 50%; background: var(--bg); color: var(--ink); }
+.tl-row__icon { flex: none; display: grid; place-items: center; width: var(--tap); height: var(--tap); border-radius: var(--radius-btn); background: var(--bg); color: var(--ink); }
 .tl-row__icon svg { width: 24px; height: 24px; }
 .tl-row__icon--vaccine { background: var(--accent-soft); color: var(--accent); }
 .tl-row__text { flex: 1; min-width: 0; display: grid; }
@@ -118,7 +118,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .lab-chart .recharts-tooltip-cursor { fill: color-mix(in srgb, var(--primary-fill) 10%, transparent); }
 .lab-chart .lab-chart__last { fill: var(--ink); font-family: var(--font-head); font-weight: 500; font-size: var(--fs-body); }
 .lab-chart .recharts-default-tooltip {
-  background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--s-2);
+  background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--radius-sm);
   color: var(--ink); font-size: var(--fs-sm);
 }
 .lab-chart .recharts-tooltip-item { color: var(--ink) !important; }
@@ -166,7 +166,7 @@ a.stat-tile:active { transform: scale(0.98); background: var(--surface-2); }
 .review { display: grid; gap: var(--s-3); }
 .review__title { font-size: var(--fs-lg); }
 .review__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
-.review-row { display: grid; gap: var(--s-2); padding: var(--s-4); border: 0; border-radius: 20px; background: var(--bg); }
+.review-row { display: grid; gap: var(--s-2); padding: var(--s-4); border: 0; border-radius: var(--radius-card); background: var(--bg); }
 .review-row__label { font-weight: 500; }
 .review-row__value { font-size: var(--fs-lg); font-weight: 500; }
 .review-row__fields { display: grid; gap: var(--s-2); }

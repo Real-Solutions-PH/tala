@@ -29,14 +29,14 @@
   /* Grows to the full row width when it wraps under the name, so the target is as big as it can be. */
   flex: 1 0 100%; justify-content: center; display: inline-flex; align-items: center; gap: var(--s-2);
   min-height: var(--tap-lg); min-width: var(--tap-lg); padding: var(--s-2) var(--s-4) var(--s-2) var(--s-3);
-  border: 2px solid transparent; border-radius: var(--radius-pill); background: var(--bg); color: var(--ink);
+  border: 2px solid transparent; border-radius: var(--radius-btn); background: var(--bg); color: var(--ink);
   font: inherit; font-family: var(--font-head); font-weight: 500; line-height: 1.2; cursor: pointer;
   transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
 }
 .dose__check:active { transform: scale(0.97); }
 .dose__box {
   flex: none; display: grid; place-items: center; width: 32px; height: 32px;
-  border: 3px solid currentColor; border-radius: 8px;
+  border: 3px solid currentColor; border-radius: var(--radius-sm);
 }
 .dose__box svg { width: 22px; height: 22px; }
 .dose__check[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
@@ -58,7 +58,7 @@
 .today__value { font-family: var(--font-head); font-size: var(--fs-xl); font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; }
 .today__of { color: var(--muted); font-weight: 400; }
 .today__chip { flex: none; padding: var(--s-2) var(--s-4); border-radius: var(--radius-pill); background: var(--bg); color: var(--muted); font-size: var(--fs-sm); }
-.today__panel { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-4) var(--s-5); border-radius: 22px; background: color-mix(in srgb, var(--bg) 60%, var(--surface)); }
+.today__panel { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); padding: var(--s-4) var(--s-5); border-radius: var(--radius-card); background: color-mix(in srgb, var(--bg) 60%, var(--surface)); }
 .today__bars { display: flex; align-items: flex-end; gap: 6px; height: 44px; }
 .today__bars > span { width: 6px; height: 100%; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--surface-2) 70%, var(--muted)); }
 .today__bars > .is-on { background: var(--primary-fill); }
